@@ -1,0 +1,14 @@
+{
+  "name": "rust_ray_tracer_challenge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.rs",
+  "scripts": {
+    "test": "cargo test",
+    "run": "cargo run",
+    "build": "cargo build",
+    "format": "rustfmt"
+  },
+  "author": "swiftaff",
+  "license": "MIT"
+}
