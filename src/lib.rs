@@ -12,8 +12,11 @@ type Vector = Tuple;
 type Point = Tuple;
 
 pub struct Color {
+    #[allow(dead_code)]
     red: f64,
+    #[allow(dead_code)]
     green: f64,
+    #[allow(dead_code)]
     blue: f64
 }
 
@@ -56,9 +59,43 @@ pub fn tuple_add(a: &Tuple, b: &Tuple) -> Tuple {
     if t.w > 1 {
         println!("tuple_add: can't add two points!");
         tuple(a.x, a.y, a.z, a.w)
+        //TODO - create an error?
     } else {
         t
     }
+}
+
+pub fn vector_negate(a: &Tuple) -> Tuple {
+    let t = tuple(-a.x, -a.y, -a.z, a.w);
+    if t.w == 1 {
+        println!("tuple_negate: can't negate a point");
+        tuple(a.x, a.y, a.z, a.w)
+        //TODO - create an error?
+    } else {
+        t
+    }
+}
+
+pub fn tuple_scalar_multiply(a: &Tuple, s: f64) -> Tuple {
+    let x = a.x * s;
+    let y = a.y * s;
+    let z = a.z * s;
+    tuple(x,y,z,a.w)
+}
+
+pub fn tuple_scalar_divide(a: &Tuple, s: f64) -> Tuple {
+    let x = a.x / s;
+    let y = a.y / s;
+    let z = a.z / s;
+    tuple(x,y,z,a.w)
+}
+
+pub fn vector_magnitude(a: &Tuple) -> f64 {
+    let x = a.x * a.x;
+    let y = a.y *a.y;
+    let z = a.z * a.z;
+    let w = a.w * a.w;
+    x+y+z+f64::from(w)
 }
 
 pub fn tick(env: Environment, proj: Projectile) -> Projectile {
@@ -271,9 +308,94 @@ mod tests {
     #[test]
     fn test_tuple_add_point_point_equals_error() {
         //adding two tuples: point + point = first point (and console error)
+        //TODO - create an error?
         let p1 = point(3.0,-2.0,5.0);
         let p2 = point(-2.0,3.0,1.0);
         let a = tuple_add(&p1,&p2);
         assert_eq!(get_bool_tuples_are_equal(&a,&p1),true);
+    }
+
+    //vector_negate
+    #[test]
+    fn test_negate_vector_equals_neg_vector() {
+        //negate a vector = -vector
+        let v = vector(1.0,-2.0,3.0);
+        let v1 = vector_negate(&v);
+        let v2 = vector(-1.0,2.0,-3.0);
+        assert_eq!(get_bool_tuples_are_equal(&v1,&v2),true);
+    }
+
+    #[test]
+    fn test_negate_vector_equals_error() {
+        //negate a point = orig vector (and console error)
+        //TODO - create an error?
+        let p = point(1.0,-2.0,3.0);
+        let p1 = vector_negate(&p);
+        assert_eq!(get_bool_tuples_are_equal(&p1,&p),true);
+    }
+
+    //tuple_scalar_multiply
+    #[test]
+    fn test_multiply_vector_by_scalar() {
+        //Multiplying a vector by a scalar
+        let v = vector(1.0,-2.0,3.0);
+        let v1 = tuple_scalar_multiply(&v, 3.5);
+        let v2 = vector(3.5, -7.0, 10.5);
+        assert_eq!(get_bool_tuples_are_equal(&v1,&v2),true);
+    }
+
+    #[test]
+    fn test_multiply_point_by_scalar() {
+        //Multiplying a point by a scalar
+        let p = point(1.0,-2.0,3.0);
+        let p1 = tuple_scalar_multiply(&p, 3.5);
+        let p2 = point(3.5, -7.0, 10.5);
+        assert_eq!(get_bool_tuples_are_equal(&p1,&p2),true);
+    }
+    
+    #[test]
+    fn test_multiply_vector_by_fraction() {
+        //Multiplying a vector by a fraction
+        let v = vector(1.0,-2.0,3.0);
+        let v1 = tuple_scalar_multiply(&v, 0.5);
+        let v2 = vector(0.5, -1.0, 1.5);
+        assert_eq!(get_bool_tuples_are_equal(&v1,&v2),true);
+    }
+
+    #[test]
+    fn test_multiply_point_by_fraction() {
+        //Multiplying a point by a fraction
+        let p = point(1.0,-2.0,3.0);
+        let p1 = tuple_scalar_multiply(&p, 0.5);
+        let p2 = point(0.5, -1.0, 1.5);
+        assert_eq!(get_bool_tuples_are_equal(&p1,&p2),true);
+    }
+    
+    //tuple_divide
+    #[test]
+    fn test_dividing_vector_by_scalar() {
+        //Dividing a vector by a scalar
+        let v = vector(1.0,-2.0,3.0);
+        let v1 = tuple_scalar_divide(&v, 2.0);
+        let v2 = vector(0.5, -1.0, 1.5);
+        assert_eq!(get_bool_tuples_are_equal(&v1,&v2),true);
+    }
+
+    #[test]
+    fn test_dividing_point_by_scalar() {
+        //Dividing a vector by a scalar
+        let p = point(1.0,-2.0,3.0);
+        let p1 = tuple_scalar_divide(&p, 2.0);
+        let p2 = point(0.5, -1.0, 1.5);
+        assert_eq!(get_bool_tuples_are_equal(&p1,&p2),true);
+    }
+
+    //vector_magnitude
+    #[test]
+    fn test_get_magnitude_of_vector() {
+        //Computing the magnitude ofvector(1, 0, 0)
+        let v = vector(1.0,0.0,0.0);
+        let a = vector_magnitude(&v);
+        assert_eq!(get_bool_numbers_are_equal(a,1.0),true);
     }
 }
