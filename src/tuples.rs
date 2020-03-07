@@ -2,32 +2,36 @@ use std::f64;
 
 const EPSILON: f64 = 0.00001;
 
+#[derive(Debug)]
 pub struct Tuple {
-  x: f64,
-  y: f64,
-  z: f64,
-  w: u32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: u32,
 }
-type Vector = Tuple;
-type Point = Tuple;
+pub type Vector = Tuple;
+pub type Point = Tuple;
 
+#[derive(Debug)]
 pub struct Color {
     #[allow(dead_code)]
-    red: f64,
+    pub red: f64,
     #[allow(dead_code)]
-    green: f64,
+    pub green: f64,
     #[allow(dead_code)]
-    blue: f64
+    pub blue: f64
 }
 
+#[derive(Debug)]
 pub struct Projectile {
-    position: Point,
-    velocity: Vector
+    pub position: Point,
+    pub velocity: Vector
 }
 
+#[derive(Debug)]
 pub struct Environment {
-    gravity: Vector,
-    wind: Vector
+    pub gravity: Vector,
+    pub wind: Vector
 }
 
 pub fn tuple(x:f64,y:f64,z:f64,w:u32) -> Tuple {
@@ -194,7 +198,7 @@ pub fn get_bool_colors_are_equal(c1: &Color, c2: &Color) -> bool {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
+use super::*;
 
     #[test]
     fn test_point_is_a_tuplew1() {
@@ -727,3 +731,4 @@ mod tests {
         assert_eq!(get_bool_tuples_are_equal(&r, &a),true);
     }
 }
+
