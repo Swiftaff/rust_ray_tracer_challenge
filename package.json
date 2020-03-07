@@ -7,7 +7,8 @@
     "test": "cargo watch -x test",
     "run": "cargo run",
     "build": "cargo build",
-    "format": "rustfmt"
+    "format": "rustfmt",
+    "program_fire_canon": "H:\\Development\\rust_ray_tracer_challenge\\target\\debug\\rust_ray_tracer_challenge.exe"
   },
   "author": "swiftaff",
   "license": "MIT"

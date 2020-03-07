@@ -171,9 +171,9 @@ pub fn colors_scalar_multiply(a: &Color, s: f64) -> Color {
 }
 
 
-pub fn tick(env: Environment, proj: Projectile) -> Projectile {
-    let v = proj.velocity;
-    let p = proj.position;
+pub fn tick(env: &Environment, proj: &Projectile) -> Projectile {
+    let v = &proj.velocity;
+    let p = &proj.position;
     let position = tuple_add(&p, &v);
     let env_vector = tuple_add(&env.gravity, &env.wind);
     let velocity = tuple_add(&v, &env_vector);
@@ -292,7 +292,7 @@ use super::*;
         let v = vector(1.0,2.0,3.0);
         let proj = projectile(p,v);
 
-        let a = tick(e,proj);
+        let a = tick(&e,&proj);
         assert_eq!(a.position.x, 1.0);
         assert_eq!(a.position.y, 2.0);
         assert_eq!(a.position.z, 3.0);
