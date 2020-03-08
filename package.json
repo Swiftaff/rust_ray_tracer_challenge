@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/main.rs",
   "scripts": {
-    "test": "cargo watch -x test",
+    "watch_test": "cargo watch -x test",
+    "watch_build": "cargo watch -x build",
     "run": "cargo run",
     "build": "cargo build",
     "format": "rustfmt",
