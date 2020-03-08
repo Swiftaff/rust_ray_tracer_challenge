@@ -5,11 +5,11 @@
   "main": "src/main.rs",
   "scripts": {
     "watch_test": "cargo watch -x test",
-    "watch_build": "cargo watch -x build",
+    "watch_fmt_build": "cargo watch -x fmt -x build",
     "run": "cargo run",
     "build": "cargo build",
-    "format": "rustfmt",
-    "program_fire_canon": "H:\\Development\\rust_ray_tracer_challenge\\target\\debug\\rust_ray_tracer_challenge.exe"
+    "format": "cargo fmt",
+    "program_fire_canon": "set RUST_BACKTRACE=1 && H:\\Development\\rust_ray_tracer_challenge\\target\\debug\\rust_ray_tracer_challenge.exe"
   },
   "author": "swiftaff",
   "license": "MIT"

@@ -7,23 +7,32 @@ pub struct PixelCanvas {
     pub width: u32,
     pub height: u32,
     pub length: u32,
-    pub data: Vec<tuples::Color>
+    pub data: Vec<tuples::Color>,
 }
 
-pub fn pixel_canvas(width:u32,height:u32, default_color:tuples::Color) -> PixelCanvas {
+pub fn pixel_canvas(width: u32, height: u32, default_color: tuples::Color) -> PixelCanvas {
     let length = width * height;
     let mut data = Vec::with_capacity(length as usize);
     for _i in 0..length {
         data.push(default_color);
     }
-    PixelCanvas { data:data, width:width, height:height, length:length }
+    PixelCanvas {
+        data: data,
+        width: width,
+        height: height,
+        length: length,
+    }
 }
 
 pub fn pixel_write(canvas: PixelCanvas, x: u32, y: u32, col: tuples::Color) -> PixelCanvas {
-    let index = (canvas.width * y + x) as usize;
+    let index = (canvas.width * y + x) as u32;
     let mut new_canvas = canvas;
-    new_canvas.data[index] = col;
-    new_canvas
+    if index < new_canvas.length {
+        new_canvas.data[index as usize] = col;
+        new_canvas
+    } else {
+        new_canvas
+    }
 }
 /*
 fn pixel_get(canvas: PixelCanvas, x: u32, y: u32) -> tuples::Color {
@@ -94,29 +103,31 @@ fn color_clamp(col:Color) {
 
 #[cfg(test)]
 mod tests {
-use super::*;
+    use super::*;
 
     #[test]
     fn test_pixel_canvas() {
         //Creating a pixelCanvas
-        let c = tuples::color(1.0,2.0,3.0);
-        let pc =pixel_canvas(10,20,c);
+        let c = tuples::color(1.0, 2.0, 3.0);
+        let pc = pixel_canvas(10, 20, c);
         assert_eq!(pc.width, 10);
         assert_eq!(pc.height, 20);
         assert_eq!(pc.length, 200);
-        assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[11], &c),true)
+        assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[11], &c), true)
     }
 
     #[test]
     fn test_pixel_write() {
         //Writing a pixel to pixelCanvas
-        let black = tuples::color(0.0,0.0,0.0);
-        let mut pc = pixel_canvas(10,20,black);
-        assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[32], &black),true);
+        let black = tuples::color(0.0, 0.0, 0.0);
+        let mut pc = pixel_canvas(10, 20, black);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&pc.data[32], &black),
+            true
+        );
 
-        let red = tuples::color(1.0,0.0,0.0);
-        pc = pixel_write(pc,2,3,red);
-        assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[32], &red),true)
+        let red = tuples::color(1.0, 0.0, 0.0);
+        pc = pixel_write(pc, 2, 3, red);
+        assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[32], &red), true)
     }
-
 }
