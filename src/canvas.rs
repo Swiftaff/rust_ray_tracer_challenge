@@ -44,15 +44,17 @@ fn pixel_get(canvas: PixelCanvas, x: u32, y: u32) -> tuples::Color {
     }
     canvas
 }
-
+*/
 pub fn ppm_get(c: PixelCanvas) -> String {
+    let header = String::from("P3\n");
     let w = c.width.to_string();
     let h = c.height.to_string();
-    let limit = "255";
-    let data = str_from_canvas_data_get(c, 255);
-    "P3\n" + w + " " + h + "\n" + limit + "\n" + data
+    let limit = format!("{}\n",CLAMP_LIMIT);
+    //let data = str_from_canvas_data_get(c, 255);
+    //header + w + space + h + newline + limit + newline + data
+    format!("{}{} {}\n{}", header, w,h, limit)
 }
-
+/*
 fn str_from_canvas_data_get(c: PixelCanvas, clampLimit:u32) {
     let mut colorStringArray = [];
     let mut rowArray = [];
@@ -176,5 +178,24 @@ mod tests {
         let str1 = String::from("This is a test");
         let str2 = String::from("This is a test");
         assert_eq!(str_remove_trailing_space(str1), str2)
+    }
+
+    #[test]
+    fn test_ppm_get_header() {
+        //Constructing the PPM header
+        let black = tuples::color(0.0, 0.0, 0.0);
+        let c = pixel_canvas(5,3, black);
+        let mut ppm = ppm_get(c);
+        ppm.truncate(11);
+        assert_eq!(ppm, "P3\n5 3\n255\n")
+    }
+
+    #[test]
+    fn test_ppm_get_tail() {
+        //Constructing the PPM header
+        let black = tuples::color(0.0, 0.0, 0.0);
+        let c = pixel_canvas(5,3, black);
+        let ppm = ppm_get(c);
+        assert_eq!(ppm.chars().last().unwrap(), '\n')
     }
 }
