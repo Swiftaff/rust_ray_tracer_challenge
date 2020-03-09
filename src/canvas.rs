@@ -36,34 +36,36 @@ pub fn pixel_write(canvas: PixelCanvas, x: u32, y: u32, col: tuples::Color) -> P
         new_canvas
     }
 }
-/*
+
 fn pixel_get(canvas: PixelCanvas, x: u32, y: u32) -> tuples::Color {
     let index = canvas.width * y + x;
+    let mut col = tuples::color(1.0,0.8,0.8);//default bright pink?
     if index >= 0 && index < canvas.length {
-        canvas.data[index];
+        col = canvas.data[index as usize];
     }
-    canvas
+    col
 }
-*/
+
 pub fn ppm_get(c: PixelCanvas) -> String {
     let header = String::from("P3\n");
     let w = c.width.to_string();
     let h = c.height.to_string();
-    let limit = format!("{}\n",CLAMP_LIMIT);
-    //let data = str_from_canvas_data_get(c, 255);
+    let limit = format!("\n{}\n",CLAMP_LIMIT);
+    let data = str_from_canvas_data_get(c);
     //header + w + space + h + newline + limit + newline + data
-    format!("{}{} {}\n{}", header, w,h, limit)
+    format!("{}{} {}{}{}", header, w,h, limit,data)
 }
-/*
-fn str_from_canvas_data_get(c: PixelCanvas, clampLimit:u32) {
-    let mut colorStringArray = [];
-    let mut rowArray = [];
-    let mut data = Vec::with_capacity(length as usize);
-    for _i in 0..length {
-        data.push(default_color);
-    }
 
-    c.data.map(col => colorStringArray.push(getString_fromColor(col, clampLimit)));
+fn str_from_canvas_data_get(c: PixelCanvas) -> String {
+    let mut data_string:String = String::from("");
+    for i in 0..c.length {
+        let col = c.data[i as usize];
+        let col_str = str_from_color_get(col);
+        data_string = format!("{}{}",data_string,col_str);
+    }
+    data_string
+    /*
+    c.data.map(col => colorStringArray.push(getString_fromColor(col)));
     for (let rowStartIndex = 0; rowStartIndex < c.width * c.height; rowStartIndex += c.width) {
         let thisRow = "";
         for (let colIndex = 0; colIndex < c.width; colIndex++) {
@@ -84,8 +86,9 @@ fn str_from_canvas_data_get(c: PixelCanvas, clampLimit:u32) {
         }
     }
     return rowArray.join("\n") + "\n";
+    */
 }
-*/
+
 pub fn str_from_color_get(col: tuples::Color) -> String {
     let color_clamped_to_zero_to_one = color_clamp(col);
     let r = (color_clamped_to_zero_to_one.red * CLAMP_LIMIT as f64) as u32;
@@ -198,4 +201,21 @@ mod tests {
         let ppm = ppm_get(c);
         assert_eq!(ppm.chars().last().unwrap(), '\n')
     }
+
+    #[test]
+    fn test_str_from_canvas_data_get() {
+        //Constructing the PPM pixel data
+        let black = tuples::color(0.0, 0.0, 0.0);
+        let mut pc = pixel_canvas(5,3, black);
+        let c1 = tuples::color(1.5, 0.0, 0.0);
+        let c2 = tuples::color(0.0, 0.5, 0.0);
+        let c3 = tuples::color(-0.5, 0.0, 1.0);
+        pc = pixel_write(pc, 0, 0, c1);
+        pc = pixel_write(pc, 2, 1, c2);
+        pc = pixel_write(pc, 4, 2, c3);
+        let ppm = ppm_get(pc);
+        let just_data: String = ppm.chars().skip(11).take(ppm.len()-11).collect();
+        assert_eq!(just_data, "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 127 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n")
+    }
+
 }
