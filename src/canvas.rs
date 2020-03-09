@@ -52,8 +52,13 @@ pub fn ppm_get(c: PixelCanvas) -> String {
 }
 
 fn str_from_canvas_data_get(c: PixelCanvas, clampLimit:u32) {
-    let colorStringArray = [];
-    let rowArray = [];
+    let mut colorStringArray = [];
+    let mut rowArray = [];
+    let mut data = Vec::with_capacity(length as usize);
+    for _i in 0..length {
+        data.push(default_color);
+    }
+
     c.data.map(col => colorStringArray.push(getString_fromColor(col, clampLimit)));
     for (let rowStartIndex = 0; rowStartIndex < c.width * c.height; rowStartIndex += c.width) {
         let thisRow = "";
@@ -76,30 +81,36 @@ fn str_from_canvas_data_get(c: PixelCanvas, clampLimit:u32) {
     }
     return rowArray.join("\n") + "\n";
 }
-
-fn str_from_color_get(col: Pixel_color, clampLimit:u32) {
-    let colorClampedToZeroToOne = color_clamp(col);
-    let r =         (colorClampedToZeroToOne.red * clampLimit) as u32;
-    return (
- +
-        " " +
-        (colorClampedToZeroToOne.green * clampLimit) +
-        " " +
-        (colorClampedToZeroToOne.blue * clampLimit) +
-        " "
-    );
+*/
+pub fn str_from_color_get(col: tuples::Color, clamp_limit: u32) -> String {
+    let color_clamped_to_zero_to_one = color_clamp(col);
+    let r = (color_clamped_to_zero_to_one.red * clamp_limit as f64) as u32;
+    let g = (color_clamped_to_zero_to_one.green * clamp_limit as f64) as u32;
+    let b = (color_clamped_to_zero_to_one.blue * clamp_limit as f64) as u32;
+    format!("{} {} {} ", r, g, b)
 }
 
-fn color_clamp(col:Color) {
-    if col.red < 0 {col.red = 0;}
-    if col.green < 0 {col.green = 0;}
-    if col.blue < 0 {col.blue = 0;}
-    if col.red > 1 {col.red = 1;}
-    if col.green > 1 {col.green = 1;}
-    if col.blue > 1 {col.blue = 1;}
+fn color_clamp(mut col: tuples::Color) -> tuples::Color {
+    if col.red < 0.0 {
+        col.red = 0.0;
+    }
+    if col.green < 0.0 {
+        col.green = 0.0;
+    }
+    if col.blue < 0.0 {
+        col.blue = 0.0;
+    }
+    if col.red > 1.0 {
+        col.red = 1.0;
+    }
+    if col.green > 1.0 {
+        col.green = 1.0;
+    }
+    if col.blue > 1.0 {
+        col.blue = 1.0;
+    }
     col
 }
-*/
 
 #[cfg(test)]
 mod tests {

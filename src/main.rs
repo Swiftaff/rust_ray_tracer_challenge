@@ -28,10 +28,10 @@ fn main() {
     let start = Instant::now();
     while c.height as f64 > proj.position.y {
         let y = (c.height as f64 - proj.position.y) as u32;
-        println!(
-            "Tick: {:?}. Projectile Position ({:?},{:?}). Velocity:{:?}",
-            tick_count, proj.position.x, proj.position.y, proj.velocity
-        );
+        //println!(
+        //    "Tick: {:?}. Projectile Position ({:?},{:?}). Velocity:{:?}",
+        //    tick_count, proj.position.x, proj.position.y, proj.velocity
+        //);
         c = canvas::pixel_write(c, proj.position.x as u32, y, orange);
         tick_count = tick_count + 1;
         if orange.red > 0.01 {
@@ -44,7 +44,11 @@ fn main() {
     }
 
     let duration = start.elapsed();
-    println!("Ticks: {:?}. Time elapsed is: {:?}", tick_count, duration);
+    let test_string = test_color(c, 0, tuples::color(0.5, 0.5, 0.5));
+    println!(
+        "Ticks: {:?}. Time elapsed is: {:?} ***{}***",
+        tick_count, duration, test_string
+    );
     let f = save();
     let _f = match f {
         Ok(file) => file,
@@ -57,4 +61,9 @@ fn save() -> std::io::Result<()> {
     let d = utc.format("%Y-%m-%d-%H-%M").to_string();
     fs::write(format!("images/firecanon{}.ppm", d), b"Lorem ipsum")?;
     Ok(())
+}
+
+fn test_color(mut c: canvas::PixelCanvas, i: u32, col: tuples::Color) -> String {
+    c = canvas::pixel_write(c, 0, 0, col);
+    canvas::str_from_color_get(c.data[i as usize], 255)
 }
