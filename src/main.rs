@@ -65,5 +65,5 @@ fn save() -> std::io::Result<()> {
 
 fn test_color(mut c: canvas::PixelCanvas, i: u32, col: tuples::Color) -> String {
     c = canvas::pixel_write(c, 0, 0, col);
-    canvas::str_from_color_get(c.data[i as usize], 255)
+    canvas::str_from_color_get(c.data[i as usize])
 }

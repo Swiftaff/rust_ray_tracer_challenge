@@ -2,6 +2,8 @@
 
 use crate::tuples;
 
+const CLAMP_LIMIT: u32 = 255;
+
 #[derive(Debug, Clone)]
 pub struct PixelCanvas {
     pub width: u32,
@@ -82,11 +84,11 @@ fn str_from_canvas_data_get(c: PixelCanvas, clampLimit:u32) {
     return rowArray.join("\n") + "\n";
 }
 */
-pub fn str_from_color_get(col: tuples::Color, clamp_limit: u32) -> String {
+pub fn str_from_color_get(col: tuples::Color) -> String {
     let color_clamped_to_zero_to_one = color_clamp(col);
-    let r = (color_clamped_to_zero_to_one.red * clamp_limit as f64) as u32;
-    let g = (color_clamped_to_zero_to_one.green * clamp_limit as f64) as u32;
-    let b = (color_clamped_to_zero_to_one.blue * clamp_limit as f64) as u32;
+    let r = (color_clamped_to_zero_to_one.red * CLAMP_LIMIT as f64) as u32;
+    let g = (color_clamped_to_zero_to_one.green * CLAMP_LIMIT as f64) as u32;
+    let b = (color_clamped_to_zero_to_one.blue * CLAMP_LIMIT as f64) as u32;
     format!("{} {} {} ", r, g, b)
 }
 
@@ -110,6 +112,13 @@ fn color_clamp(mut col: tuples::Color) -> tuples::Color {
         col.blue = 1.0;
     }
     col
+}
+
+fn str_remove_trailing_space(mut s: String) -> String {
+    if s.len() > 0 && s.chars().last().unwrap() == ' ' {
+        s.truncate(s.len() - 1);
+    }
+    s
 }
 
 #[cfg(test)]
@@ -140,5 +149,32 @@ mod tests {
         let red = tuples::color(1.0, 0.0, 0.0);
         pc = pixel_write(pc, 2, 3, red);
         assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[32], &red), true)
+    }
+
+    #[test]
+    fn test_str_from_color_get() {
+        //getString_fromColor - returns clamped color string of 3 numbers, separated and ending with a space
+        let c1 = tuples::color(1.5, 0.0, 0.0);
+        let c2 = tuples::color(0.0, 0.5, 0.0);
+        let c3 = tuples::color(-0.5, 0.0, 1.0);
+        assert_eq!(str_from_color_get(c1), "255 0 0 ");
+        assert_eq!(str_from_color_get(c2), "0 127 0 ");
+        assert_eq!(str_from_color_get(c3), "0 0 255 ")
+    }
+
+    #[test]
+    fn test_str_remove_trailing_space() {
+        //getString_removeTrailingSpace - removes space if there is one
+        let str1 = String::from("This is a test ");
+        let str2 = String::from("This is a test");
+        assert_eq!(str_remove_trailing_space(str1), str2)
+    }
+
+    #[test]
+    fn test_str_remove_trailing_space_no_effect() {
+        //getString_fromColor - returns clamped color string of 3 numbers, separated and ending with a space
+        let str1 = String::from("This is a test");
+        let str2 = String::from("This is a test");
+        assert_eq!(str_remove_trailing_space(str1), str2)
     }
 }
