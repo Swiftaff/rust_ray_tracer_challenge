@@ -1,5 +1,8 @@
 use std::f64;
 
+#[allow(dead_code)]
+const EPSILON: f64 = 0.00001;
+
 #[derive(Debug)]
 pub struct Tuple {
     pub x: f64,
@@ -102,9 +105,6 @@ pub fn tick(env: &Environment, proj: &Projectile) -> Projectile {
     //position.y = Math.floor(position.y);
     projectile(position, velocity)
 }
-
-#[allow(dead_code)]
-const EPSILON: f64 = 0.00001;
 
 #[allow(dead_code)]
 pub fn tuple_subtract(a: &Tuple, b: &Tuple) -> Tuple {
