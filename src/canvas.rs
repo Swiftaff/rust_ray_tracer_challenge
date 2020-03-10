@@ -52,41 +52,35 @@ pub fn ppm_get(c: PixelCanvas) -> String {
     let h = c.height.to_string();
     let limit = format!("\n{}\n",CLAMP_LIMIT);
     let data = str_from_canvas_data_get(c);
-    //header + w + space + h + newline + limit + newline + data
     format!("{}{} {}{}{}", header, w,h, limit,data)
 }
 
 fn str_from_canvas_data_get(c: PixelCanvas) -> String {
     let mut data_string:String = String::from("");
-    for i in 0..c.length {
-        let col = c.data[i as usize];
-        let col_str = str_from_color_get(col);
-        data_string = format!("{}{}",data_string,col_str);
+    let w = c.width;
+    for row_start_index in (0..c.length).step_by(w as usize) {
+        let mut this_row = String::from("");
+        for col_index in 0..w {
+            let col = c.data[(row_start_index + col_index) as usize];
+            let col_str = str_from_color_get(col);
+            this_row=format!("{}{}",this_row,col_str);
+        }
+        let mut last_space_index: usize = 70;
+        if this_row.len() > *&last_space_index as usize {
+            let this_row_truncated:String = this_row.chars().take(*&last_space_index as usize).collect();
+            if this_row_truncated.chars().last().unwrap() != ' '{
+                last_space_index = match this_row_truncated.rfind(' '){
+                    None=> *&last_space_index,
+                    Some(x)=>x
+                }
+            }
+            let next_row_overflow = this_row_truncated[..&last_space_index+1].to_string();
+            data_string=format!("{}{}\n{}\n",data_string,str_remove_trailing_space(this_row_truncated), str_remove_trailing_space(next_row_overflow));
+        } else {
+            data_string=format!("{}{}\n",data_string,str_remove_trailing_space(this_row));
+        }
     }
     data_string
-    /*
-    c.data.map(col => colorStringArray.push(getString_fromColor(col)));
-    for (let rowStartIndex = 0; rowStartIndex < c.width * c.height; rowStartIndex += c.width) {
-        let thisRow = "";
-        for (let colIndex = 0; colIndex < c.width; colIndex++) {
-            thisRow += colorStringArray[rowStartIndex + colIndex];
-        }
-        if (thisRow.length > 70) {
-            let lastSpaceIndex = thisRow.substring(0, 70);
-            if (thisRow.charAt(70) !== " ") {
-                lastSpaceIndex = thisRow.substring(0, 70).lastIndexOf(" ");
-            }
-            let nextRowOverflow = thisRow.substring(lastSpaceIndex + 1);
-            thisRow = thisRow.substring(0, lastSpaceIndex);
-            rowArray.push(getString_removeTrailingSpace(thisRow));
-
-            rowArray.push(getString_removeTrailingSpace(nextRowOverflow));
-        } else {
-            rowArray.push(getString_removeTrailingSpace(thisRow));
-        }
-    }
-    return rowArray.join("\n") + "\n";
-    */
 }
 
 pub fn str_from_color_get(col: tuples::Color) -> String {
