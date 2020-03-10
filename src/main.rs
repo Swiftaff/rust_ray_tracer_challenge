@@ -25,7 +25,7 @@ fn main() {
     println!("Environment Wind {:?}", env.wind);
     println!(" {}", c.length);
 
-    let start = Instant::now();
+    let start1 = Instant::now();
     while c.height as f64 > proj.position.y {
         let y = (c.height as f64 - proj.position.y) as u32;
         //println!(
@@ -43,23 +43,31 @@ fn main() {
         proj = tuples::tick(&env, &proj);
     }
 
-    let duration = start.elapsed();
-    let test_string = test_color(c, 0, tuples::color(0.5, 0.5, 0.5));
+    let duration1 = start1.elapsed();
     println!(
-        "Ticks: {:?}. Time elapsed is: {:?} ***{}***",
-        tick_count, duration, test_string
+        "Ticks: {:?}. Time to calculate data: {:?}",
+        tick_count, duration1
     );
-    let f = save();
+
+    let start2 = Instant::now();
+    let data = canvas::ppm_get(c);
+    let duration2 = start2.elapsed();
+    println!("Time to generate file: {:?}", duration2);
+
+    let start3 = Instant::now();
+    let f = save(data);
     let _f = match f {
         Ok(file) => file,
         Err(error) => panic!("Problem saving the file: {:?}", error),
     };
+    let duration3 = start3.elapsed();
+    println!("Time to save file: {:?}", duration3);
 }
 
-fn save() -> std::io::Result<()> {
+fn save(string: String) -> std::io::Result<()> {
     let utc = Utc::now();
     let d = utc.format("%Y-%m-%d-%H-%M").to_string();
-    fs::write(format!("images/firecanon{}.ppm", d), b"Lorem ipsum")?;
+    fs::write(format!("images/firecanon{}.ppm", d), string)?;
     Ok(())
 }
 
