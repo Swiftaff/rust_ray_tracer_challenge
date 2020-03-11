@@ -1,5 +1,3 @@
-//use std::f64;
-
 use crate::tuples;
 
 const CLAMP_LIMIT: u32 = 255;
