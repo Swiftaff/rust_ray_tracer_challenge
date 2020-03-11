@@ -66,7 +66,7 @@ fn str_row_get(row: u32, c: &PixelCanvas) -> String {
 }
 
 fn str_from_canvas_data_get(c: PixelCanvas) -> String {
-    let mut max_cols: u32 = 70;
+    let max_cols: u32 = 70;
     let w = c.width;
     let h = c.height;
     let mut data_string: String = String::from("");
