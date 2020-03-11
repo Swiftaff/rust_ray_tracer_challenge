@@ -1,5 +1,6 @@
 mod canvas;
 mod fire_canon;
+mod matrices;
 mod tuples;
 
 fn main() {
