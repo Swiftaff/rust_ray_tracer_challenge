@@ -3,7 +3,7 @@ use std::f64;
 #[allow(dead_code)]
 const EPSILON: f64 = 0.00001;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Tuple {
     pub x: f64,
     pub y: f64,
@@ -92,6 +92,15 @@ pub fn tuple_add(a: &Tuple, b: &Tuple) -> Tuple {
     //TODO - create an error?
     } else {
         t
+    }
+}
+
+pub fn tuple_multiply(a: Tuple, s: f64) -> Tuple {
+    Tuple {
+        x: a.x * s,
+        y: a.y * s,
+        z: a.z * s,
+        w: a.w,
     }
 }
 

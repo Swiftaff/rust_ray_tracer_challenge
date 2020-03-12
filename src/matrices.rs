@@ -1,15 +1,15 @@
 use crate::tuples;
 
-const IDENTITY_MATRIX: Matrix4 = [
+pub const IDENTITY_MATRIX: Matrix4 = [
     [1.0, 0.0, 0.0, 0.0],
     [0.0, 1.0, 0.0, 0.0],
     [0.0, 0.0, 1.0, 0.0],
     [0.0, 0.0, 0.0, 1.0],
 ];
 
-type Matrix2 = [[f64; 2]; 2];
-type Matrix3 = [[f64; 3]; 3];
-type Matrix4 = [[f64; 4]; 4];
+pub type Matrix2 = [[f64; 2]; 2];
+pub type Matrix3 = [[f64; 3]; 3];
+pub type Matrix4 = [[f64; 4]; 4];
 
 pub fn create_matrix4() -> Matrix4 {
     let row: [f64; 4] = [0.0; 4];
