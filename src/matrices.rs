@@ -82,6 +82,18 @@ pub fn get_bool_equal_m2(m1: Matrix2, m2: Matrix2) -> bool {
     areEqual
 }
 
+fn get_bool_matrix4_is_invertible(m: Matrix4) -> bool {
+    !tuples::get_bool_numbers_are_equal(matrix4_determinant(m), 0.0)
+}
+
+fn get_bool_matrix3_is_invertible(m: Matrix3) -> bool {
+    !tuples::get_bool_numbers_are_equal(matrix3_determinant(m), 0.0)
+}
+
+fn get_bool_matrix2_is_invertible(m: Matrix2) -> bool {
+    !tuples::get_bool_numbers_are_equal(matrix2_determinant(m), 0.0)
+}
+
 pub fn matrix4_multiply(m1: Matrix4, m2: Matrix4) -> Matrix4 {
     let mut result = create_matrix4();
     for y in 0..4 {
@@ -216,6 +228,21 @@ pub fn matrix3_multiply(m1: Matrix3, m2: Matrix3) -> Matrix3 {
         }
     }
     result
+}
+
+pub fn matrix4_inverse(m: Matrix4) -> Matrix4 {
+    if get_bool_matrix4_is_invertible(m) {
+        let mut result = create_matrix4();
+        for y in 0..4 {
+            for x in 0..4 {
+                let c = matrix4_cofactor(m, y, x);
+                result[x][y] = c / matrix4_determinant(m);
+            }
+        }
+        result
+    } else {
+        m
+    }
 }
 
 #[cfg(test)]
@@ -530,6 +557,137 @@ mod tests {
         );
         assert_eq!(
             tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), -4071.0),
+            true
+        );
+    }
+
+    #[test]
+    fn test_matrix4_is_invertible() {
+        //Testing an invertible matrix for invertability
+        let m1 = [
+            [6.0, 4.0, 4.0, 4.0],
+            [5.0, 5.0, 7.0, 6.0],
+            [4.0, -9.0, 3.0, -7.0],
+            [9.0, 1.0, 7.0, -6.0],
+        ];
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), -2120.0),
+            true
+        );
+        assert_eq!(get_bool_matrix4_is_invertible(m1), true)
+    }
+
+    #[test]
+    fn test_matrix4_is_invertible_not() {
+        //Testing a noninvertible matrix for invertability
+        let m1 = [
+            [-4.0, 2.0, -2.0, -3.0],
+            [9.0, 6.0, 2.0, 6.0],
+            [0.0, -5.0, 1.0, -5.0],
+            [0.0, 0.0, 0.0, 0.0],
+        ];
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), 0.0),
+            true
+        );
+        assert_eq!(get_bool_matrix4_is_invertible(m1), false)
+    }
+
+    #[test]
+    fn test_matrix4_inverse() {
+        //Calculating the inverse of a matrix
+        let m1 = [
+            [-5.0, 2.0, 6.0, -8.0],
+            [1.0, -5.0, 1.0, 8.0],
+            [7.0, 7.0, -6.0, -7.0],
+            [1.0, -3.0, 7.0, 4.0],
+        ];
+        let m2 = matrix4_inverse(m1);
+        let result = [
+            [0.21805, 0.45113, 0.2406, -0.04511],
+            [-0.80827, -1.45677, -0.44361, 0.52068],
+            [-0.07895, -0.22368, -0.05263, 0.19737],
+            [-0.52256, -0.81391, -0.30075, 0.30639],
+        ];
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), 532.0),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 2, 3), -160.0),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(m2[3][2], -160.0 / 532.0),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 3, 2), 105.0),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(m2[2][3], 105.0 / 532.0),
+            true
+        );
+        assert_eq!(get_bool_equal_m4(m2, result), true);
+    }
+
+    #[test]
+    fn test_matrix4_inverse_again() {
+        //Calculating the inverse of another matrix
+        let m1 = [
+            [8.0, -5.0, 9.0, 2.0],
+            [7.0, 5.0, 6.0, 1.0],
+            [-6.0, 0.0, 9.0, 6.0],
+            [-3.0, 0.0, -9.0, -4.0],
+        ];
+        let m2 = matrix4_inverse(m1);
+        let result = [
+            [-0.15385, -0.15385, -0.28205, -0.53846],
+            [-0.07692, 0.12308, 0.02564, 0.03077],
+            [0.35897, 0.35897, 0.4359, 0.92308],
+            [-0.69231, -0.69231, -0.76923, -1.92308],
+        ];
+        assert_eq!(get_bool_equal_m4(m2, result), true);
+    }
+
+    #[test]
+    fn test_matrix4_inverse_third() {
+        //Calculating the inverse of another matrix
+        let m1 = [
+            [9.0, 3.0, 0.0, 9.0],
+            [-5.0, -2.0, -6.0, -3.0],
+            [-4.0, 9.0, 6.0, 4.0],
+            [-7.0, 6.0, 6.0, 2.0],
+        ];
+        let m2 = matrix4_inverse(m1);
+        let result = [
+            [-0.04074, -0.07778, 0.14444, -0.22222],
+            [-0.07778, 0.03333, 0.36667, -0.33333],
+            [-0.02901, -0.1463, -0.10926, 0.12963],
+            [0.17778, 0.06667, -0.26667, 0.33333],
+        ];
+        assert_eq!(get_bool_equal_m4(m2, result), true);
+    }
+
+    #[test]
+    fn test_matrix4_multiply_by_inverse() {
+        //Multiplying a product by its inverse
+        let m1 = [
+            [3.0, -9.0, 7.0, 3.0],
+            [3.0, -8.0, 2.0, -9.0],
+            [-4.0, 4.0, 4.0, 1.0],
+            [-6.0, 5.0, -1.0, 1.0],
+        ];
+        let m2 = [
+            [8.0, 2.0, 2.0, 2.0],
+            [3.0, -1.0, 7.0, 0.0],
+            [7.0, 0.0, 5.0, 4.0],
+            [6.0, -2.0, 0.0, 5.0],
+        ];
+        let m3 = matrix4_multiply(m1, m2);
+        assert_eq!(
+            get_bool_equal_m4(matrix4_multiply(m3, matrix4_inverse(m2)), m1),
             true
         );
     }
