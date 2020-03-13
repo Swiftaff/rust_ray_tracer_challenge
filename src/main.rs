@@ -4,6 +4,7 @@ mod lights;
 mod materials;
 mod matrices;
 mod rays;
+mod spheres;
 mod transformations;
 mod tuples;
 
