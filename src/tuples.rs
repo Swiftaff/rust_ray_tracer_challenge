@@ -3,6 +3,14 @@ use std::f64;
 #[allow(dead_code)]
 const EPSILON: f64 = 0.00001;
 
+pub const ONE: f64 = 1.0;
+
+pub const COLOR_BLACK: Color = Color {
+    red: ONE,
+    green: ONE,
+    blue: ONE,
+};
+
 #[derive(Debug, Copy, Clone)]
 pub struct Tuple {
     pub x: f64,
