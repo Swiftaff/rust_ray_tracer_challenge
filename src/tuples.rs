@@ -2,13 +2,26 @@ use std::f64;
 
 #[allow(dead_code)]
 const EPSILON: f64 = 0.00001;
-
-pub const ONE: f64 = 1.0;
+const ZERO: f64 = 0.0;
+const ONE: f64 = 1.0;
 
 pub const COLOR_BLACK: Color = Color {
+    red: ZERO,
+    green: ZERO,
+    blue: ZERO,
+};
+
+pub const COLOR_WHITE: Color = Color {
     red: ONE,
     green: ONE,
     blue: ONE,
+};
+
+pub const POINT_ORIGIN: Point = Point {
+    x: 0.0,
+    y: 0.0,
+    z: 0.0,
+    w: 1,
 };
 
 #[derive(Debug, Copy, Clone)]

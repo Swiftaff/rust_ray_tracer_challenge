@@ -1,7 +1,6 @@
 use std::f64;
 
 use crate::materials;
-use crate::matrices;
 use crate::tuples;
 
 #[derive(Debug, Copy, Clone)]
@@ -26,8 +25,8 @@ pub fn lighting(
 ) -> tuples::Color {
     let mut diffuse: tuples::Color = tuples::COLOR_BLACK;
     let mut specular: tuples::Color = tuples::COLOR_BLACK;
-    let mut reflectv: tuples::Vector;
-    let mut reflect_dot_eye: f64;
+    let reflectv: tuples::Vector;
+    let reflect_dot_eye: f64;
 
     let effective_color: tuples::Color = tuples::colors_multiply(&material.color, &light.intensity);
     let lightv: tuples::Vector =
