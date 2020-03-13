@@ -29,57 +29,57 @@ pub fn create_matrix2() -> Matrix2 {
     arr
 }
 
-pub fn getM2(m: Matrix2, y: usize, x: usize) -> f64 {
+pub fn get_m2(m: Matrix2, y: usize, x: usize) -> f64 {
     m[y][x]
 }
 
-pub fn getM3(m: Matrix3, y: usize, x: usize) -> f64 {
+pub fn get_m3(m: Matrix3, y: usize, x: usize) -> f64 {
     m[y][x]
 }
-pub fn getM4(m: Matrix4, y: usize, x: usize) -> f64 {
+pub fn get_m4(m: Matrix4, y: usize, x: usize) -> f64 {
     m[y][x]
 }
 
 pub fn get_bool_equal_m4(m1: Matrix4, m2: Matrix4) -> bool {
-    let mut areEqual = true;
+    let mut are_equal = true;
     let rows = m1.len();
     let cols = m1[0].len();
     for y in 0..rows {
         for x in 0..cols {
             if tuples::get_bool_numbers_are_equal(m1[y][x], m2[y][x]) == false {
-                areEqual = false;
+                are_equal = false;
             }
         }
     }
-    areEqual
+    are_equal
 }
 
 pub fn get_bool_equal_m3(m1: Matrix3, m2: Matrix3) -> bool {
-    let mut areEqual = true;
+    let mut are_equal = true;
     let rows = m1.len();
     let cols = m1[0].len();
     for y in 0..rows {
         for x in 0..cols {
             if tuples::get_bool_numbers_are_equal(m1[y][x], m2[y][x]) == false {
-                areEqual = false;
+                are_equal = false;
             }
         }
     }
-    areEqual
+    are_equal
 }
 
 pub fn get_bool_equal_m2(m1: Matrix2, m2: Matrix2) -> bool {
-    let mut areEqual = true;
+    let mut are_equal = true;
     let rows = m1.len();
     let cols = m1[0].len();
     for y in 0..rows {
         for x in 0..cols {
             if tuples::get_bool_numbers_are_equal(m1[y][x], m2[y][x]) == false {
-                areEqual = false;
+                are_equal = false;
             }
         }
     }
-    areEqual
+    are_equal
 }
 
 fn get_bool_matrix4_is_invertible(m: Matrix4) -> bool {
@@ -98,11 +98,11 @@ pub fn matrix4_multiply(m1: Matrix4, m2: Matrix4) -> Matrix4 {
     let mut result = create_matrix4();
     for y in 0..4 {
         for x in 0..4 {
-            let mut thisResult = 0.0;
+            let mut this_result = 0.0;
             for xx in 0..4 {
-                thisResult = thisResult + m1[y][xx] * m2[xx][x];
+                this_result = this_result + m1[y][xx] * m2[xx][x];
             }
-            result[y][x] = thisResult; //trunc(thisResult);
+            result[y][x] = this_result; //trunc(thisResult);
         }
     }
     result
@@ -201,11 +201,11 @@ pub fn matrix4_tuple_multiply(m1: Matrix4, t: tuples::Tuple) -> tuples::Tuple {
     let m2 = [[t.x], [t.y], [t.z], [t.w as f64]];
     for y in 0..4 {
         for x in 0..1 {
-            let mut thisResult = 0.0;
+            let mut this_result = 0.0;
             for xx in 0..4 {
-                thisResult = thisResult + m1[y][xx] * m2[xx][x];
+                this_result = this_result + m1[y][xx] * m2[xx][x];
             }
-            result[y][x] = thisResult;
+            result[y][x] = this_result;
         }
     }
     tuples::Tuple {
@@ -220,11 +220,11 @@ pub fn matrix3_multiply(m1: Matrix3, m2: Matrix3) -> Matrix3 {
     let mut result = create_matrix3();
     for y in 0..3 {
         for x in 0..3 {
-            let mut thisResult = 0.0;
+            let mut this_result = 0.0;
             for xx in 0..3 {
-                thisResult = thisResult + m1[y][xx] * m2[xx][x];
+                this_result = this_result + m1[y][xx] * m2[xx][x];
             }
-            result[y][x] = thisResult;
+            result[y][x] = this_result;
         }
     }
     result
@@ -258,35 +258,35 @@ mod tests {
             [9.0, 10.0, 11.0, 12.0],
             [13.5, 14.5, 15.5, 16.5],
         ];
-        assert_eq!(getM4(m, 0, 0), 1.0);
-        assert_eq!(getM4(m, 0, 3), 4.0);
-        assert_eq!(getM4(m, 1, 0), 5.5);
-        assert_eq!(getM4(m, 1, 2), 7.5);
-        assert_eq!(getM4(m, 2, 2), 11.0);
-        assert_eq!(getM4(m, 3, 0), 13.5);
-        assert_eq!(getM4(m, 3, 2), 15.5);
+        assert_eq!(get_m4(m, 0, 0), 1.0);
+        assert_eq!(get_m4(m, 0, 3), 4.0);
+        assert_eq!(get_m4(m, 1, 0), 5.5);
+        assert_eq!(get_m4(m, 1, 2), 7.5);
+        assert_eq!(get_m4(m, 2, 2), 11.0);
+        assert_eq!(get_m4(m, 3, 0), 13.5);
+        assert_eq!(get_m4(m, 3, 2), 15.5);
     }
 
     #[test]
     fn test_matrix3() {
         //A 3x3 matrix ought to be representable
         let m = [[1.0, 2.0, 3.0], [5.5, 6.5, 7.5], [9.0, 10.0, 11.0]];
-        assert_eq!(getM3(m, 0, 0), 1.0);
-        assert_eq!(getM3(m, 0, 2), 3.0);
-        assert_eq!(getM3(m, 1, 0), 5.5);
-        assert_eq!(getM3(m, 1, 2), 7.5);
-        assert_eq!(getM3(m, 2, 2), 11.0);
-        assert_eq!(getM3(m, 2, 0), 9.0);
+        assert_eq!(get_m3(m, 0, 0), 1.0);
+        assert_eq!(get_m3(m, 0, 2), 3.0);
+        assert_eq!(get_m3(m, 1, 0), 5.5);
+        assert_eq!(get_m3(m, 1, 2), 7.5);
+        assert_eq!(get_m3(m, 2, 2), 11.0);
+        assert_eq!(get_m3(m, 2, 0), 9.0);
     }
 
     #[test]
     fn test_matrix2() {
         //A 2x2 matrix ought to be representable
         let m = [[-3.0, 5.0], [1.0, -2.0]];
-        assert_eq!(getM2(m, 0, 0), -3.0);
-        assert_eq!(getM2(m, 0, 1), 5.0);
-        assert_eq!(getM2(m, 1, 0), 1.0);
-        assert_eq!(getM2(m, 1, 1), -2.0);
+        assert_eq!(get_m2(m, 0, 0), -3.0);
+        assert_eq!(get_m2(m, 0, 1), 5.0);
+        assert_eq!(get_m2(m, 1, 0), 1.0);
+        assert_eq!(get_m2(m, 1, 1), -2.0);
     }
 
     #[test]
@@ -488,8 +488,6 @@ mod tests {
     fn test_matrix3_cofactor() {
         //Calculating a cofactor of a 3 x 3 matrix
         let m = [[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]];
-        let s = matrix3_submatrix2(m, 1, 0);
-        let d = matrix2_determinant(s);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(matrix3_minor(m, 0, 0), -12.0),
             true

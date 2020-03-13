@@ -65,7 +65,6 @@ fn str_row_get(row: u32, c: &PixelCanvas) -> String {
 
 fn str_from_canvas_data_get(c: PixelCanvas) -> String {
     let max_cols: u32 = 70;
-    let w = c.width;
     let h = c.height;
     let mut data_string: String = String::from("");
 
@@ -73,9 +72,9 @@ fn str_from_canvas_data_get(c: PixelCanvas) -> String {
         let mut this_row = str_row_get(row, &c);
 
         // split row if too long (multiple times if needed)
-        let mut last_space_index: usize = 0;
+        let mut last_space_index: usize;
         let end: u32 = max_cols;
-        let mut this_row_truncated: String = String::from("");
+        let mut this_row_truncated: String;
         while this_row.len() > max_cols as usize {
             this_row_truncated = this_row.chars().take(*&end as usize).collect();
 

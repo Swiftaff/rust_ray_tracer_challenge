@@ -21,11 +21,11 @@ pub fn matrix4_scaling(x: f64, y: f64, z: f64) -> matrices::Matrix4 {
 
 pub fn transform_chain(arr: Vec<matrices::Matrix4>, tuple: tuples::Tuple) -> tuples::Tuple {
     //applied in order provided in array
-    let mut newTuple = tuple;
+    let mut new_tuple = tuple;
     for i in 0..arr.len() {
-        newTuple = matrices::matrix4_tuple_multiply(arr[i], newTuple)
+        new_tuple = matrices::matrix4_tuple_multiply(arr[i], new_tuple)
     }
-    newTuple
+    new_tuple
 }
 
 pub fn matrix4_rotation_x_rad(r: f64) -> matrices::Matrix4 {
