@@ -57,6 +57,29 @@ pub fn world_intersect(w: World, r: rays::Ray) -> Vec<intersections::Intersectio
     intersections::intersection_list(xs_list_unsorted)
 }
 
+pub fn shade_hit(w: World, c: intersections::Comps) -> tuples::Color {
+    let mut col = tuples::COLOR_BLACK;
+    for index in 0..w.light.len() {
+        let this_light = w.light[index];
+        let this_lights_effect =
+            lights::lighting(c.object.material, this_light, c.point, c.eyev, c.normalv);
+        col = tuples::colors_add(&col, &this_lights_effect);
+    }
+    col
+}
+
+pub fn color_at(w: World, r: rays::Ray) -> tuples::Color {
+    let xs = world_intersect(w.clone(), r);
+    let hit_temp = intersections::hit(xs);
+    match hit_temp {
+        Err(e) => tuples::COLOR_BLACK,
+        Ok(hit) => {
+            let comp = intersections::prepare_computations(hit, r);
+            shade_hit(w, comp)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -120,5 +143,90 @@ mod tests {
         assert_eq!(xs[1].t == 4.5, true);
         assert_eq!(xs[2].t == 5.5, true);
         assert_eq!(xs[3].t == 6.0, true);
+    }
+
+    #[test]
+    fn test_shading_intersection() {
+        //Shading an intersection
+        let w = world_default();
+        let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
+        let s = w.objects[0].clone();
+        let i = intersections::intersection(4.0, s);
+        let comps = intersections::prepare_computations(i, r);
+        let c = shade_hit(w, comps);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.38066, 0.47583, 0.2855)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_shading_intersection_from_inside() {
+        //Shading an intersection from the inside
+        let mut w = world_default();
+        w.light = vec![lights::light_point(
+            tuples::point(0.0, 0.25, 0.0),
+            tuples::color(1.0, 1.0, 1.0),
+        )];
+        let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
+        let s = w.objects[1].clone();
+        let i = intersections::intersection(0.5, s);
+        let comps = intersections::prepare_computations(i, r);
+        let c = shade_hit(w, comps);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.90498, 0.90498, 0.90498)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_color_ray_misses() {
+        //The color when a ray misses
+        let w = world_default();
+        let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 1.0, 0.0));
+        let c = color_at(w, r);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::COLOR_BLACK),
+            true
+        );
+    }
+
+    #[test]
+    fn test_color_ray_hits() {
+        //The color when a ray hits
+        let w = world_default();
+        let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
+        let c = color_at(w, r);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.38066, 0.47583, 0.2855)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_color_with_intersection_behind_ray() {
+        //The color with an intersection behind the ray
+        let mut w = world_default();
+        w.objects[0].material.ambient = 1.0;
+        w.objects[1].material.ambient = 1.0;
+
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, 0.75),
+            tuples::vector(0.0, 0.0, -1.0),
+        );
+        let c = color_at(w.clone(), r);
+        println!(
+            "c({},{},{}) inner({},{},{})",
+            c.red,
+            c.green,
+            c.blue,
+            w.objects[1].material.color.red,
+            w.objects[1].material.color.green,
+            w.objects[1].material.color.blue
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &w.objects[1].material.color),
+            true
+        );
     }
 }
