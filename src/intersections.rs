@@ -1,8 +1,30 @@
 use std::cmp::Ordering;
 
 use crate::matrices;
+use crate::rays;
 use crate::spheres;
 use crate::tuples;
+
+pub fn comp_default() -> Comps {
+    Comps {
+        t: 0.0,
+        object: spheres::sphere(),
+        point: tuples::point(0.0, 0.0, 0.0),
+        eyev: tuples::vector(0.0, 0.0, 0.0),
+        normalv: tuples::vector(0.0, 0.0, 0.0),
+        inside: false,
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Comps {
+    pub t: f64,
+    pub object: spheres::Sphere,
+    pub point: tuples::Point,
+    pub eyev: tuples::Vector,
+    pub normalv: tuples::Vector,
+    pub inside: bool,
+}
 
 #[derive(Debug, Clone)]
 pub struct Intersection {
@@ -34,6 +56,20 @@ pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
     } else {
         Ok(xs[theHit as usize].clone())
     }
+}
+
+pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
+    let mut comps: Comps = comp_default();
+    comps.t = i.t;
+    comps.object = i.object;
+    comps.point = rays::position(r, comps.t);
+    comps.eyev = tuples::tuple_multiply(r.direction, -1.0);
+    comps.normalv = spheres::normal_at(comps.clone().object, comps.clone().point);
+    if tuples::vector_dot_product(&comps.normalv, &comps.eyev) < 0.0 {
+        comps.inside = true;
+        comps.normalv = tuples::tuple_multiply(comps.normalv, -1.0);
+    }
+    comps
 }
 
 #[cfg(test)]
@@ -128,5 +164,76 @@ mod tests {
                 assert_eq!(h.t == 2.0, true);
             }
         }
+    }
+
+    #[test]
+    fn test_prepare_computations() {
+        //Prepare computations
+        let p = tuples::point(0.0, 0.0, -5.0);
+        let d = tuples::vector(0.0, 0.0, 1.0);
+        let s = spheres::sphere();
+        let i = intersection(4.0, s);
+        let r = rays::ray(p.clone(), d.clone());
+        let testp = &tuples::point(0.0, 0.0, -1.0);
+        let testv = &tuples::vector(0.0, 0.0, -1.0);
+        let comps = prepare_computations(i.clone(), r);
+        assert_eq!(comps.t == i.t, true);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(
+                &comps.object.material.color,
+                &i.object.material.color
+            ),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&comps.point, &testp),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&comps.eyev, &testv.clone()),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&comps.normalv, &testv),
+            true
+        );
+    }
+
+    #[test]
+    fn test_hit_intersection_outside() {
+        //The hit, when an intersection occurs on the outside
+        let p = tuples::point(0.0, 0.0, -5.0);
+        let d = tuples::vector(0.0, 0.0, 1.0);
+        let s = spheres::sphere();
+        let i = intersection(4.0, s);
+        let r = rays::ray(p.clone(), d.clone());
+        let comps = prepare_computations(i.clone(), r);
+        assert_eq!(comps.inside, false);
+    }
+
+    #[test]
+    fn test_hit_intersection_inside() {
+        //The hit, when an intersection occurs on the inside
+        let p = tuples::point(0.0, 0.0, 0.0);
+        let d = tuples::vector(0.0, 0.0, 1.0);
+        let s = spheres::sphere();
+        let i = intersection(1.0, s);
+        let r = rays::ray(p.clone(), d.clone());
+        let testp = tuples::point(0.0, 0.0, 1.0);
+        let testv = tuples::vector(0.0, 0.0, -1.0);
+        let comps = prepare_computations(i.clone(), r);
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&comps.point, &testp),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&comps.eyev, &testv.clone()),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&comps.normalv, &testv),
+            true
+        );
+        assert_eq!(comps.inside, true);
     }
 }
