@@ -1,6 +1,8 @@
+use crate::intersections;
 use crate::lights;
 use crate::materials;
 use crate::matrices;
+use crate::rays;
 use crate::spheres;
 use crate::transformations;
 use crate::tuples;
@@ -38,6 +40,21 @@ pub fn world_default() -> World {
         objects: vec![s1, s2],
         light: lights,
     }
+}
+
+pub fn world_intersect(w: World, r: rays::Ray) -> Vec<intersections::Intersection> {
+    let mut xs_list_unsorted: Vec<intersections::Intersection> = vec![];
+    for index in 0..w.objects.len() {
+        let this_sphere = w.objects[index].clone();
+        let xs_for_this_sphere = spheres::intersect(this_sphere, *&r);
+        match xs_for_this_sphere {
+            Err(e) => (), //println!("XS Error: {}", e),
+            Ok(mut xs) => {
+                xs_list_unsorted.append(&mut xs);
+            }
+        }
+    }
+    intersections::intersection_list(xs_list_unsorted)
 }
 
 #[cfg(test)]
@@ -90,5 +107,18 @@ mod tests {
             tuples::get_bool_colors_are_equal(&w.objects[1].material.color, &tuples::COLOR_WHITE),
             true
         );
+    }
+
+    #[test]
+    fn test_intersect_world_with_ray() {
+        //Intersect a world with a ray
+        let w = world_default();
+        let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
+        let xs = world_intersect(w, r);
+        assert_eq!(xs.len() == 4, true);
+        assert_eq!(xs[0].t == 4.0, true);
+        assert_eq!(xs[1].t == 4.5, true);
+        assert_eq!(xs[2].t == 5.5, true);
+        assert_eq!(xs[3].t == 6.0, true);
     }
 }
