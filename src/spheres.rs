@@ -18,6 +18,7 @@ pub fn sphere() -> Sphere {
     }
 }
 
+/*
 pub fn intersect(s, r) {
     let r2 = transform(r, inverse(s.transform));
     let xs = [];
@@ -34,7 +35,7 @@ pub fn intersect(s, r) {
     }
     return xs;
 }
-
+*/
 #[cfg(test)]
 mod tests {
     use super::*;

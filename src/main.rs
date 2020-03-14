@@ -1,5 +1,6 @@
 mod canvas;
 mod fire_canon;
+mod intersections;
 mod lights;
 mod materials;
 mod matrices;
