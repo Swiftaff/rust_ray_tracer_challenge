@@ -17,6 +17,12 @@ pub const COLOR_WHITE: Color = Color {
     blue: ONE,
 };
 
+pub const COLOR_RED: Color = Color {
+    red: ONE,
+    green: ZERO,
+    blue: ZERO,
+};
+
 pub const POINT_ORIGIN: Point = Point {
     x: 0.0,
     y: 0.0,
