@@ -10,6 +10,7 @@ mod sphere_lighting;
 mod spheres;
 mod transformations;
 mod tuples;
+mod worlds;
 
 fn main() {
     //fire_canon::fire_canon_main();
