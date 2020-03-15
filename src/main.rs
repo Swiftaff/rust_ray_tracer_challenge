@@ -6,6 +6,7 @@ mod materials;
 mod matrices;
 mod rays;
 //mod sphere_outline;
+mod camera;
 mod sphere_lighting;
 mod spheres;
 mod transformations;
