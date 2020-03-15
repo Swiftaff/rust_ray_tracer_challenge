@@ -58,7 +58,14 @@ mod tests {
         let eyev = tuples::vector(0.0, 0.0, -1.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 0.0, -10.0), tuples::COLOR_WHITE);
-        let result = lights::lighting(MATERIAL_DEFAULT, light, tuples::POINT_ORIGIN, eyev, normalv);
+        let result = lights::lighting(
+            MATERIAL_DEFAULT,
+            light,
+            tuples::POINT_ORIGIN,
+            eyev,
+            normalv,
+            false,
+        );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(1.9, 1.9, 1.9)),
             true
@@ -71,7 +78,14 @@ mod tests {
         let eyev = tuples::vector(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 0.0, -10.0), tuples::COLOR_WHITE);
-        let result = lights::lighting(MATERIAL_DEFAULT, light, tuples::POINT_ORIGIN, eyev, normalv);
+        let result = lights::lighting(
+            MATERIAL_DEFAULT,
+            light,
+            tuples::POINT_ORIGIN,
+            eyev,
+            normalv,
+            false,
+        );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(1.0, 1.0, 1.0)),
             true
@@ -84,7 +98,14 @@ mod tests {
         let eyev = tuples::vector(0.0, 0.0, -1.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 10.0, -10.0), tuples::COLOR_WHITE);
-        let result = lights::lighting(MATERIAL_DEFAULT, light, tuples::POINT_ORIGIN, eyev, normalv);
+        let result = lights::lighting(
+            MATERIAL_DEFAULT,
+            light,
+            tuples::POINT_ORIGIN,
+            eyev,
+            normalv,
+            false,
+        );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(0.7364, 0.7364, 0.7364)),
             true
@@ -97,7 +118,14 @@ mod tests {
         let eyev = tuples::vector(0.0, -2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 10.0, -10.0), tuples::COLOR_WHITE);
-        let result = lights::lighting(MATERIAL_DEFAULT, light, tuples::POINT_ORIGIN, eyev, normalv);
+        let result = lights::lighting(
+            MATERIAL_DEFAULT,
+            light,
+            tuples::POINT_ORIGIN,
+            eyev,
+            normalv,
+            false,
+        );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(1.6364, 1.6364, 1.6364)),
             true
@@ -110,7 +138,14 @@ mod tests {
         let eyev = tuples::vector(0.0, 0.0, -1.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 0.0, 10.0), tuples::COLOR_WHITE);
-        let result = lights::lighting(MATERIAL_DEFAULT, light, tuples::POINT_ORIGIN, eyev, normalv);
+        let result = lights::lighting(
+            MATERIAL_DEFAULT,
+            light,
+            tuples::POINT_ORIGIN,
+            eyev,
+            normalv,
+            false,
+        );
         println!("result {},{},{}", result.red, result.green, result.blue);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(0.1, 0.1, 0.1)),

@@ -1,4 +1,5 @@
 use std::f64::consts::PI;
+use std::time::Instant;
 
 use crate::canvas;
 use crate::matrices;
@@ -78,10 +79,28 @@ pub fn render(c: Camera, w: worlds::World) -> canvas::PixelCanvas {
     image
 }
 
-pub fn percent_message(val: f64, total: f64, mut pc: f64, incr: f64, timer: str) -> f64 {
+pub fn percent_message(
+    val: f64,
+    total: f64,
+    mut pc: f64,
+    incr: f64,
+    timer: std::time::Duration,
+) -> f64 {
     let progress = val as f64 / total as f64;
     if progress > pc {
-        println!("...ray tracing: {:.0}% {}", pc.clone() * 100.0, timer;
+        let total_time_estimated = timer.as_secs_f64() / pc.clone();
+        let remaining_time_estimated = total_time_estimated - progress;
+        let remaining_str = if remaining_time_estimated > 60.0 {
+            format!("{} mins", remaining_time_estimated / 60.0)
+        } else {
+            format!("{} seconds", remaining_time_estimated.to_string())
+        };
+        println!(
+            "...ray tracing: {:.0}%. Time so far: {:?}. Expected Remaining: {}",
+            pc.clone() * 100.0,
+            timer,
+            remaining_str
+        );
         pc = progress + incr;
     }
     pc
@@ -92,7 +111,7 @@ pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas:
     let mut pc = 0.0;
     let timer = Instant::now();
     for y in 0..c.vsize.clone() {
-        pc = percent_message(y as f64, c.vsize.clone() as f64, pc, incr, timer.elapsed().to_string());
+        pc = percent_message(y as f64, c.vsize.clone() as f64, pc, incr, timer.elapsed());
         for x in 0..c.hsize.clone() {
             let r = ray_for_pixel(c.clone(), x, y);
             let col = worlds::color_at(w.clone(), r);

@@ -60,9 +60,15 @@ pub fn world_intersect(w: World, r: rays::Ray) -> Vec<intersections::Intersectio
 pub fn shade_hit(w: World, c: intersections::Comps) -> tuples::Color {
     let mut col = tuples::COLOR_BLACK;
     for index in 0..w.light.len() {
-        let this_light = w.light[index];
-        let this_lights_effect =
-            lights::lighting(c.object.material, this_light, c.point, c.eyev, c.normalv);
+        let this_light = w.clone().light[index];
+        let this_lights_effect = lights::lighting(
+            c.object.material,
+            this_light,
+            c.point,
+            c.eyev,
+            c.normalv,
+            is_shadowed(w.clone(), c.over_point),
+        );
         col = tuples::colors_add(&col, &this_lights_effect);
     }
     col
@@ -76,6 +82,25 @@ pub fn color_at(w: World, r: rays::Ray) -> tuples::Color {
         Ok(hit) => {
             let comp = intersections::prepare_computations(hit, r);
             shade_hit(w, comp)
+        }
+    }
+}
+
+pub fn is_shadowed(w: World, p: tuples::Point) -> bool {
+    let v = tuples::tuple_subtract(&w.light[0].position, &p);
+    let distance = tuples::vector_magnitude(&v);
+    let direction = tuples::vector_normalize(&v);
+    let r = rays::ray(p, direction);
+    let xs = world_intersect(w, r);
+    let hit_temp = intersections::hit(xs);
+    match hit_temp {
+        Err(_) => false,
+        Ok(h) => {
+            if h.t < distance {
+                true
+            } else {
+                false
+            }
         }
     }
 }
@@ -173,8 +198,32 @@ mod tests {
         let i = intersections::intersection(0.5, s);
         let comps = intersections::prepare_computations(i, r);
         let c = shade_hit(w, comps);
+        println!("{},{},{}", c.red, c.green, c.blue);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &tuples::color(0.90498, 0.90498, 0.90498)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_shading_intersection_in_shadow() {
+        //shade_hit() is given an intersection in shadow
+        let mut w = world();
+        w.light = vec![lights::light_point(
+            tuples::point(0.0, 0.0, -10.0),
+            tuples::color(1.0, 1.0, 1.0),
+        )];
+        let s1 = spheres::sphere();
+        w.objects.push(s1);
+        let mut s2 = spheres::sphere();
+        s2.transform = transformations::matrix4_translation(0.0, 0.0, 10.0);
+        w.objects.push(s2.clone());
+        let r = rays::ray(tuples::point(0.0, 0.0, 5.0), tuples::vector(0.0, 0.0, 1.0));
+        let i = intersections::intersection(4.0, s2);
+        let comps = intersections::prepare_computations(i, r);
+        let c = shade_hit(w, comps);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.1, 0.1, 0.1)),
             true
         );
     }
@@ -228,5 +277,37 @@ mod tests {
             tuples::get_bool_colors_are_equal(&c, &w.objects[1].material.color),
             true
         );
+    }
+
+    #[test]
+    fn test_no_shadow_when_nothing_between_point_and_light() {
+        //There is no shadow when nothing is collinear with point and light
+        let w = world_default();
+        let p = tuples::point(0.0, 10.0, 0.0);
+        assert_eq!(is_shadowed(w, p), false);
+    }
+
+    #[test]
+    fn test_shadow_when_something_between_point_and_light() {
+        //The shadow when an object is between the point and the light
+        let w = world_default();
+        let p = tuples::point(10.0, -10.0, 10.0);
+        assert_eq!(is_shadowed(w, p), true);
+    }
+
+    #[test]
+    fn test_no_shadow_when_object_behind_light() {
+        //There is no shadow when an object is behind the light
+        let w = world_default();
+        let p = tuples::point(-20.0, 20.0, -20.0);
+        assert_eq!(is_shadowed(w, p), false);
+    }
+
+    #[test]
+    fn test_no_shadow_when_object_behind_point() {
+        //There is no shadow when an object is behind the point
+        let w = world_default();
+        let p = tuples::point(-2.0, 2.0, -2.0);
+        assert_eq!(is_shadowed(w, p), false);
     }
 }

@@ -1,7 +1,7 @@
 use std::f64;
 
 #[allow(dead_code)]
-const EPSILON: f64 = 0.00001;
+pub const EPSILON: f64 = 0.00001;
 const ZERO: f64 = 0.0;
 const ONE: f64 = 1.0;
 

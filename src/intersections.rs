@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use crate::matrices;
 use crate::rays;
 use crate::spheres;
+use crate::transformations;
 use crate::tuples;
 
 pub fn comp_default() -> Comps {
@@ -10,6 +11,7 @@ pub fn comp_default() -> Comps {
         t: 0.0,
         object: spheres::sphere(),
         point: tuples::point(0.0, 0.0, 0.0),
+        over_point: tuples::point(0.0, 0.0, 0.0),
         eyev: tuples::vector(0.0, 0.0, 0.0),
         normalv: tuples::vector(0.0, 0.0, 0.0),
         inside: false,
@@ -21,6 +23,7 @@ pub struct Comps {
     pub t: f64,
     pub object: spheres::Sphere,
     pub point: tuples::Point,
+    pub over_point: tuples::Point,
     pub eyev: tuples::Vector,
     pub normalv: tuples::Vector,
     pub inside: bool,
@@ -65,6 +68,10 @@ pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
     comps.point = rays::position(r, comps.t);
     comps.eyev = tuples::tuple_multiply(r.direction, -1.0);
     comps.normalv = spheres::normal_at(comps.clone().object, comps.clone().point);
+    comps.over_point = tuples::tuple_add(
+        &comps.point,
+        &(tuples::tuple_scalar_multiply(&comps.clone().normalv, tuples::EPSILON)),
+    );
     if tuples::vector_dot_product(&comps.normalv, &comps.eyev) < 0.0 {
         comps.inside = true;
         comps.normalv = tuples::tuple_multiply(comps.normalv, -1.0);
@@ -235,5 +242,19 @@ mod tests {
             true
         );
         assert_eq!(comps.inside, true);
+    }
+
+    #[test]
+    fn test_hit_should_offset_the_point() {
+        //The hit should offset the point
+        let p = tuples::point(0.0, 0.0, -5.0);
+        let d = tuples::vector(0.0, 0.0, 1.0);
+        let mut s = spheres::sphere();
+        s.transform = transformations::matrix4_translation(0.0, 0.0, 1.0);
+        let i = intersection(5.0, s);
+        let r = rays::ray(p, d);
+        let comps = prepare_computations(i.clone(), r);
+        assert_eq!(&comps.over_point.z < &(tuples::EPSILON / -2.0), true);
+        assert_eq!(&comps.point.z > &comps.over_point.z, true);
     }
 }

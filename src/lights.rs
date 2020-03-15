@@ -22,6 +22,7 @@ pub fn lighting(
     point: tuples::Point,
     eyev: tuples::Point,
     normalv: tuples::Vector,
+    in_shadow: bool,
 ) -> tuples::Color {
     let mut diffuse: tuples::Color = tuples::COLOR_BLACK;
     let mut specular: tuples::Color = tuples::COLOR_BLACK;
@@ -46,7 +47,11 @@ pub fn lighting(
             specular = tuples::colors_scalar_multiply(&light.intensity, material.specular * factor);
         }
     }
-    tuples::colors_add(&tuples::colors_add(&ambient, &diffuse), &specular)
+    if in_shadow == true {
+        ambient
+    } else {
+        tuples::colors_add(&tuples::colors_add(&ambient, &diffuse), &specular)
+    }
 }
 
 #[cfg(test)]
@@ -65,6 +70,30 @@ mod tests {
         );
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&light.position, &position),
+            true
+        );
+    }
+
+    #[test]
+    fn test_lighting_with_surface_in_shadow() {
+        //Lighting with the surface in shadow
+        let eyev = tuples::vector(0.0, 0.0, -1.0);
+        let normalv = tuples::vector(0.0, 0.0, -1.0);
+
+        let position = tuples::point(0.0, 0.0, -10.0);
+        let intensity = tuples::COLOR_WHITE;
+        let light = light_point(position, intensity);
+        let in_shadow = true;
+        let col = lighting(
+            materials::MATERIAL_DEFAULT,
+            light,
+            position,
+            eyev,
+            normalv,
+            in_shadow,
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.1, 0.1, 0.1)),
             true
         );
     }
