@@ -68,8 +68,31 @@ pub fn ray_for_pixel(camera: Camera, px: u32, py: u32) -> rays::Ray {
 
 pub fn render(c: Camera, w: worlds::World) -> canvas::PixelCanvas {
     let mut image = canvas::pixel_canvas(c.hsize.clone(), c.vsize.clone(), tuples::COLOR_BLACK);
-
     for y in 0..c.vsize.clone() {
+        for x in 0..c.hsize.clone() {
+            let r = ray_for_pixel(c.clone(), x, y);
+            let col = worlds::color_at(w.clone(), r);
+            image = canvas::pixel_write(image, x, y, col);
+        }
+    }
+    image
+}
+
+pub fn percent_message(val: f64, total: f64, mut pc: f64, incr: f64, timer: str) -> f64 {
+    let progress = val as f64 / total as f64;
+    if progress > pc {
+        println!("...ray tracing: {:.0}% {}", pc.clone() * 100.0, timer;
+        pc = progress + incr;
+    }
+    pc
+}
+
+pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas::PixelCanvas {
+    let mut image = canvas::pixel_canvas(c.hsize.clone(), c.vsize.clone(), tuples::COLOR_BLACK);
+    let mut pc = 0.0;
+    let timer = Instant::now();
+    for y in 0..c.vsize.clone() {
+        pc = percent_message(y as f64, c.vsize.clone() as f64, pc, incr, timer.elapsed().to_string());
         for x in 0..c.hsize.clone() {
             let r = ray_for_pixel(c.clone(), x, y);
             let col = worlds::color_at(w.clone(), r);

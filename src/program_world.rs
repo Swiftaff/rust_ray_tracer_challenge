@@ -33,12 +33,12 @@ pub fn world_main() {
         tuples::color(1.0, 1.0, 1.0),
     )];
 
-    let mut c = camera::camera(100, 50, PI / 3.0);
+    let mut c = camera::camera(800, 400, PI / 3.0);
     let from = tuples::point(0.0, 1.5, -5.0);
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 1.0, 0.0);
     c.transform = transformations::view_transform(from, to, up);
-    let image = camera::render(c, w);
+    let image = camera::render_percent_message(c, w, 0.01);
     let duration1 = start1.elapsed();
     println!("Time to calculate data: {:?}", duration1);
 
