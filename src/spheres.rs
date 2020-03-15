@@ -88,11 +88,11 @@ pub fn normal_at(s: Sphere, world_point: tuples::Point) -> tuples::Vector {
         matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), world_point);
     let object_normal: tuples::Vector =
         tuples::tuple_subtract(&object_point, &tuples::POINT_ORIGIN);
-    let world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
+    let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
         matrices::matrix4_transpose(matrices::matrix4_inverse(s.transform)),
         object_normal,
     );
-    //world_normal.w = 0;
+    world_normal.w = 0;
     tuples::vector_normalize(&world_normal)
 }
 
