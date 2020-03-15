@@ -22,8 +22,8 @@ pub fn position(ray: Ray, t: f64) -> tuples::Tuple {
 pub fn ray_transform(r: Ray, m: matrices::Matrix4) -> Ray {
     let o = r.origin;
     let d = r.direction;
-    let origin = transformations::transform_chain([m].to_vec(), o);
-    let direction = transformations::transform_chain([m].to_vec(), d);
+    let origin = transformations::transform_tuple_with_chain([m].to_vec(), o);
+    let direction = transformations::transform_tuple_with_chain([m].to_vec(), d);
     ray(origin, direction)
 }
 

@@ -114,7 +114,7 @@ pub fn environment(gravity: Vector, wind: Vector) -> Environment {
 pub fn tuple_add(a: &Tuple, b: &Tuple) -> Tuple {
     let t = tuple(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
     if t.w > 1 {
-        println!("tuple_add: can't add two points!");
+        //println!("tuple_add: can't add two points!");
         tuple(a.x, a.y, a.z, a.w)
     //TODO - create an error?
     } else {
@@ -145,7 +145,7 @@ pub fn tick(env: &Environment, proj: &Projectile) -> Projectile {
 #[allow(dead_code)]
 pub fn tuple_subtract(a: &Tuple, b: &Tuple) -> Tuple {
     if a.w < b.w {
-        println!("tuple_subtract: can't subtract a point from a vector");
+        //println!("tuple_subtract: can't subtract a point from a vector");
         tuple(a.x, a.y, a.z, a.w)
     //TODO - create an error?
     } else {
@@ -158,7 +158,7 @@ pub fn tuple_subtract(a: &Tuple, b: &Tuple) -> Tuple {
 pub fn vector_negate(a: &Tuple) -> Tuple {
     let t = tuple(-a.x, -a.y, -a.z, a.w);
     if t.w == 1 {
-        println!("tuple_negate: can't negate a point");
+        //println!("tuple_negate: can't negate a point");
         tuple(a.x, a.y, a.z, a.w)
     //TODO - create an error?
     } else {
@@ -205,7 +205,7 @@ pub fn vector_normalize(a: &Tuple) -> Tuple {
 
     let t = tuple(a.x / m, a.y / m, a.z / m, a.w);
     if t.w == 1 {
-        println!("vector_normalize: can't normalize a point");
+        //println!("vector_normalize: can't normalize a point");
         tuple(a.x, a.y, a.z, a.w)
     //TODO - create an error?
     } else {
@@ -216,7 +216,7 @@ pub fn vector_normalize(a: &Tuple) -> Tuple {
 #[allow(dead_code)]
 pub fn vector_dot_product(a: &Tuple, b: &Tuple) -> f64 {
     if a.w == 1 || b.w == 1 {
-        println!("vector_dot_product: can only dotproduct two vectors");
+        //println!("vector_dot_product: can only dotproduct two vectors");
         0.0
     //TODO - create an error?
     } else {
@@ -227,7 +227,7 @@ pub fn vector_dot_product(a: &Tuple, b: &Tuple) -> f64 {
 #[allow(dead_code)]
 pub fn vector_cross_product(a: &Tuple, b: &Tuple) -> Tuple {
     if a.w == 1 || b.w == 1 {
-        println!("vector_crossProduct: can only crossproduct two vectors");
+        //println!("vector_crossProduct: can only crossproduct two vectors");
         tuple(a.x, a.y, a.z, a.w)
     //TODO - create an error?
     } else {

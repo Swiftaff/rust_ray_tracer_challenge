@@ -20,13 +20,24 @@ pub fn matrix4_scaling(x: f64, y: f64, z: f64) -> matrices::Matrix4 {
     t
 }
 
-pub fn transform_chain(arr: Vec<matrices::Matrix4>, tuple: tuples::Tuple) -> tuples::Tuple {
+pub fn transform_tuple_with_chain(
+    arr: Vec<matrices::Matrix4>,
+    tuple: tuples::Tuple,
+) -> tuples::Tuple {
     //applied in order provided in array
     let mut new_tuple = tuple;
     for i in 0..arr.len() {
         new_tuple = matrices::matrix4_tuple_multiply(arr[i], new_tuple)
     }
     new_tuple
+}
+
+pub fn matrix4_transform_chain(arr: Vec<matrices::Matrix4>) -> matrices::Matrix4 {
+    let mut new_Matrix = matrices::IDENTITY_MATRIX;
+    for i in 0..arr.len() {
+        new_Matrix = matrices::matrix4_multiply(arr[i], new_Matrix)
+    }
+    new_Matrix
 }
 
 pub fn matrix4_rotation_x_rad(r: f64) -> matrices::Matrix4 {
@@ -337,7 +348,7 @@ mod tests {
         let p2 = matrices::matrix4_tuple_multiply(a, p);
         let p3 = matrices::matrix4_tuple_multiply(b, p2);
         let p4 = matrices::matrix4_tuple_multiply(c, p3);
-        let p5 = transform_chain([a, b, c].to_vec(), p);
+        let p5 = transform_tuple_with_chain([a, b, c].to_vec(), p);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&p2, &tuples::point(1.0, -1.0, 0.0)),
             true
