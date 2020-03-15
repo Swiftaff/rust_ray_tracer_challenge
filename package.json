@@ -9,7 +9,7 @@
     "run": "cargo run",
     "build": "cargo build",
     "format": "cargo fmt",
-    "current_program": "set RUST_BACKTRACE=1 && H:\\Development\\rust_ray_tracer_challenge\\target\\debug\\rust_ray_tracer_challenge.exe"
+    "build_and_run_current_program": "cargo build && set RUST_BACKTRACE=1 && H:\\Development\\rust_ray_tracer_challenge\\target\\debug\\rust_ray_tracer_challenge.exe"
   },
   "author": "swiftaff",
   "license": "MIT"

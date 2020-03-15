@@ -19,21 +19,17 @@ pub fn world_main() {
     println!("world - 6 objects!");
     let start1 = Instant::now();
 
-    let mut w = worlds::world_default();
+    let mut w = worlds::world_two_lights();
     w.objects = vec![
         shape_floor(),
         shape_wall_left(),
         shape_wall_right(),
         shape_sphere_middle(),
-        shape_sphere_right(),
+        shape_sphere_right2(),
         shape_sphere_left(),
     ];
-    w.light = vec![lights::light_point(
-        tuples::point(-10.0, 10.0, -10.0),
-        tuples::color(1.0, 1.0, 1.0),
-    )];
 
-    let mut c = camera::camera(200, 100, PI / 3.0);
+    let mut c = camera::camera(50, 25, PI / 3.0);
     let from = tuples::point(0.0, 1.5, -5.0);
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 1.0, 0.0);
@@ -116,6 +112,21 @@ pub fn shape_sphere_middle() -> spheres::Sphere {
 pub fn shape_sphere_right() -> spheres::Sphere {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(1.5, 0.5, -0.5);
+    let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
+    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+
+    let mut mat = materials::MATERIAL_DEFAULT;
+    mat.color = tuples::color(0.5, 1.0, 0.1);
+    mat.diffuse = 0.7;
+    mat.specular = 0.3;
+
+    shape.material = mat;
+    shape
+}
+
+pub fn shape_sphere_right2() -> spheres::Sphere {
+    let mut shape = spheres::sphere();
+    let t1 = transformations::matrix4_translation(1.0, 1.0, 0.75);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
     shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
 

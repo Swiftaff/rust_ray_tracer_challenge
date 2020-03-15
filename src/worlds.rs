@@ -42,6 +42,21 @@ pub fn world_default() -> World {
     }
 }
 
+pub fn world_two_lights() -> World {
+    let mut w: World = world_default();
+    w.light = vec![
+        lights::LightPoint {
+            position: tuples::point(-10.0, 10.0, -10.0),
+            intensity: tuples::color(0.5, 0.9, 1.0),
+        },
+        lights::LightPoint {
+            position: tuples::point(9.0, 4.0, -9.0),
+            intensity: tuples::color(0.8, 0.0, 0.0),
+        },
+    ];
+    w
+}
+
 pub fn world_intersect(w: World, r: rays::Ray) -> Vec<intersections::Intersection> {
     let mut xs_list_unsorted: Vec<intersections::Intersection> = vec![];
     for index in 0..w.objects.len() {
@@ -87,7 +102,8 @@ pub fn color_at(w: World, r: rays::Ray) -> tuples::Color {
 }
 
 pub fn is_shadowed(w: World, p: tuples::Point) -> bool {
-    let v = tuples::tuple_subtract(&w.light[0].position, &p);
+    //TODO make work for multiple lights??
+    let v = tuples::tuple_subtract(&w.light[1].position, &p);
     let distance = tuples::vector_magnitude(&v);
     let direction = tuples::vector_normalize(&v);
     let r = rays::ray(p, direction);
