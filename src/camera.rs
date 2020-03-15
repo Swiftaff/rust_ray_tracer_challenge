@@ -1,13 +1,18 @@
 use std::f64::consts::PI;
 
+use crate::canvas;
 use crate::matrices;
+use crate::rays;
 use crate::transformations;
 use crate::tuples;
+use crate::worlds;
 
 #[derive(Debug, Clone)]
 pub struct Camera {
     pub hsize: u32,
     pub vsize: u32,
+    pub half_width: f64,
+    pub half_height: f64,
     pub field_of_view: f64,
     pub transform: matrices::Matrix4,
     pub pixel_size: f64,
@@ -26,10 +31,52 @@ pub fn camera(hsize: u32, vsize: u32, field_of_view: f64) -> Camera {
     Camera {
         hsize: hsize,
         vsize: vsize,
+        half_width: half_width,
+        half_height: half_height,
         field_of_view: field_of_view,
         transform: matrices::IDENTITY_MATRIX,
         pixel_size: pixel_size,
     }
+}
+
+pub fn ray_for_pixel(camera: Camera, px: u32, py: u32) -> rays::Ray {
+    //the offset from the edge of the canvas to the pixel's center
+    let xoffset: f64 = (px as f64 + 0.5) * camera.pixel_size;
+    let yoffset: f64 = (py as f64 + 0.5) * camera.pixel_size;
+
+    //the untransformed coordinates of the pixel in world space.
+    //(remember that the camera looks toward -z, so +x is to the *left*.)
+    let world_x: f64 = camera.half_width - xoffset;
+    let world_y: f64 = camera.half_height - yoffset;
+
+    //using the camera matrix, transform the canvas point and the origin,
+    //and then compute the ray's direction vector.
+    //(remember that the canvas is at z=-1)
+    let pixel: tuples::Point = matrices::matrix4_tuple_multiply(
+        matrices::matrix4_inverse(camera.transform),
+        tuples::point(world_x, world_y, -1.0),
+    );
+    let origin: tuples::Point = matrices::matrix4_tuple_multiply(
+        matrices::matrix4_inverse(camera.transform),
+        tuples::point(0.0, 0.0, 0.0),
+    );
+    let direction: tuples::Vector =
+        tuples::vector_normalize(&tuples::tuple_subtract(&pixel, &origin));
+
+    rays::ray(origin, direction)
+}
+
+pub fn render(c: Camera, w: worlds::World) -> canvas::PixelCanvas {
+    let mut image = canvas::pixel_canvas(c.hsize.clone(), c.vsize.clone(), tuples::COLOR_BLACK);
+
+    for y in 0..c.vsize.clone() {
+        for x in 0..c.hsize.clone() {
+            let r = ray_for_pixel(c.clone(), x, y);
+            let col = worlds::color_at(w.clone(), r);
+            image = canvas::pixel_write(image, x, y, col);
+        }
+    }
+    image
 }
 
 #[cfg(test)]
@@ -67,5 +114,74 @@ mod tests {
         //The pixel size for a vertical canvas
         let c = camera(125, 200, PI / 2.0);
         assert_eq!(tuples::get_bool_numbers_are_equal(c.pixel_size, 0.01), true);
+    }
+
+    #[test]
+    fn test_constructing_ray_through_center_of_canvas() {
+        //Constructing a ray through the center of the canvas
+        let c = camera(201, 101, PI / 2.0);
+        let r = ray_for_pixel(c, 100, 50);
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&r.origin, &tuples::point(0.0, 0.0, 0.0)),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&r.direction, &tuples::vector(0.0, 0.0, -1.0)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_constructing_ray_through_corner_of_canvas() {
+        //Constructing a ray through a corner of the canvas
+        let c = camera(201, 101, PI / 2.0);
+        let r = ray_for_pixel(c, 0, 0);
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&r.origin, &tuples::point(0.0, 0.0, 0.0)),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(
+                &r.direction,
+                &tuples::vector(0.66519, 0.33259, -0.66851)
+            ),
+            true
+        );
+    }
+
+    #[test]
+    fn test_constructing_ray_when_camera_is_transformed() {
+        //Constructing a ray when the camera is transformed
+        let mut c = camera(201, 101, PI / 2.0);
+        let rot = transformations::matrix4_rotation_y_rad(PI / 4.0);
+        let tran = transformations::matrix4_translation(0.0, -2.0, 5.0);
+        c.transform = matrices::matrix4_multiply(rot, tran);
+        let r = ray_for_pixel(c, 100, 50);
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(&r.origin, &tuples::point(0.0, 2.0, -5.0)),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(
+                &r.direction,
+                &tuples::vector(2.0_f64.sqrt() / 2.0, 0.0, -2.0_f64.sqrt() / 2.0)
+            ),
+            true
+        );
+    }
+
+    #[test]
+    fn test_rendering_world_with_camera() {
+        //Rendering a world with a camera
+        let w = worlds::world_default();
+        let from = tuples::point(0.0, 0.0, -5.0);
+        let to = tuples::point(0.0, 0.0, 0.0);
+        let up = tuples::vector(0.0, 1.0, 0.0);
+        let mut c = camera(11, 11, PI / 2.0);
+        c.transform = transformations::view_transform(from, to, up);
+        let image = render(c, w);
+        let pa = canvas::pixel_get(image, 5, 5);
+        let col = tuples::color(0.38066, 0.47583, 0.2855);
+        assert_eq!(tuples::get_bool_colors_are_equal(&pa, &col), true);
     }
 }

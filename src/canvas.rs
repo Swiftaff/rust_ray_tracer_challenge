@@ -35,7 +35,7 @@ pub fn pixel_write(canvas: PixelCanvas, x: u32, y: u32, col: tuples::Color) -> P
     }
 }
 
-fn pixel_get(canvas: PixelCanvas, x: u32, y: u32) -> tuples::Color {
+pub fn pixel_get(canvas: PixelCanvas, x: u32, y: u32) -> tuples::Color {
     let index = canvas.width * y + x;
     let mut col = tuples::color(1.0, 0.8, 0.8); //default bright pink?
     if index < canvas.length {
