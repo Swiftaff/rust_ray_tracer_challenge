@@ -1,6 +1,7 @@
 use std::f64::consts::PI;
 
 use crate::matrices;
+use crate::transformations;
 use crate::tuples;
 
 pub fn matrix4_translation(x: f64, y: f64, z: f64) -> matrices::Matrix4 {
@@ -64,6 +65,24 @@ pub fn matrix4_shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) ->
     t[2][0] = zx;
     t[2][1] = zy;
     t
+}
+
+pub fn view_transform(
+    from: tuples::Point,
+    to: tuples::Point,
+    up: tuples::Vector,
+) -> matrices::Matrix4 {
+    let forward = tuples::vector_normalize(&tuples::tuple_subtract(&to, &from));
+    let upn = tuples::vector_normalize(&up);
+    let left = tuples::vector_cross_product(&forward, &upn);
+    let true_up = tuples::vector_cross_product(&left, &forward);
+    let orientation = [
+        [left.x, left.y, left.z, 0.0],
+        [true_up.x, true_up.y, true_up.z, 0.0],
+        [-forward.x, -forward.y, -forward.z, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ];
+    matrices::matrix4_multiply(orientation, matrix4_translation(-from.x, -from.y, -from.z))
 }
 
 #[cfg(test)]
@@ -332,5 +351,56 @@ mod tests {
             true
         );
         assert_eq!(tuples::get_bool_tuples_are_equal(&p4, &p5), true);
+    }
+
+    #[test]
+    fn test_view_transformation_matrix_default() {
+        //The transformation matrix for the default orientation
+        let from = tuples::point(0.0, 0.0, 0.0);
+        let to = tuples::point(0.0, 0.0, -1.0);
+        let up = tuples::vector(0.0, 1.0, 0.0);
+        let t = view_transform(from, to, up);
+        assert_eq!(
+            matrices::get_bool_equal_m4(t, matrices::IDENTITY_MATRIX),
+            true
+        );
+    }
+
+    #[test]
+    fn test_view_transformation_matrix_looking_in_positive_z_direction() {
+        //A view transformation matrix looking in positive z direction
+        let from = tuples::point(0.0, 0.0, 0.0);
+        let to = tuples::point(0.0, 0.0, 1.0);
+        let up = tuples::vector(0.0, 1.0, 0.0);
+        let t = view_transform(from, to, up);
+        let s = matrix4_scaling(-1.0, 1.0, -1.0);
+        assert_eq!(matrices::get_bool_equal_m4(t, s), true);
+    }
+
+    #[test]
+    fn test_view_transformation_moves_world() {
+        //The view transformation moves the world
+        let from = tuples::point(0.0, 0.0, 8.0);
+        let to = tuples::point(0.0, 0.0, 0.0);
+        let up = tuples::vector(0.0, 1.0, 0.0);
+        let t = view_transform(from, to, up);
+        let tran = matrix4_translation(0.0, 0.0, -8.0);
+        assert_eq!(matrices::get_bool_equal_m4(t, tran), true);
+    }
+
+    #[test]
+    fn test_view_transformation_arbitrary() {
+        //An arbitrary view transformation
+        let from = tuples::point(1.0, 3.0, 2.0);
+        let to = tuples::point(4.0, -2.0, 8.0);
+        let up = tuples::vector(1.0, 1.0, 0.0);
+        let t = view_transform(from, to, up);
+        let r = [
+            [-0.50709, 0.50709, 0.67612, -2.36643],
+            [0.76772, 0.60609, 0.12122, -2.82843],
+            [-0.35857, 0.59761, -0.71714, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ];
+        assert_eq!(matrices::get_bool_equal_m4(t, r), true);
     }
 }
