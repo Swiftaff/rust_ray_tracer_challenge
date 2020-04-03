@@ -8,6 +8,11 @@ pub struct Ray {
     pub direction: tuples::Vector,
 }
 
+pub const RAY_NULL: Ray = Ray {
+    origin: tuples::POINT_ORIGIN,
+    direction: tuples::VECTOR_NULL,
+};
+
 pub fn ray(o: tuples::Point, d: tuples::Vector) -> Ray {
     Ray {
         origin: o,

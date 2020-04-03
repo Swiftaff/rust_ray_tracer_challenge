@@ -9,6 +9,7 @@ mod matrices;
 //mod program_sphere_outline;
 mod program_world;
 mod rays;
+mod shapes;
 mod spheres;
 mod transformations;
 mod tuples;

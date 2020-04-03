@@ -5,15 +5,9 @@ use crate::intersections;
 use crate::materials;
 use crate::matrices;
 use crate::rays;
+use crate::shapes;
 use crate::transformations;
 use crate::tuples;
-
-#[derive(Debug, Clone)]
-pub struct Sphere {
-    pub id: String,
-    pub transform: matrices::Matrix4,
-    pub material: materials::Material,
-}
 
 #[derive(Debug, Clone)]
 pub struct Discriminant {
@@ -23,25 +17,21 @@ pub struct Discriminant {
     pub d: f64,
 }
 
-pub fn sphere() -> Sphere {
-    Sphere {
-        id: format!("sphere-{}", Uuid::new_v4()),
-        transform: matrices::IDENTITY_MATRIX,
-        material: materials::MATERIAL_DEFAULT,
-    }
+pub fn sphere() -> shapes::Shape {
+    shapes::shape(shapes::ShapeType::ShapeSphere)
 }
 
-pub fn set_transform(mut s: Sphere, t: matrices::Matrix4) -> Sphere {
+pub fn set_transform(mut s: shapes::Shape, t: matrices::Matrix4) -> shapes::Shape {
     s.transform = t;
     s
 }
 
-pub fn set_material(mut s: Sphere, m: materials::Material) -> Sphere {
+pub fn set_material(mut s: shapes::Shape, m: materials::Material) -> shapes::Shape {
     s.material = m;
     s
 }
 
-pub fn discriminant(s: Sphere, ray: rays::Ray) -> Discriminant {
+pub fn discriminant(s: shapes::Shape, ray: rays::Ray) -> Discriminant {
     let v_sphere_to_ray: tuples::Vector =
         tuples::tuple_subtract(&ray.origin, &tuples::POINT_ORIGIN);
     let a: f64 = tuples::vector_dot_product(&ray.direction, &ray.direction);
@@ -57,13 +47,13 @@ pub fn discriminant(s: Sphere, ray: rays::Ray) -> Discriminant {
 }
 
 pub fn intersect(
-    s: Sphere,
+    s: shapes::Shape,
     r: rays::Ray,
-) -> Result<Vec<intersections::Intersection>, &'static str> {
+) -> Result<Vec<intersections::Intersection>, String> {
     let r2: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(s.transform));
     let disc: Discriminant = discriminant(s.clone(), r2);
     if disc.d < 0.0 {
-        Err("No intersections")
+        Err("No intersections".to_string())
     } else {
         //hits
         let t1 = (-disc.b - disc.d.sqrt()) / (2.0 * disc.a);
@@ -83,7 +73,7 @@ pub fn intersect(
     }
 }
 
-pub fn normal_at(s: Sphere, world_point: tuples::Point) -> tuples::Vector {
+pub fn normal_at(s: shapes::Shape, world_point: tuples::Point) -> tuples::Vector {
     let object_point: tuples::Point =
         matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), world_point);
     let object_normal: tuples::Vector =

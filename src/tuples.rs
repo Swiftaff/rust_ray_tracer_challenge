@@ -30,6 +30,13 @@ pub const POINT_ORIGIN: Point = Point {
     w: 1,
 };
 
+pub const VECTOR_NULL: Vector = Vector {
+    x: 0.0,
+    y: 0.0,
+    z: 0.0,
+    w: 0,
+};
+
 #[derive(Debug, Copy, Clone)]
 pub struct Tuple {
     pub x: f64,

@@ -2,14 +2,15 @@ use std::cmp::Ordering;
 
 use crate::matrices;
 use crate::rays;
+use crate::shapes;
 use crate::spheres;
 use crate::transformations;
 use crate::tuples;
 
-pub fn comp_default() -> Comps {
+pub fn comp_default(shapeType: &shapes::ShapeType) -> Comps {
     Comps {
         t: 0.0,
-        object: spheres::sphere(),
+        object: shapes::shape(*shapeType),
         point: tuples::point(0.0, 0.0, 0.0),
         over_point: tuples::point(0.0, 0.0, 0.0),
         eyev: tuples::vector(0.0, 0.0, 0.0),
@@ -21,7 +22,7 @@ pub fn comp_default() -> Comps {
 #[derive(Debug, Clone)]
 pub struct Comps {
     pub t: f64,
-    pub object: spheres::Sphere,
+    pub object: shapes::Shape,
     pub point: tuples::Point,
     pub over_point: tuples::Point,
     pub eyev: tuples::Vector,
@@ -32,10 +33,10 @@ pub struct Comps {
 #[derive(Debug, Clone)]
 pub struct Intersection {
     pub t: f64,
-    pub object: spheres::Sphere,
+    pub object: shapes::Shape,
 }
 
-pub fn intersection(t: f64, object: spheres::Sphere) -> Intersection {
+pub fn intersection(t: f64, object: shapes::Shape) -> Intersection {
     Intersection {
         t: t,
         object: object,
@@ -62,7 +63,7 @@ pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
 }
 
 pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
-    let mut comps: Comps = comp_default();
+    let mut comps: Comps = comp_default(&i.object.shapeType);
     comps.t = i.t;
     comps.object = i.object;
     comps.point = rays::position(r, comps.t);

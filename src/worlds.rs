@@ -3,13 +3,14 @@ use crate::lights;
 use crate::materials;
 use crate::matrices;
 use crate::rays;
+use crate::shapes;
 use crate::spheres;
 use crate::transformations;
 use crate::tuples;
 
 #[derive(Debug, Clone)]
 pub struct World {
-    pub objects: Vec<spheres::Sphere>,
+    pub objects: Vec<shapes::Shape>,
     pub light: Vec<lights::LightPoint>,
 }
 

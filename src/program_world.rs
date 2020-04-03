@@ -10,6 +10,7 @@ use crate::lights;
 use crate::materials;
 use crate::matrices;
 use crate::rays;
+use crate::shapes;
 use crate::spheres;
 use crate::transformations;
 use crate::tuples;
@@ -29,7 +30,7 @@ pub fn world_main() {
         shape_sphere_left(),
     ];
 
-    let mut c = camera::camera(50, 25, PI / 3.0);
+    let mut c = camera::camera(200,100, PI / 3.0);
     let from = tuples::point(0.0, 1.5, -5.0);
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 1.0, 0.0);
@@ -67,14 +68,14 @@ pub fn material_floor() -> materials::Material {
     mat
 }
 
-pub fn shape_floor() -> spheres::Sphere {
+pub fn shape_floor() -> shapes::Shape {
     let mut shape = spheres::sphere();
     shape.transform = transformations::matrix4_scaling(10.0, 0.01, 10.0);
     shape.material = material_floor();
     shape
 }
 
-pub fn shape_wall_left() -> spheres::Sphere {
+pub fn shape_wall_left() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(0.0, 0.0, 5.0);
     let t2 = transformations::matrix4_rotation_y_rad(-PI / 4.0);
@@ -85,7 +86,7 @@ pub fn shape_wall_left() -> spheres::Sphere {
     shape
 }
 
-pub fn shape_wall_right() -> spheres::Sphere {
+pub fn shape_wall_right() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(0.0, 0.0, 5.0);
     let t2 = transformations::matrix4_rotation_y_rad(PI / 4.0);
@@ -96,7 +97,7 @@ pub fn shape_wall_right() -> spheres::Sphere {
     shape
 }
 
-pub fn shape_sphere_middle() -> spheres::Sphere {
+pub fn shape_sphere_middle() -> shapes::Shape {
     let mut shape = spheres::sphere();
     shape.transform = transformations::matrix4_translation(-0.5, 1.0, 0.5);
 
@@ -109,7 +110,7 @@ pub fn shape_sphere_middle() -> spheres::Sphere {
     shape
 }
 
-pub fn shape_sphere_right() -> spheres::Sphere {
+pub fn shape_sphere_right() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(1.5, 0.5, -0.5);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
@@ -124,9 +125,9 @@ pub fn shape_sphere_right() -> spheres::Sphere {
     shape
 }
 
-pub fn shape_sphere_right2() -> spheres::Sphere {
+pub fn shape_sphere_right2() -> shapes::Shape {
     let mut shape = spheres::sphere();
-    let t1 = transformations::matrix4_translation(1.0, 1.0, 0.75);
+    let t1 = transformations::matrix4_translation(1.0, 0.5, 0.75);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
     shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
 
@@ -139,7 +140,7 @@ pub fn shape_sphere_right2() -> spheres::Sphere {
     shape
 }
 
-pub fn shape_sphere_left() -> spheres::Sphere {
+pub fn shape_sphere_left() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(-1.5, 0.33, -0.75);
     let t2 = transformations::matrix4_scaling(0.33, 0.33, 0.33);
