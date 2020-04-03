@@ -30,7 +30,7 @@ pub fn world_main() {
         shape_sphere_left(),
     ];
 
-    let mut c = camera::camera(200,100, PI / 3.0);
+    let mut c = camera::camera(200, 100, PI / 3.0);
     let from = tuples::point(0.0, 1.5, -5.0);
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 1.0, 0.0);

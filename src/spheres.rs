@@ -73,6 +73,32 @@ pub fn intersect(
     }
 }
 
+pub fn local_intersect(
+    s: shapes::Shape,
+    local_r: rays::Ray,
+) -> Result<Vec<intersections::Intersection>, String> {
+    let disc: Discriminant = discriminant(s.clone(), local_r);
+    if disc.d < 0.0 {
+        Err("No intersections".to_string())
+    } else {
+        //hits
+        let t1 = (-disc.b - disc.d.sqrt()) / (2.0 * disc.a);
+        let t2 = (-disc.b + disc.d.sqrt()) / (2.0 * disc.a);
+        let i1 = if t1 < t2 {
+            intersections::intersection(t1, s.clone())
+        } else {
+            intersections::intersection(t2, s.clone())
+        };
+        let i2 = if t1 < t2 {
+            intersections::intersection(t2, s.clone())
+        } else {
+            intersections::intersection(t1, s.clone())
+        };
+        let xs: Vec<intersections::Intersection> = intersections::intersection_list(vec![i1, i2]);
+        Ok(xs)
+    }
+}
+
 pub fn normal_at(s: shapes::Shape, world_point: tuples::Point) -> tuples::Vector {
     let object_point: tuples::Point =
         matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), world_point);
@@ -84,6 +110,10 @@ pub fn normal_at(s: shapes::Shape, world_point: tuples::Point) -> tuples::Vector
     );
     world_normal.w = 0;
     tuples::vector_normalize(&world_normal)
+}
+
+pub fn local_normal_at(local_point: tuples::Point) -> tuples::Vector {
+    tuples::tuple_subtract(&local_point, &tuples::POINT_ORIGIN)
 }
 
 #[cfg(test)]
@@ -219,7 +249,7 @@ mod tests {
     }
 
     #[test]
-    fn test_intersect_scaled_sphjere_with_ray() {
+    fn test_intersect_scaled_sphere_with_ray() {
         //Intersecting a scaled sphere with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let s = sphere();
@@ -237,7 +267,7 @@ mod tests {
     }
 
     #[test]
-    fn test_intersect_translated_sphjere_with_ray() {
+    fn test_intersect_translated_sphere_with_ray() {
         //Intersecting a translated sphere with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let s = sphere();
