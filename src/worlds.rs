@@ -62,7 +62,7 @@ pub fn world_intersect(w: World, r: rays::Ray) -> Vec<intersections::Intersectio
     let mut xs_list_unsorted: Vec<intersections::Intersection> = vec![];
     for index in 0..w.objects.len() {
         let this_sphere = w.objects[index].clone();
-        let xs_for_this_sphere = spheres::intersect(this_sphere, *&r);
+        let xs_for_this_sphere = shapes::intersect(this_sphere, *&r);
         match xs_for_this_sphere {
             Err(e) => (), //println!("XS Error: {}", e),
             Ok(mut xs) => {

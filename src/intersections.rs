@@ -68,7 +68,7 @@ pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
     comps.object = i.object;
     comps.point = rays::position(r, comps.t);
     comps.eyev = tuples::tuple_multiply(r.direction, -1.0);
-    comps.normalv = spheres::normal_at(comps.clone().object, comps.clone().point);
+    comps.normalv = shapes::normal_at(comps.clone().object, comps.clone().point);
     comps.over_point = tuples::tuple_add(
         &comps.point,
         &(tuples::tuple_scalar_multiply(&comps.clone().normalv, tuples::EPSILON)),
