@@ -45,8 +45,8 @@ pub fn set_material(mut s: Shape, m: materials::Material) -> Shape {
 pub fn intersect(s: Shape, r: rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
     let local_r: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(s.transform));
     match s.shapeType {
-        ShapeSphere => spheres::local_intersect(s, local_r),
-        ShapeTest => test_local_intersect(s, local_r),
+        ShapeType::ShapeSphere => spheres::local_intersect(s, local_r),
+        ShapeType::ShapeTest => test_local_intersect(s, local_r),
     }
 }
 
