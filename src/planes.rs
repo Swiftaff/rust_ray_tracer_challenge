@@ -1,12 +1,10 @@
 use std::f64::consts::PI;
-use uuid::Uuid;
 
 use crate::intersections;
 use crate::materials;
 use crate::matrices;
 use crate::rays;
 use crate::shapes;
-use crate::transformations;
 use crate::tuples;
 
 pub fn plane() -> shapes::Shape {
@@ -30,16 +28,12 @@ pub fn local_intersect(
     if local_r.direction.y.abs() < tuples::EPSILON {
         return Err("No intersections".to_string());
     }
-    let t = -local_r.origin.y / local_r.direction.y;
-    Ok([intersections::intersection(t, s)].to_vec())
+    let t = -1.0 * local_r.origin.y / local_r.direction.y;
+    Ok(vec![intersections::intersection(t, s)])
 }
 
 pub fn local_normal_at() -> tuples::Vector {
     tuples::vector(0.0, 1.0, 0.0)
-}
-
-fn print_type_of<T>(_: &T) -> String {
-    format!("{}", std::any::type_name::<T>())
 }
 
 #[cfg(test)]

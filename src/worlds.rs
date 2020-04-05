@@ -80,7 +80,7 @@ pub fn shade_hit(w: World, c: intersections::Comps) -> tuples::Color {
         let this_lights_effect = lights::lighting(
             c.object.material,
             this_light,
-            c.point,
+            c.over_point,
             c.eyev,
             c.normalv,
             is_shadowed(w.clone(), c.over_point),
