@@ -4,6 +4,7 @@ use uuid::Uuid;
 use crate::intersections;
 use crate::materials;
 use crate::matrices;
+use crate::planes;
 use crate::rays;
 use crate::spheres;
 use crate::transformations;
@@ -21,6 +22,7 @@ pub struct Shape {
 pub enum ShapeType {
     ShapeSphere,
     ShapeTest,
+    ShapePlane,
 }
 
 pub fn shape(shapeType: ShapeType) -> Shape {
@@ -47,6 +49,7 @@ pub fn intersect(s: Shape, r: rays::Ray) -> Result<Vec<intersections::Intersecti
     match s.shapeType {
         ShapeType::ShapeSphere => spheres::local_intersect(s, local_r),
         ShapeType::ShapeTest => test_local_intersect(s, local_r),
+        ShapeType::ShapePlane => planes::local_intersect(s, local_r),
     }
 }
 
@@ -78,6 +81,7 @@ pub fn normal_at(s: Shape, world_point: tuples::Point) -> tuples::Vector {
     let local_normal = match s.shapeType {
         ShapeSphere => spheres::local_normal_at(local_point),
         ShapeTest => test_local_normal_at(local_point),
+        ShapePlane => planes::local_normal_at(),
     };
     let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
         matrices::matrix4_transpose(matrices::matrix4_inverse(s.transform)),

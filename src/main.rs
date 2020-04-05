@@ -7,6 +7,7 @@ mod matrices;
 //mod program_fire_canon;
 //mod program_sphere_lighting;
 //mod program_sphere_outline;
+mod planes;
 mod program_world;
 mod rays;
 mod shapes;
