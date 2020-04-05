@@ -5,6 +5,7 @@ use std::time::Instant;
 
 use crate::camera;
 use crate::canvas;
+use crate::lights;
 use crate::materials;
 use crate::planes;
 use crate::shapes;
@@ -21,15 +22,25 @@ pub fn world_main(w: u32, h: u32) {
     world.objects = vec![
         shape_floor(),
         shape_wall_behind(),
+        shape_wall_left_behind(),
+        shape_wall_right_behind(),
+        shape_wall_infront(),
+        shape_wall_left_infront(),
+        shape_wall_right_infront(),
         shape_sphere_middle(),
         shape_sphere_right2(),
         shape_sphere_left(),
     ];
 
+    world.light = vec![lights::LightPoint {
+        position: tuples::point(-1.5, 5.0, -1.5),
+        intensity: tuples::COLOR_WHITE,
+    }];
+
     let mut c = camera::camera(w, h, PI / 3.0);
-    let from = tuples::point(0.0, 1.5, -5.0);
+    let from = tuples::point(0.0, 10.0, -1.5);
     let to = tuples::point(0.0, 1.0, 0.0);
-    let up = tuples::vector(0.0, 1.0, 0.0);
+    let up = tuples::vector(0.0, 0.0, 1.0);
     c.transform = transformations::view_transform(from, to, up);
     let image = camera::render_percent_message(c, world, 0.01);
     let duration1 = start1.elapsed();
@@ -66,15 +77,62 @@ pub fn material_floor() -> materials::Material {
 
 pub fn shape_floor() -> shapes::Shape {
     let shape = planes::plane();
-    //shape.transform = transformations::matrix4_scaling(10.0, 0.01, 10.0);
-    //shape.material = material_floor();
     shape
 }
 
 pub fn shape_wall_behind() -> shapes::Shape {
     let mut shape = planes::plane();
+    let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
+    let t2 = transformations::matrix4_translation(0.0, 0.0, 2.0);
+    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
+    shape.material = material_floor();
+    shape
+}
+
+pub fn shape_wall_left_behind() -> shapes::Shape {
+    let mut shape = planes::plane();
     let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
-    let t2 = transformations::matrix4_translation(0.0, 0.0, 5.0);
+    let t2 = transformations::matrix4_rotation_y_rad(2.0 * PI / 3.0);
+    let t3 = transformations::matrix4_translation(-2.0, 0.0, 2.0);
+    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.material = material_floor();
+    shape
+}
+
+pub fn shape_wall_right_behind() -> shapes::Shape {
+    let mut shape = planes::plane();
+    let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
+    let t2 = transformations::matrix4_rotation_y_rad(-2.0 * PI / 3.0);
+    let t3 = transformations::matrix4_translation(2.0, 0.0, 2.0);
+    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.material = material_floor();
+    shape
+}
+
+pub fn shape_wall_left_infront() -> shapes::Shape {
+    let mut shape = planes::plane();
+    let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
+    let t2 = transformations::matrix4_rotation_y_rad(2.0 * PI / 3.0);
+    let t3 = transformations::matrix4_translation(2.0, 0.0, -2.0);
+    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.material = material_floor();
+    shape
+}
+
+pub fn shape_wall_right_infront() -> shapes::Shape {
+    let mut shape = planes::plane();
+    let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
+    let t2 = transformations::matrix4_rotation_y_rad(-2.0 * PI / 3.0);
+    let t3 = transformations::matrix4_translation(-2.0, 0.0, -2.0);
+    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.material = material_floor();
+    shape
+}
+
+pub fn shape_wall_infront() -> shapes::Shape {
+    let mut shape = planes::plane();
+    let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
+    let t2 = transformations::matrix4_translation(0.0, 0.0, -2.0);
     shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
     shape.material = material_floor();
     shape

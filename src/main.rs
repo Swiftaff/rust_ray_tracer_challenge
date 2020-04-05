@@ -21,10 +21,10 @@ mod transformations;
 mod tuples;
 mod worlds;
 
-const DEFAULT_SIZE_INDICES: [usize; 5] = [3, 1, 2, 1, 2];
+const DEFAULT_SIZE_INDICES: [usize; 5] = [4, 2, 3, 2, 1];
 
 fn main() {
-    let sizes_arr: [[u32; 2]; 4] = [[100, 50], [200, 100], [400, 200], [500, 250]];
+    let sizes_arr: [[u32; 2]; 5] = [[50, 25], [100, 50], [200, 100], [400, 200], [500, 250]];
     let size: u32 = get_selected_size();
     let program: u32 = get_selected_program();
     let index: usize = get_size_for_program(size, program);
@@ -37,10 +37,11 @@ fn get_selected_size() -> u32 {
     let message: String = String::from(
         "Choose image size to render (square shapes use just x value)
 0. use defaults
-1. Tiny(100,50)
-2. Small(200,100)
-3. Medium(400,200)
-4. Large(500,250)
+1. X-Tiny(50,25)
+2. Tiny(100,50)
+3. Small(200,100)
+4. Medium(400,200)
+5. Large(500,250)
 ? ",
     );
     input::<u32>().msg(message).get()
