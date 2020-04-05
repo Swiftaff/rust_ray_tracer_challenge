@@ -8,7 +8,7 @@ use crate::shapes;
 use crate::tuples;
 
 pub fn plane() -> shapes::Shape {
-    shapes::shape(shapes::ShapeType::ShapePlane)
+    shapes::shape(shapes::ShapeType::Plane)
 }
 
 pub fn set_transform(mut s: shapes::Shape, t: matrices::Matrix4) -> shapes::Shape {
@@ -34,6 +34,10 @@ pub fn local_intersect(
 
 pub fn local_normal_at() -> tuples::Vector {
     tuples::vector(0.0, 1.0, 0.0)
+}
+
+fn print_type_of<T>(_: &T) -> String {
+    format!("{}", std::any::type_name::<T>())
 }
 
 #[cfg(test)]

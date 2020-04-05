@@ -16,12 +16,12 @@ use crate::transformations;
 use crate::tuples;
 use crate::worlds;
 
-pub fn world_main() {
+pub fn world_main(w: u32, h: u32) {
     println!("world - 6 objects!");
     let start1 = Instant::now();
 
-    let mut w = worlds::world_two_lights();
-    w.objects = vec![
+    let mut world = worlds::world_two_lights();
+    world.objects = vec![
         shape_floor(),
         shape_wall_left(),
         shape_wall_right(),
@@ -30,12 +30,12 @@ pub fn world_main() {
         shape_sphere_left(),
     ];
 
-    let mut c = camera::camera(200, 100, PI / 3.0);
+    let mut c = camera::camera(w, h, PI / 3.0);
     let from = tuples::point(0.0, 1.5, -5.0);
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 1.0, 0.0);
     c.transform = transformations::view_transform(from, to, up);
-    let image = camera::render_percent_message(c, w, 0.01);
+    let image = camera::render_percent_message(c, world, 0.01);
     let duration1 = start1.elapsed();
     println!("Time to calculate data: {:?}", duration1);
 

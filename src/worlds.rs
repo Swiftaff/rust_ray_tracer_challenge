@@ -14,13 +14,6 @@ pub struct World {
     pub light: Vec<lights::LightPoint>,
 }
 
-pub fn world() -> World {
-    World {
-        objects: vec![],
-        light: vec![],
-    }
-}
-
 pub fn world_default() -> World {
     let mut s1 = spheres::sphere();
     let mut m1 = materials::MATERIAL_DEFAULT;
@@ -125,6 +118,13 @@ pub fn is_shadowed(w: World, p: tuples::Point) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn world() -> World {
+        World {
+            objects: vec![],
+            light: vec![],
+        }
+    }
 
     #[test]
     fn test_creating_a_world() {

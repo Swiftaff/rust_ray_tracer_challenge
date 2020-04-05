@@ -6,19 +6,20 @@ use std::time::Instant;
 use crate::canvas;
 use crate::matrices;
 use crate::rays;
+use crate::shapes;
 use crate::spheres;
 use crate::transformations;
 use crate::tuples;
 
-pub fn sphere_outline_main() {
+pub fn sphere_outline_main(w: u32, h: u32) {
+    // w should equal h
     println!("sphere outline");
     let start1 = Instant::now();
-    const canvas_pixels: u32 = 200;
-    let mut c = canvas::pixel_canvas(canvas_pixels, canvas_pixels, tuples::COLOR_BLACK);
+    let mut c = canvas::pixel_canvas(w, h, tuples::COLOR_BLACK);
     let ray_origin = tuples::point(0.0, 0.0, -5.0);
     let wall_z: f64 = 10.0;
     let wall_size: f64 = 7.0;
-    let pixel_size: f64 = wall_size / canvas_pixels as f64;
+    let pixel_size: f64 = wall_size / w as f64;
     let half: f64 = wall_size / 2.0;
     let mut shape = spheres::sphere();
     let m1: matrices::Matrix4 = transformations::matrix4_scaling(0.5, 1.0, 1.0);
@@ -29,16 +30,16 @@ pub fn sphere_outline_main() {
     shape = spheres::set_transform(shape, m);
     //console.log("st", shape.transform);
 
-    for y in 0..canvas_pixels {
+    for y in 0..h {
         let world_y = half - pixel_size * y as f64;
-        for x in 0..canvas_pixels {
+        for x in 0..w {
             let world_x = half - pixel_size * x as f64;
             let position = tuples::point(world_x, world_y, wall_z);
             let r = rays::ray(
                 ray_origin,
                 tuples::vector_normalize(&tuples::tuple_subtract(&position, &ray_origin)),
             );
-            let xs_result = spheres::intersect(shape.clone(), r);
+            let xs_result = shapes::intersect(shape.clone(), r);
             match xs_result {
                 Err(e) => {} //println!("Error: {}", e),
                 Ok(xs) => {

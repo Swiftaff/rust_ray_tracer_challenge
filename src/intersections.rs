@@ -7,10 +7,10 @@ use crate::spheres;
 use crate::transformations;
 use crate::tuples;
 
-pub fn comp_default(shapeType: &shapes::ShapeType) -> Comps {
+pub fn comp_default(shape_type: &shapes::ShapeType) -> Comps {
     Comps {
         t: 0.0,
-        object: shapes::shape(*shapeType),
+        object: shapes::shape(*shape_type),
         point: tuples::point(0.0, 0.0, 0.0),
         over_point: tuples::point(0.0, 0.0, 0.0),
         eyev: tuples::vector(0.0, 0.0, 0.0),
@@ -49,21 +49,21 @@ pub fn intersection_list(mut xs: Vec<Intersection>) -> Vec<Intersection> {
 }
 
 pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
-    let mut theHit: i32 = -1;
+    let mut the_hit: i32 = -1;
     for index in 0..xs.len() {
-        if theHit == -1 && xs[index].t >= 0.0 {
-            theHit = index as i32;
+        if the_hit == -1 && xs[index].t >= 0.0 {
+            the_hit = index as i32;
         }
     }
-    if theHit == -1 {
+    if the_hit == -1 {
         Err("No hit")
     } else {
-        Ok(xs[theHit as usize].clone())
+        Ok(xs[the_hit as usize].clone())
     }
 }
 
 pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
-    let mut comps: Comps = comp_default(&i.object.shapeType);
+    let mut comps: Comps = comp_default(&i.object.shape_type);
     comps.t = i.t;
     comps.object = i.object;
     comps.point = rays::position(r, comps.t);

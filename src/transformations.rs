@@ -33,11 +33,11 @@ pub fn transform_tuple_with_chain(
 }
 
 pub fn matrix4_transform_chain(arr: Vec<matrices::Matrix4>) -> matrices::Matrix4 {
-    let mut new_Matrix = matrices::IDENTITY_MATRIX;
+    let mut new_matrix = matrices::IDENTITY_MATRIX;
     for i in 0..arr.len() {
-        new_Matrix = matrices::matrix4_multiply(arr[i], new_Matrix)
+        new_matrix = matrices::matrix4_multiply(arr[i], new_matrix)
     }
-    new_Matrix
+    new_matrix
 }
 
 pub fn matrix4_rotation_x_rad(r: f64) -> matrices::Matrix4 {

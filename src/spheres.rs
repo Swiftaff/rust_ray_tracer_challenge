@@ -18,7 +18,7 @@ pub struct Discriminant {
 }
 
 pub fn sphere() -> shapes::Shape {
-    shapes::shape(shapes::ShapeType::ShapeSphere)
+    shapes::shape(shapes::ShapeType::Sphere)
 }
 
 pub fn set_transform(mut s: shapes::Shape, t: matrices::Matrix4) -> shapes::Shape {

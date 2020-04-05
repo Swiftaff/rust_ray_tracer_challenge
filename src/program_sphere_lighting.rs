@@ -9,19 +9,19 @@ use crate::lights;
 use crate::materials;
 use crate::matrices;
 use crate::rays;
+use crate::shapes;
 use crate::spheres;
 use crate::transformations;
 use crate::tuples;
 
-pub fn sphere_lighting_main() {
+pub fn sphere_lighting_main(w: u32, h: u32) {
     println!("sphere lighting");
     let start1 = Instant::now();
-    const canvas_pixels: u32 = 400;
-    let mut c = canvas::pixel_canvas(canvas_pixels, canvas_pixels, tuples::COLOR_BLACK);
+    let mut c = canvas::pixel_canvas(w, h, tuples::COLOR_BLACK);
     let ray_origin = tuples::point(0.0, 0.0, -5.0);
     let wall_z: f64 = 10.0;
     let wall_size: f64 = 7.0;
-    let pixel_size: f64 = wall_size / canvas_pixels as f64;
+    let pixel_size: f64 = wall_size / w as f64;
     let half: f64 = wall_size / 2.0;
     let mut shape = spheres::sphere();
     let mut mat = materials::MATERIAL_DEFAULT;
@@ -38,20 +38,20 @@ pub fn sphere_lighting_main() {
     let light = lights::light_point(light_position, light_color);
     let mut pc = 5;
 
-    for y in 0..canvas_pixels {
-        if y / canvas_pixels > pc {
+    for y in 0..h {
+        if y / h > pc {
             println!("...ray tracing: {}%", pc);
             pc = pc + 5;
         }
         let world_y = half - pixel_size * y as f64;
-        for x in 0..canvas_pixels {
+        for x in 0..w {
             let world_x = half - pixel_size * x as f64;
             let position = tuples::point(world_x, world_y, wall_z);
             let r = rays::ray(
                 ray_origin,
                 tuples::vector_normalize(&tuples::tuple_subtract(&position, &ray_origin)),
             );
-            let xs_result = spheres::intersect(shape.clone(), r);
+            let xs_result = shapes::intersect(shape.clone(), r);
             match xs_result {
                 Err(e) => {} //println!("Error: {}", e),
                 Ok(xs) => {
@@ -60,10 +60,16 @@ pub fn sphere_lighting_main() {
                         Err(e) => {} //println!("Error: {}", e),
                         Ok(h) => {
                             let pnt = rays::position(r, h.t);
-                            let nrm = spheres::normal_at(shape.clone(), pnt);
+                            let nrm = shapes::normal_at(shape.clone(), pnt);
                             let eye = tuples::tuple_multiply(r.direction, -1.0);
-                            let col =
-                                lights::lighting(shape.clone().material, light, pnt, eye, nrm);
+                            let col = lights::lighting(
+                                shape.clone().material,
+                                light,
+                                pnt,
+                                eye,
+                                nrm,
+                                false,
+                            );
                             c = canvas::pixel_write(c, x, y, col);
                         }
                     }

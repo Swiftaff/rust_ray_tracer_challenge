@@ -5,11 +5,11 @@ use std::time::Instant;
 use crate::canvas;
 use crate::tuples;
 
-pub fn fire_canon_main() {
+pub fn fire_canon_main(w: u32, h: u32) {
     println!("fire canon");
     let black = tuples::color(0.0, 0.0, 0.0);
     let mut orange = tuples::color(1.0, 1.0, 0.0);
-    let mut c = canvas::pixel_canvas(500, 500, black);
+    let mut c = canvas::pixel_canvas(w, h, black);
     // velocity is normalized to 1 unit/tick.
     let mut proj = tuples::projectile(tuples::point(0.0, 1.0, 0.0), tuples::vector(5.0, 10.0, 0.0));
 

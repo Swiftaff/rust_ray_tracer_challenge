@@ -15,22 +15,22 @@ pub struct Shape {
     pub id: String,
     pub transform: matrices::Matrix4,
     pub material: materials::Material,
-    pub shapeType: ShapeType,
+    pub shape_type: ShapeType,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum ShapeType {
-    ShapeSphere,
-    ShapeTest,
-    ShapePlane,
+    Sphere,
+    Shape_test,
+    Plane,
 }
 
-pub fn shape(shapeType: ShapeType) -> Shape {
+pub fn shape(shape_type: ShapeType) -> Shape {
     Shape {
         id: format!("{}", Uuid::new_v4()),
         transform: matrices::IDENTITY_MATRIX,
         material: materials::MATERIAL_DEFAULT,
-        shapeType: shapeType,
+        shape_type: shape_type,
     }
 }
 
@@ -46,10 +46,10 @@ pub fn set_material(mut s: Shape, m: materials::Material) -> Shape {
 
 pub fn intersect(s: Shape, r: rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
     let local_r: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(s.transform));
-    match s.shapeType {
-        ShapeType::ShapeSphere => spheres::local_intersect(s, local_r),
-        ShapeType::ShapeTest => test_local_intersect(s, local_r),
-        ShapeType::ShapePlane => planes::local_intersect(s, local_r),
+    match s.shape_type {
+        ShapeType::Sphere => spheres::local_intersect(s, local_r),
+        ShapeType::Shape_test => test_local_intersect(s, local_r),
+        ShapeType::Plane => planes::local_intersect(s, local_r),
     }
 }
 
@@ -78,10 +78,10 @@ fn test_local_intersect(
 pub fn normal_at(s: Shape, world_point: tuples::Point) -> tuples::Vector {
     let local_point: tuples::Point =
         matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), world_point);
-    let local_normal = match s.shapeType {
-        ShapeSphere => spheres::local_normal_at(local_point),
-        ShapeTest => test_local_normal_at(local_point),
-        ShapePlane => planes::local_normal_at(),
+    let local_normal = match s.shape_type {
+        ShapeType::Sphere => spheres::local_normal_at(local_point),
+        ShapeType::Shape_test => test_local_normal_at(local_point),
+        ShapeType::Plane => planes::local_normal_at(),
     };
     let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
         matrices::matrix4_transpose(matrices::matrix4_inverse(s.transform)),
@@ -102,7 +102,7 @@ mod tests {
     #[test]
     fn test_shapes_default_transformation() {
         //A shape's default transformation
-        let s = shape(ShapeType::ShapeTest);
+        let s = shape(ShapeType::Shape_test);
         assert_eq!(
             matrices::get_bool_equal_m4(s.transform, matrices::IDENTITY_MATRIX),
             true
@@ -112,7 +112,7 @@ mod tests {
     #[test]
     fn test_assign_material_to_shape() {
         //A shape may be assigned a material
-        let s = shape(ShapeType::ShapeTest);
+        let s = shape(ShapeType::Shape_test);
         assert_eq!(s.material.color.red == tuples::COLOR_WHITE.red, true);
         assert_eq!(s.material.ambient == 0.1, true);
         assert_eq!(s.material.diffuse == 0.9, true);
@@ -127,10 +127,10 @@ mod tests {
     #[test]
     fn test_shapes_have_unique_ids() {
         //Shapes have unique IDs
-        let s1 = shape(ShapeType::ShapeTest);
-        let s2 = shape(ShapeType::ShapeTest);
-        let s3 = shape(ShapeType::ShapeTest);
-        let s4 = shape(ShapeType::ShapeTest);
+        let s1 = shape(ShapeType::Shape_test);
+        let s2 = shape(ShapeType::Shape_test);
+        let s3 = shape(ShapeType::Shape_test);
+        let s4 = shape(ShapeType::Shape_test);
         assert_eq!(s1.id == s2.id, false);
         assert_eq!(s2.id == s3.id, false);
         assert_eq!(s3.id == s4.id, false);
@@ -141,7 +141,7 @@ mod tests {
     fn test_intersecting_a_scaled_shape_with_a_ray() {
         //Intersecting a scaled shape with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
-        let mut s = shape(ShapeType::ShapeTest);
+        let mut s = shape(ShapeType::Shape_test);
         s = set_transform(s, transformations::matrix4_scaling(2.0, 2.0, 2.0));
         let expected_error = intersect(s, r);
         match expected_error {
@@ -156,7 +156,7 @@ mod tests {
     fn test_intersecting_a_translated_shape_with_a_ray() {
         //Intersecting a translated shape with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
-        let mut s = shape(ShapeType::ShapeTest);
+        let mut s = shape(ShapeType::Shape_test);
         s = set_transform(s, transformations::matrix4_translation(5.0, 0.0, 0.0));
         let expected_error = intersect(s, r);
         match expected_error {
@@ -170,7 +170,7 @@ mod tests {
     #[test]
     fn test_computing_the_normal_on_a_translated_shape() {
         //Computing the normal on a translated shape
-        let mut s = shape(ShapeType::ShapeTest);
+        let mut s = shape(ShapeType::Shape_test);
         s = set_transform(s, transformations::matrix4_translation(0.0, 1.0, 0.0));
         let n = normal_at(s, tuples::point(0.0, 1.70711, -0.70711));
         assert_eq!(
@@ -182,7 +182,7 @@ mod tests {
     #[test]
     fn test_computing_the_normal_on_a_transformed_shape() {
         //Computing the normal on a transformed shape
-        let mut s = shape(ShapeType::ShapeTest);
+        let mut s = shape(ShapeType::Shape_test);
         let scaling = transformations::matrix4_scaling(1.0, 0.5, 1.0);
         let rot_z = transformations::matrix4_rotation_z_rad(PI / 5.0);
         let m = transformations::matrix4_transform_chain([rot_z, scaling].to_vec());
