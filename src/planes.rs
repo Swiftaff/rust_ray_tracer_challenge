@@ -1,5 +1,3 @@
-use std::f64::consts::PI;
-
 use crate::intersections;
 use crate::materials;
 use crate::matrices;
@@ -90,7 +88,7 @@ mod tests {
         let s = plane();
         let x = shapes::intersect(s.clone(), r);
         match x {
-            Err(e) => {
+            Err(_) => {
                 println!("Not possible in this test");
                 assert_eq!(false, true);
             }
@@ -108,7 +106,7 @@ mod tests {
         let s = plane();
         let x = shapes::intersect(s.clone(), r);
         match x {
-            Err(e) => {
+            Err(_) => {
                 println!("Not possible in this test");
                 assert_eq!(false, true);
             }

@@ -5,11 +5,7 @@ use std::time::Instant;
 
 use crate::camera;
 use crate::canvas;
-use crate::intersections;
-use crate::lights;
 use crate::materials;
-use crate::matrices;
-use crate::rays;
 use crate::shapes;
 use crate::spheres;
 use crate::transformations;

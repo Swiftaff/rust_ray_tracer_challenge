@@ -1,12 +1,8 @@
-use std::f64::consts::PI;
-use uuid::Uuid;
-
 use crate::intersections;
 use crate::materials;
 use crate::matrices;
 use crate::rays;
 use crate::shapes;
-use crate::transformations;
 use crate::tuples;
 
 #[derive(Debug, Clone)]
@@ -31,7 +27,7 @@ pub fn set_material(mut s: shapes::Shape, m: materials::Material) -> shapes::Sha
     s
 }
 
-pub fn discriminant(s: shapes::Shape, ray: rays::Ray) -> Discriminant {
+pub fn discriminant(ray: rays::Ray) -> Discriminant {
     let v_sphere_to_ray: tuples::Vector =
         tuples::tuple_subtract(&ray.origin, &tuples::POINT_ORIGIN);
     let a: f64 = tuples::vector_dot_product(&ray.direction, &ray.direction);
@@ -50,7 +46,7 @@ pub fn local_intersect(
     s: shapes::Shape,
     local_r: rays::Ray,
 ) -> Result<Vec<intersections::Intersection>, String> {
-    let disc: Discriminant = discriminant(s.clone(), local_r);
+    let disc: Discriminant = discriminant(local_r);
     if disc.d < 0.0 {
         Err("No intersections".to_string())
     } else {
@@ -76,13 +72,13 @@ pub fn local_normal_at(local_point: tuples::Point) -> tuples::Vector {
     tuples::tuple_subtract(&local_point, &tuples::POINT_ORIGIN)
 }
 
-fn print_type_of<T>(_: &T) -> String {
-    format!("{}", std::any::type_name::<T>())
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::transformations;
+    use std::f64::consts::PI;
+    fn print_type_of<T>(_: &T) -> String {
+        format!("{}", std::any::type_name::<T>())
+    }
 
     #[test]
     fn test_spheres_have_unique_ids() {

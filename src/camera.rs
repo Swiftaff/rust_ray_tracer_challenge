@@ -1,10 +1,9 @@
-use std::f64::consts::PI;
 use std::time::Instant;
 
 use crate::canvas;
 use crate::matrices;
 use crate::rays;
-use crate::transformations;
+
 use crate::tuples;
 use crate::worlds;
 
@@ -124,6 +123,8 @@ pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas:
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transformations;
+    use std::f64::consts::PI;
 
     #[test]
     fn test_constructing_a_camera() {

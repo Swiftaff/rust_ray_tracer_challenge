@@ -1,10 +1,8 @@
 use std::cmp::Ordering;
 
-use crate::matrices;
 use crate::rays;
 use crate::shapes;
-use crate::spheres;
-use crate::transformations;
+
 use crate::tuples;
 
 pub fn comp_default(shape_type: &shapes::ShapeType) -> Comps {
@@ -83,6 +81,9 @@ pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::matrices;
+    use crate::spheres;
+    use crate::transformations;
 
     #[test]
     fn test_intersection_has_t_and_object() {

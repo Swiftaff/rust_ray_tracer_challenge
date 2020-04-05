@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use read_input::prelude::*;
 
 mod camera;
@@ -19,23 +21,19 @@ mod transformations;
 mod tuples;
 mod worlds;
 
-const default_size_indexes: [usize; 5] = [3, 1, 2, 1, 2];
+const DEFAULT_SIZE_INDICES: [usize; 5] = [3, 1, 2, 1, 2];
 
 fn main() {
     let sizes_arr: [[u32; 2]; 4] = [[100, 50], [200, 100], [400, 200], [500, 250]];
-    let mut x = sizes_arr[0][0];
-    let mut y = sizes_arr[0][1];
-    let mut index: usize = 0;
-
-    let mut size: u32 = getSelectedSize();
-    let mut program: u32 = getSelectedProgram();
-    index = getSizeForProgram(size, program);
-    x = sizes_arr[index][0];
-    y = sizes_arr[index][1];
-    runSelectedProgram(program, x, y);
+    let size: u32 = get_selected_size();
+    let program: u32 = get_selected_program();
+    let index: usize = get_size_for_program(size, program);
+    let x: u32 = sizes_arr[index][0];
+    let y: u32 = sizes_arr[index][1];
+    run_selected_program(program, x, y);
 }
 
-fn getSelectedSize() -> u32 {
+fn get_selected_size() -> u32 {
     let message: String = String::from(
         "Choose image size to render (square shapes use just x value)
 0. use defaults
@@ -48,7 +46,7 @@ fn getSelectedSize() -> u32 {
     input::<u32>().msg(message).get()
 }
 
-fn getSelectedProgram() -> u32 {
+fn get_selected_program() -> u32 {
     let message: String = String::from(
         "Choose a program
 0. program_fire_canon(500,500)
@@ -61,17 +59,17 @@ fn getSelectedProgram() -> u32 {
     input::<u32>().msg(message).get()
 }
 
-fn getSizeForProgram(mut size: u32, progNum: u32) -> usize {
-    let mut index: usize = 0;
+fn get_size_for_program(size: u32, prog_num: u32) -> usize {
+    let index: usize;
     if size == 0 {
-        index = default_size_indexes[progNum as usize];
+        index = DEFAULT_SIZE_INDICES[prog_num as usize];
     } else {
         index = (size - 1) as usize
     }
     index
 }
 
-fn runSelectedProgram(program: u32, x: u32, y: u32) {
+fn run_selected_program(program: u32, x: u32, y: u32) {
     if program == 0 {
         program_fire_canon::fire_canon_main(x, y);
     } else if program == 1 {

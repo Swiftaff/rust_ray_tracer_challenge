@@ -1,7 +1,4 @@
-use std::f64::consts::PI;
-
 use crate::matrices;
-use crate::transformations;
 use crate::tuples;
 
 pub fn matrix4_translation(x: f64, y: f64, z: f64) -> matrices::Matrix4 {
@@ -97,9 +94,8 @@ pub fn view_transform(
 }
 
 #[cfg(test)]
+use std::f64::consts::PI;
 mod tests {
-    use super::*;
-
     #[test]
     fn test_matrix_multiply() {
         //translation

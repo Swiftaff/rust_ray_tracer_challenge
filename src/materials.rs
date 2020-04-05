@@ -1,4 +1,3 @@
-use crate::lights;
 use crate::tuples;
 
 pub const MATERIAL_DEFAULT: Material = Material {
@@ -37,6 +36,7 @@ pub fn material(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lights;
 
     #[test]
     fn test_default_material() {

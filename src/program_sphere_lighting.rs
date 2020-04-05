@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use std::f64::consts::PI;
+//use std::f64::consts::PI;
 use std::fs;
 use std::time::Instant;
 
@@ -7,11 +7,11 @@ use crate::canvas;
 use crate::intersections;
 use crate::lights;
 use crate::materials;
-use crate::matrices;
+//use crate::matrices;
 use crate::rays;
 use crate::shapes;
 use crate::spheres;
-use crate::transformations;
+//use crate::transformations;
 use crate::tuples;
 
 pub fn sphere_lighting_main(w: u32, h: u32) {
@@ -53,11 +53,11 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
             );
             let xs_result = shapes::intersect(shape.clone(), r);
             match xs_result {
-                Err(e) => {} //println!("Error: {}", e),
+                Err(_) => {} //println!("Error: {}", e),
                 Ok(xs) => {
                     let h_result = intersections::hit(xs);
                     match h_result {
-                        Err(e) => {} //println!("Error: {}", e),
+                        Err(_) => {} //println!("Error: {}", e),
                         Ok(h) => {
                             let pnt = rays::position(r, h.t);
                             let nrm = shapes::normal_at(shape.clone(), pnt);

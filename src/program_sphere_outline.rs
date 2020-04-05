@@ -24,7 +24,7 @@ pub fn sphere_outline_main(w: u32, h: u32) {
     let mut shape = spheres::sphere();
     let m1: matrices::Matrix4 = transformations::matrix4_scaling(0.5, 1.0, 1.0);
     let m2: matrices::Matrix4 = transformations::matrix4_rotation_z_rad(PI / 4.0);
-    let m3: matrices::Matrix4 = transformations::matrix4_shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    let _m3: matrices::Matrix4 = transformations::matrix4_shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     let m = matrices::matrix4_multiply(m1, m2);
     //console.log("m1", m1, "m2", m2, "m", m);
     shape = spheres::set_transform(shape, m);
@@ -41,8 +41,8 @@ pub fn sphere_outline_main(w: u32, h: u32) {
             );
             let xs_result = shapes::intersect(shape.clone(), r);
             match xs_result {
-                Err(e) => {} //println!("Error: {}", e),
-                Ok(xs) => {
+                Err(_) => {} //println!("Error: {}", e),
+                Ok(_xs) => {
                     c = canvas::pixel_write(c, x, y, tuples::COLOR_RED);
                 }
             }

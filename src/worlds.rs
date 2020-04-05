@@ -1,7 +1,6 @@
 use crate::intersections;
 use crate::lights;
 use crate::materials;
-use crate::matrices;
 use crate::rays;
 use crate::shapes;
 use crate::spheres;
@@ -57,7 +56,7 @@ pub fn world_intersect(w: World, r: rays::Ray) -> Vec<intersections::Intersectio
         let this_sphere = w.objects[index].clone();
         let xs_for_this_sphere = shapes::intersect(this_sphere, *&r);
         match xs_for_this_sphere {
-            Err(e) => (), //println!("XS Error: {}", e),
+            Err(_) => (), //println!("XS Error: {}", e),
             Ok(mut xs) => {
                 xs_list_unsorted.append(&mut xs);
             }
@@ -87,7 +86,7 @@ pub fn color_at(w: World, r: rays::Ray) -> tuples::Color {
     let xs = world_intersect(w.clone(), r);
     let hit_temp = intersections::hit(xs);
     match hit_temp {
-        Err(e) => tuples::COLOR_BLACK,
+        Err(_) => tuples::COLOR_BLACK,
         Ok(hit) => {
             let comp = intersections::prepare_computations(hit, r);
             shade_hit(w, comp)
@@ -116,6 +115,7 @@ pub fn is_shadowed(w: World, p: tuples::Point) -> bool {
 }
 
 #[cfg(test)]
+use crate::matrices;
 mod tests {
     use super::*;
 
