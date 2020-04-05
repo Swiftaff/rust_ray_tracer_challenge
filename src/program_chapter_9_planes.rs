@@ -20,8 +20,7 @@ pub fn world_main(w: u32, h: u32) {
     let mut world = worlds::world_default();
     world.objects = vec![
         shape_floor(),
-        //shape_wall_left(),
-        //shape_wall_right(),
+        shape_wall_behind(),
         shape_sphere_middle(),
         shape_sphere_right2(),
         shape_sphere_left(),
@@ -72,24 +71,11 @@ pub fn shape_floor() -> shapes::Shape {
     shape
 }
 
-pub fn shape_wall_left() -> shapes::Shape {
-    let mut shape = spheres::sphere();
-    let t1 = transformations::matrix4_translation(0.0, 0.0, 5.0);
-    let t2 = transformations::matrix4_rotation_y_rad(-PI / 4.0);
-    let t3 = transformations::matrix4_rotation_x_rad(PI / 2.0);
-    let t4 = transformations::matrix4_scaling(10.0, 0.01, 10.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t4, t3, t2, t1]);
-    shape.material = material_floor();
-    shape
-}
-
-pub fn shape_wall_right() -> shapes::Shape {
-    let mut shape = spheres::sphere();
-    let t1 = transformations::matrix4_translation(0.0, 0.0, 5.0);
-    let t2 = transformations::matrix4_rotation_y_rad(PI / 4.0);
-    let t3 = transformations::matrix4_rotation_x_rad(PI / 2.0);
-    let t4 = transformations::matrix4_scaling(10.0, 0.01, 10.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t4, t3, t2, t1]);
+pub fn shape_wall_behind() -> shapes::Shape {
+    let mut shape = planes::plane();
+    let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
+    let t2 = transformations::matrix4_translation(0.0, 0.0, 5.0);
+    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
     shape.material = material_floor();
     shape
 }
