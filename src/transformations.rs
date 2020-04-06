@@ -94,8 +94,10 @@ pub fn view_transform(
 }
 
 #[cfg(test)]
-use std::f64::consts::PI;
 mod tests {
+    use super::*;
+    use std::f64::consts::PI;
+
     #[test]
     fn test_matrix_multiply() {
         //translation

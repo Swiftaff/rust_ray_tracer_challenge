@@ -74,8 +74,10 @@ pub fn local_normal_at(local_point: tuples::Point) -> tuples::Vector {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::transformations;
     use std::f64::consts::PI;
+
     fn print_type_of<T>(_: &T) -> String {
         format!("{}", std::any::type_name::<T>())
     }
@@ -133,8 +135,9 @@ mod tests {
         let x = shapes::intersect(s, r);
         match x {
             Err(e) => assert_eq!(e == "No intersections", true),
-            Ok(xs) => {
-                println!("Error");
+            Ok(_) => {
+                println!("Not possible in this test");
+                assert_eq!(false, true);
             }
         }
     }
@@ -217,8 +220,9 @@ mod tests {
         let x = shapes::intersect(s2, r);
         match x {
             Err(e) => assert_eq!(e == "No intersections", true),
-            Ok(xs) => {
-                println!("Error");
+            Ok(_) => {
+                println!("Not possible in this test");
+                assert_eq!(false, true);
             }
         }
     }
@@ -289,7 +293,7 @@ mod tests {
             3.0_f64.sqrt() / 3.0,
         );
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r, &tuples::vector_normalize(&r)),
+            tuples::get_bool_tuples_are_equal(&n, &tuples::vector_normalize(&r)),
             true
         );
     }
@@ -324,7 +328,7 @@ mod tests {
     fn test_a_sphere_is_a_shape() {
         //A sphere is a shape
         let s = sphere();
-        let typeName = print_type_of(&s);
-        assert_eq!(typeName, "rust_ray_tracer_challenge::shapes::Shape");
+        let type_name = print_type_of(&s);
+        assert_eq!(type_name, "rust_ray_tracer_challenge::shapes::Shape");
     }
 }

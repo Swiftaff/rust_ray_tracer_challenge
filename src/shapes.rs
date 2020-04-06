@@ -91,10 +91,11 @@ fn test_local_normal_at(local_point: tuples::Point) -> tuples::Vector {
 }
 
 #[cfg(test)]
-
 mod tests {
+    use super::*;
     use crate::transformations;
     use std::f64::consts::PI;
+
     #[test]
     fn test_shapes_default_transformation() {
         //A shape's default transformation
@@ -141,9 +142,10 @@ mod tests {
         s = set_transform(s, transformations::matrix4_scaling(2.0, 2.0, 2.0));
         let expected_error = intersect(s, r);
         match expected_error {
-            Ok(o) => println!(
-                "not possible to get OK, don't bother asserting just get this pretty message!"
-            ),
+            Ok(_) => {
+                println!("Not possible in this test");
+                assert_eq!(false, true);
+            }
             Err(e) => assert_eq!(e, "p(0,0,-2.5,1),v(0,0,0.5,0)"),
         }
     }
@@ -156,9 +158,10 @@ mod tests {
         s = set_transform(s, transformations::matrix4_translation(5.0, 0.0, 0.0));
         let expected_error = intersect(s, r);
         match expected_error {
-            Ok(o) => println!(
-                "not possible to get OK, don't bother asserting just get this pretty message!"
-            ),
+            Ok(_) => {
+                println!("Not possible in this test");
+                assert_eq!(false, true);
+            }
             Err(e) => assert_eq!(e, "p(-5,0,-5,1),v(0,0,1,0)"),
         }
     }

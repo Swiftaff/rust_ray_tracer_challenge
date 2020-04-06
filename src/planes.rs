@@ -51,7 +51,7 @@ mod tests {
         let result = tuples::vector(0.0, 1.0, 0.0);
         assert_eq!(tuples::get_bool_tuples_are_equal(&n1, &result), true);
         assert_eq!(tuples::get_bool_tuples_are_equal(&n2, &result), true);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n2, &result), true);
+        assert_eq!(tuples::get_bool_tuples_are_equal(&n3, &result), true);
     }
 
     #[test]
@@ -62,7 +62,10 @@ mod tests {
         let x = shapes::intersect(s, r);
         match x {
             Err(e) => assert_eq!(e, "No intersections"),
-            Ok(xs) => println!("Not possible in this test"),
+            Ok(_xs) => {
+                println!("Not possible in this test");
+                assert_eq!(false, true);
+            }
         }
     }
 
@@ -74,7 +77,7 @@ mod tests {
         let x = shapes::intersect(s, r);
         match x {
             Err(e) => assert_eq!(e, "No intersections"),
-            Ok(xs) => {
+            Ok(_xs) => {
                 println!("Not possible in this test");
                 assert_eq!(false, true);
             }
@@ -121,7 +124,7 @@ mod tests {
     fn test_a_plane_is_a_shape() {
         //A plane is a shape
         let s = plane();
-        let typeName = print_type_of(&s);
-        assert_eq!(typeName, "rust_ray_tracer_challenge::shapes::Shape");
+        let type_name = print_type_of(&s);
+        assert_eq!(type_name, "rust_ray_tracer_challenge::shapes::Shape");
     }
 }
