@@ -1,6 +1,7 @@
 use std::f64;
 
 use crate::materials;
+use crate::patterns;
 use crate::tuples;
 
 #[derive(Debug, Copy, Clone)]
@@ -29,7 +30,13 @@ pub fn lighting(
     let reflectv: tuples::Vector;
     let reflect_dot_eye: f64;
 
-    let effective_color: tuples::Color = tuples::colors_multiply(&material.color, &light.intensity);
+    let mut _col = tuples::COLOR_WHITE;
+    match material.pattern {
+        Some(p) => _col = patterns::stripe_at(p, point.clone()),
+        None => _col = material.color,
+    }
+
+    let effective_color: tuples::Color = tuples::colors_multiply(&_col, &light.intensity);
     let lightv: tuples::Vector =
         tuples::vector_normalize(&tuples::tuple_subtract(&light.position, &point));
     let ambient: tuples::Color = tuples::colors_scalar_multiply(&effective_color, material.ambient);

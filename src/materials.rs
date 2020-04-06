@@ -1,6 +1,8 @@
+use crate::patterns;
 use crate::tuples;
 
 pub const MATERIAL_DEFAULT: Material = Material {
+    pattern: None,
     color: tuples::COLOR_WHITE,
     ambient: 0.1,
     diffuse: 0.9,
@@ -10,6 +12,7 @@ pub const MATERIAL_DEFAULT: Material = Material {
 
 #[derive(Debug, Copy, Clone)]
 pub struct Material {
+    pub pattern: Option<patterns::Pattern>,
     pub color: tuples::Color,
     pub ambient: f64,
     pub diffuse: f64,
@@ -18,6 +21,7 @@ pub struct Material {
 }
 
 pub fn material(
+    pattern: Option<patterns::Pattern>,
     color: tuples::Color,
     ambient: f64,
     diffuse: f64,
@@ -25,6 +29,7 @@ pub fn material(
     shininess: f64,
 ) -> Material {
     Material {
+        pattern: pattern,
         color: color,
         ambient: ambient,
         diffuse: diffuse,
@@ -149,6 +154,43 @@ mod tests {
         println!("result {},{},{}", result.red, result.green, result.blue);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(0.1, 0.1, 0.1)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_lighting_with_a_pattern_applied() {
+        //Lighting with a pattern applied
+        let eyev = tuples::vector(0.0, 0.0, -1.0);
+        let normalv = tuples::vector(0.0, 0.0, -1.0);
+        let light = lights::light_point(tuples::point(0.0, 0.0, -10.0), tuples::COLOR_WHITE);
+        let mut m = MATERIAL_DEFAULT;
+        m.pattern = Some(patterns::PATTERN_DEFAULT);
+        m.ambient = 1.0;
+        m.diffuse = 0.0;
+        m.specular = 0.0;
+        let c1 = lights::lighting(
+            m.clone(),
+            light.clone(),
+            tuples::point(0.9, 0.0, 0.0),
+            eyev.clone(),
+            normalv.clone(),
+            false,
+        );
+        let c2 = lights::lighting(
+            m.clone(),
+            light.clone(),
+            tuples::point(1.1, 0.0, 0.0),
+            eyev.clone(),
+            normalv.clone(),
+            false,
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c1, &tuples::COLOR_WHITE),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c2, &tuples::COLOR_BLACK),
             true
         );
     }

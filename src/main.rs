@@ -8,7 +8,9 @@ mod intersections;
 mod lights;
 mod materials;
 mod matrices;
+mod patterns;
 mod planes;
+mod program_chapter_10_patterns;
 mod program_chapter_9_planes;
 mod program_fire_canon;
 mod program_sphere_lighting;
@@ -21,7 +23,7 @@ mod transformations;
 mod tuples;
 mod worlds;
 
-const DEFAULT_SIZE_INDICES: [usize; 5] = [4, 2, 3, 2, 1];
+const DEFAULT_SIZE_INDICES: [usize; 6] = [4, 2, 3, 2, 1, 1];
 
 fn main() {
     let sizes_arr: [[u32; 2]; 5] = [[50, 25], [100, 50], [200, 100], [400, 200], [500, 250]];
@@ -54,7 +56,8 @@ fn get_selected_program() -> u32 {
 1. program_sphere_outline(200,200)
 2. program_sphere_lighting(400,400)
 3. world_main(200,100)
-4. program_chapter_9_planes(400,200)
+4. program_chapter_9_planes(100,50)
+5. program_chapter_10_patterns(100,50)
 ? ",
     );
     input::<u32>().msg(message).get()
@@ -81,5 +84,7 @@ fn run_selected_program(program: u32, x: u32, y: u32) {
         program_world::world_main(x, y);
     } else if program == 4 {
         program_chapter_9_planes::world_main(x, y);
+    } else if program == 5 {
+        program_chapter_10_patterns::world_main(x, y);
     }
 }

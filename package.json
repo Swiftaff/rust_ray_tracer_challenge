@@ -5,11 +5,16 @@
   "main": "src/main.rs",
   "scripts": {
     "watch_fmt_test": "cargo watch -d 4 -x fmt -x test",
+    "watch_fmt_test_nocapture": "cargo test -- --nocapture",
     "watch_fmt_build": "cargo watch -d 4 -x fmt -x build",
     "run": "cargo run",
     "build": "cargo build",
     "format": "cargo fmt",
+    "test": "cargo test",
     "fmt_build_run_current_program": "cargo fmt && cargo build && set RUST_BACKTRACE=1 && H:\\Development\\rust_ray_tracer_challenge\\target\\debug\\rust_ray_tracer_challenge.exe"
+  },
+  "commands": {
+    "Command-Runner:rls restart ( Ctrl Shift R > Enter)": "${command:rls.restart}"
   },
   "author": "swiftaff",
   "license": "MIT"
