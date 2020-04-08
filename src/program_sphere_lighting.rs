@@ -30,8 +30,8 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
     //let m2: matrices::Matrix4 = transformations::matrix4_rotation_z_rad(PI / 8.0);
     //let m3: matrices::Matrix4 = transformations::matrix4_shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     //let t = matrices::matrix4_multiply(m1, m3);
-    //shape = spheres::set_transform(shape, t);
-    shape = spheres::set_material(shape, mat);
+    //shape.transform = t;
+    shape.material = mat;
 
     let light_position = tuples::point(-10.0, 10.0, -10.0);
     let light_color = tuples::color(1.0, 1.0, 1.0);

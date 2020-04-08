@@ -1,6 +1,4 @@
 use crate::intersections;
-use crate::materials;
-use crate::matrices;
 use crate::rays;
 use crate::shapes;
 use crate::tuples;
@@ -15,16 +13,6 @@ pub struct Discriminant {
 
 pub fn sphere() -> shapes::Shape {
     shapes::shape(shapes::ShapeType::Sphere)
-}
-
-pub fn set_transform(mut s: shapes::Shape, t: matrices::Matrix4) -> shapes::Shape {
-    s.transform = t;
-    s
-}
-
-pub fn set_material(mut s: shapes::Shape, m: materials::Material) -> shapes::Shape {
-    s.material = m;
-    s
 }
 
 pub fn discriminant(ray: rays::Ray) -> Discriminant {
@@ -75,6 +63,7 @@ pub fn local_normal_at(local_point: tuples::Point) -> tuples::Vector {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::matrices;
     use crate::transformations;
     use std::f64::consts::PI;
 
@@ -196,10 +185,10 @@ mod tests {
     fn test_intersect_scaled_sphere_with_ray() {
         //Intersecting a scaled sphere with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let mut s = sphere();
         let t = transformations::matrix4_scaling(2.0, 2.0, 2.0);
-        let s2 = set_transform(s, t);
-        let x = shapes::intersect(s2, r);
+        s.transform = t;
+        let x = shapes::intersect(s, r);
         match x {
             Err(e) => println!("XS Error: {}", e),
             Ok(xs) => {
@@ -214,10 +203,10 @@ mod tests {
     fn test_intersect_translated_sphere_with_ray() {
         //Intersecting a translated sphere with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let mut s = sphere();
         let t = transformations::matrix4_translation(5.0, 0.0, 0.0);
-        let s2 = set_transform(s, t);
-        let x = shapes::intersect(s2, r);
+        s.transform = t;
+        let x = shapes::intersect(s, r);
         match x {
             Err(e) => assert_eq!(e == "No intersections", true),
             Ok(_) => {
@@ -301,9 +290,9 @@ mod tests {
     #[test]
     fn test_normal_on_translated_sphere() {
         //Computing the normal on a translated sphere
-        let s = sphere();
-        let s2 = set_transform(s, transformations::matrix4_translation(0.0, 1.0, 0.0));
-        let n = shapes::normal_at(s2, tuples::point(0.0, 1.70711, -0.70711));
+        let mut s = sphere();
+        s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
+        let n = shapes::normal_at(s, tuples::point(0.0, 1.70711, -0.70711));
         let r = tuples::vector(0.0, 0.70711, -0.70711);
         assert_eq!(tuples::get_bool_tuples_are_equal(&r, &n), true);
     }
@@ -311,13 +300,13 @@ mod tests {
     #[test]
     fn test_normal_on_transformed_sphere() {
         //Computing the normal on a transformed sphere
-        let s = sphere();
+        let mut s = sphere();
         let m1 = transformations::matrix4_scaling(1.0, 0.5, 1.0);
         let m2 = transformations::matrix4_rotation_z_rad(PI / 5.0);
         let m = matrices::matrix4_multiply(m1, m2);
-        let s2 = set_transform(s, m);
+        s.transform = m;
         let n = shapes::normal_at(
-            s2,
+            s,
             tuples::point(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0),
         );
         let r = tuples::vector(0.0, 0.97014, -0.24254);

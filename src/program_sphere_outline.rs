@@ -27,7 +27,7 @@ pub fn sphere_outline_main(w: u32, h: u32) {
     let _m3: matrices::Matrix4 = transformations::matrix4_shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     let m = matrices::matrix4_multiply(m1, m2);
     //console.log("m1", m1, "m2", m2, "m", m);
-    shape = spheres::set_transform(shape, m);
+    shape.transform = m;
     //console.log("st", shape.transform);
 
     for y in 0..h {

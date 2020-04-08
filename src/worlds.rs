@@ -19,10 +19,10 @@ pub fn world_default() -> World {
     m1.color = tuples::color(0.8, 1.0, 0.6);
     m1.diffuse = 0.7;
     m1.specular = 0.2;
-    s1 = spheres::set_material(s1, m1);
+    s1.material = m1;
 
     let mut s2 = spheres::sphere();
-    s2 = spheres::set_transform(s2, transformations::matrix4_scaling(0.5, 0.5, 0.5));
+    s2.transform = transformations::matrix4_scaling(0.5, 0.5, 0.5);
 
     let lights = vec![lights::LightPoint {
         position: tuples::point(-10.0, 10.0, -10.0),
@@ -233,10 +233,7 @@ mod tests {
         let s1 = spheres::sphere();
         w.objects.push(s1);
         let mut s2 = spheres::sphere();
-        s2 = spheres::set_transform(
-            s2.clone(),
-            transformations::matrix4_translation(0.0, 0.0, 10.0),
-        );
+        s2.transform = transformations::matrix4_translation(0.0, 0.0, 10.0);
         w.objects.push(s2.clone());
         let r = rays::ray(tuples::point(0.0, 0.0, 5.0), tuples::vector(0.0, 0.0, 1.0));
         let i = intersections::intersection(4.0, s2);

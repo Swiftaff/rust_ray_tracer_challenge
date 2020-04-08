@@ -1,22 +1,10 @@
 use crate::intersections;
-use crate::materials;
-use crate::matrices;
 use crate::rays;
 use crate::shapes;
 use crate::tuples;
 
 pub fn plane() -> shapes::Shape {
     shapes::shape(shapes::ShapeType::Plane)
-}
-
-pub fn set_transform(mut s: shapes::Shape, t: matrices::Matrix4) -> shapes::Shape {
-    s.transform = t;
-    s
-}
-
-pub fn set_material(mut s: shapes::Shape, m: materials::Material) -> shapes::Shape {
-    s.material = m;
-    s
 }
 
 pub fn local_intersect(

@@ -32,16 +32,6 @@ pub fn shape(shape_type: ShapeType) -> Shape {
     }
 }
 
-pub fn set_transform(mut s: Shape, t: matrices::Matrix4) -> Shape {
-    s.transform = t;
-    s
-}
-
-pub fn set_material(mut s: Shape, m: materials::Material) -> Shape {
-    s.material = m;
-    s
-}
-
 pub fn intersect(s: Shape, r: rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
     let local_r: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(s.transform));
     match s.shape_type {
@@ -109,7 +99,7 @@ mod tests {
     #[test]
     fn test_assign_material_to_shape() {
         //A shape may be assigned a material
-        let s = shape(ShapeType::ShapeTest);
+        let mut s = shape(ShapeType::ShapeTest);
         assert_eq!(s.material.color.red == tuples::COLOR_WHITE.red, true);
         assert_eq!(s.material.ambient == 0.1, true);
         assert_eq!(s.material.diffuse == 0.9, true);
@@ -117,8 +107,8 @@ mod tests {
         assert_eq!(s.material.shininess == 200.0, true);
         let mut m = materials::MATERIAL_DEFAULT;
         m.ambient = 1.0;
-        let s2 = set_material(s, m);
-        assert_eq!(s2.material.ambient == 1.0, true);
+        s.material = m;
+        assert_eq!(s.material.ambient == 1.0, true);
     }
 
     #[test]
@@ -139,7 +129,7 @@ mod tests {
         //Intersecting a scaled shape with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let mut s = shape(ShapeType::ShapeTest);
-        s = set_transform(s, transformations::matrix4_scaling(2.0, 2.0, 2.0));
+        s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
         let expected_error = intersect(s, r);
         match expected_error {
             Ok(_) => {
@@ -155,7 +145,7 @@ mod tests {
         //Intersecting a translated shape with a ray
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let mut s = shape(ShapeType::ShapeTest);
-        s = set_transform(s, transformations::matrix4_translation(5.0, 0.0, 0.0));
+        s.transform = transformations::matrix4_translation(5.0, 0.0, 0.0);
         let expected_error = intersect(s, r);
         match expected_error {
             Ok(_) => {
@@ -170,7 +160,7 @@ mod tests {
     fn test_computing_the_normal_on_a_translated_shape() {
         //Computing the normal on a translated shape
         let mut s = shape(ShapeType::ShapeTest);
-        s = set_transform(s, transformations::matrix4_translation(0.0, 1.0, 0.0));
+        s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
         let n = normal_at(s, tuples::point(0.0, 1.70711, -0.70711));
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&n, &tuples::vector(0.0, 0.70711, -0.70711)),
@@ -185,7 +175,7 @@ mod tests {
         let scaling = transformations::matrix4_scaling(1.0, 0.5, 1.0);
         let rot_z = transformations::matrix4_rotation_z_rad(PI / 5.0);
         let m = transformations::matrix4_transform_chain([rot_z, scaling].to_vec());
-        s = set_transform(s, m);
+        s.transform = m;
         let n = normal_at(s, tuples::point(0.0, 2.0_f64.sqrt(), -2.0_f64.sqrt()));
         println!("v({},{},{},{})", n.x, n.y, n.z, n.w,);
         assert_eq!(
