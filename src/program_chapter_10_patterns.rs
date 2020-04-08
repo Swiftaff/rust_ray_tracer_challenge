@@ -23,11 +23,11 @@ pub fn world_main(w: u32, h: u32) {
     world.objects = vec![
         shape_floor(),
         shape_wall_behind(),
-        shape_wall_left_behind(),
-        shape_wall_right_behind(),
-        shape_wall_infront(),
-        shape_wall_left_infront(),
-        shape_wall_right_infront(),
+        //shape_wall_left_behind(),
+        //shape_wall_right_behind(),
+        //shape_wall_infront(),
+        //shape_wall_left_infront(),
+        //shape_wall_right_infront(),
         shape_sphere_middle(),
         shape_sphere_right2(),
         shape_sphere_left(),
@@ -39,9 +39,9 @@ pub fn world_main(w: u32, h: u32) {
     }];
 
     let mut c = camera::camera(w, h, PI / 3.0);
-    let from = tuples::point(0.0, 10.0, -1.5);
+    let from = tuples::point(-3.0, 2.0, -5.0);
     let to = tuples::point(0.0, 1.0, 0.0);
-    let up = tuples::vector(0.0, 0.0, 1.0);
+    let up = tuples::vector(0.0, 1.0, 0.0);
     c.transform = transformations::view_transform(from, to, up);
     let image = camera::render_percent_message(c, world, 0.01);
     let duration1 = start1.elapsed();
@@ -78,7 +78,8 @@ pub fn material_floor() -> materials::Material {
 }
 
 pub fn shape_floor() -> shapes::Shape {
-    let shape = planes::plane();
+    let mut shape = planes::plane();
+    shape.material = material_floor();
     shape
 }
 
@@ -148,7 +149,7 @@ pub fn shape_sphere_middle() -> shapes::Shape {
     mat.color = tuples::color(0.1, 1.0, 0.5);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-
+    mat.pattern = Some(patterns::PATTERN_DEFAULT);
     shape.material = mat;
     shape
 }
@@ -163,7 +164,7 @@ pub fn shape_sphere_right() -> shapes::Shape {
     mat.color = tuples::color(0.5, 1.0, 0.1);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-
+    mat.pattern = Some(patterns::PATTERN_DEFAULT);
     shape.material = mat;
     shape
 }
@@ -178,7 +179,7 @@ pub fn shape_sphere_right2() -> shapes::Shape {
     mat.color = tuples::color(0.5, 1.0, 0.1);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-
+    mat.pattern = Some(patterns::PATTERN_DEFAULT);
     shape.material = mat;
     shape
 }
@@ -193,7 +194,7 @@ pub fn shape_sphere_left() -> shapes::Shape {
     mat.color = tuples::color(1.0, 0.8, 0.1);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-
+    mat.pattern = Some(patterns::PATTERN_DEFAULT);
     shape.material = mat;
     shape
 }
