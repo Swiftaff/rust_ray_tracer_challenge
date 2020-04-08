@@ -42,6 +42,7 @@ pub fn material(
 mod tests {
     use super::*;
     use crate::lights;
+    use crate::spheres;
 
     #[test]
     fn test_default_material() {
@@ -63,8 +64,10 @@ mod tests {
         let eyev = tuples::vector(0.0, 0.0, -1.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 0.0, -10.0), tuples::COLOR_WHITE);
+        let s = spheres::sphere();
         let result = lights::lighting(
             MATERIAL_DEFAULT,
+            s,
             light,
             tuples::POINT_ORIGIN,
             eyev,
@@ -83,8 +86,10 @@ mod tests {
         let eyev = tuples::vector(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 0.0, -10.0), tuples::COLOR_WHITE);
+        let s = spheres::sphere();
         let result = lights::lighting(
             MATERIAL_DEFAULT,
+            s,
             light,
             tuples::POINT_ORIGIN,
             eyev,
@@ -103,8 +108,10 @@ mod tests {
         let eyev = tuples::vector(0.0, 0.0, -1.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 10.0, -10.0), tuples::COLOR_WHITE);
+        let s = spheres::sphere();
         let result = lights::lighting(
             MATERIAL_DEFAULT,
+            s,
             light,
             tuples::POINT_ORIGIN,
             eyev,
@@ -123,8 +130,10 @@ mod tests {
         let eyev = tuples::vector(0.0, -2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 10.0, -10.0), tuples::COLOR_WHITE);
+        let s = spheres::sphere();
         let result = lights::lighting(
             MATERIAL_DEFAULT,
+            s,
             light,
             tuples::POINT_ORIGIN,
             eyev,
@@ -143,8 +152,10 @@ mod tests {
         let eyev = tuples::vector(0.0, 0.0, -1.0);
         let normalv = tuples::vector(0.0, 0.0, -1.0);
         let light = lights::light_point(tuples::point(0.0, 0.0, 10.0), tuples::COLOR_WHITE);
+        let s = spheres::sphere();
         let result = lights::lighting(
             MATERIAL_DEFAULT,
+            s,
             light,
             tuples::POINT_ORIGIN,
             eyev,
@@ -169,8 +180,10 @@ mod tests {
         m.ambient = 1.0;
         m.diffuse = 0.0;
         m.specular = 0.0;
+        let s = spheres::sphere();
         let c1 = lights::lighting(
             m.clone(),
+            s.clone(),
             light.clone(),
             tuples::point(0.9, 0.0, 0.0),
             eyev.clone(),
@@ -179,6 +192,7 @@ mod tests {
         );
         let c2 = lights::lighting(
             m.clone(),
+            s,
             light.clone(),
             tuples::point(1.1, 0.0, 0.0),
             eyev.clone(),

@@ -64,6 +64,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
                             let eye = tuples::tuple_multiply(r.direction, -1.0);
                             let col = lights::lighting(
                                 shape.clone().material,
+                                shape.clone(),
                                 light,
                                 pnt,
                                 eye,

@@ -1,18 +1,26 @@
+use crate::matrices;
+use crate::shapes;
 use crate::tuples;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Pattern {
     pub a: tuples::Color,
     pub b: tuples::Color,
+    pub transform: matrices::Matrix4,
 }
 
 pub const PATTERN_DEFAULT: Pattern = Pattern {
     a: tuples::COLOR_WHITE,
     b: tuples::COLOR_BLACK,
+    transform: matrices::IDENTITY_MATRIX,
 };
 
 pub fn stripe_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
-    Pattern { a: a, b: b }
+    Pattern {
+        a: a,
+        b: b,
+        transform: matrices::IDENTITY_MATRIX,
+    }
 }
 
 pub fn stripe_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
@@ -32,9 +40,19 @@ pub fn stripe_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
     }
 }
 
+pub fn stripe_at_object(pat: Pattern, s: shapes::Shape, p: tuples::Point) -> tuples::Color {
+    let local_point: tuples::Point =
+        matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), p);
+    let pattern_point: tuples::Point =
+        matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(pat.transform), local_point);
+    stripe_at(pat, pattern_point)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::spheres;
+    use crate::transformations;
 
     #[test]
     fn test_creating_a_stripe_pattern() {
@@ -111,5 +129,44 @@ mod tests {
                 x_bools[i]
             );
         }
+    }
+
+    #[test]
+    fn test_stripes_with_an_object_transformation() {
+        //Stripes with an object transformation
+        let mut s = spheres::sphere();
+        s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
+        let stripe_color = stripe_at_object(PATTERN_DEFAULT, s, tuples::point(1.5, 0.0, 0.0));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&stripe_color, &tuples::COLOR_WHITE),
+            true
+        );
+    }
+
+    #[test]
+    fn test_stripes_with_a_pattern_transformation() {
+        //Stripes with a pattern transformation
+        let s = spheres::sphere();
+        let mut p = PATTERN_DEFAULT;
+        p.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
+        let stripe_color = stripe_at_object(p, s, tuples::point(1.5, 0.0, 0.0));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&stripe_color, &tuples::COLOR_WHITE),
+            true
+        );
+    }
+
+    #[test]
+    fn test_stripes_with_both_an_object_and_a_pattern_transformation() {
+        //Stripes with both an object and a pattern transformation
+        let mut s = spheres::sphere();
+        s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
+        let mut p = PATTERN_DEFAULT;
+        p.transform = transformations::matrix4_translation(0.5, 0.0, 0.0);
+        let stripe_color = stripe_at_object(p, s, tuples::point(2.5, 0.0, 0.0));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&stripe_color, &tuples::COLOR_WHITE),
+            true
+        );
     }
 }

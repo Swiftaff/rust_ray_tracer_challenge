@@ -70,7 +70,8 @@ pub fn shade_hit(w: World, c: intersections::Comps) -> tuples::Color {
     for index in 0..w.light.len() {
         let this_light = w.clone().light[index];
         let this_lights_effect = lights::lighting(
-            c.object.material,
+            c.object.clone().material,
+            c.object.clone(),
             this_light,
             c.over_point,
             c.eyev,

@@ -2,6 +2,7 @@ use std::f64;
 
 use crate::materials;
 use crate::patterns;
+use crate::shapes;
 use crate::tuples;
 
 #[derive(Debug, Copy, Clone)]
@@ -19,6 +20,7 @@ pub fn light_point(position: tuples::Point, intensity: tuples::Color) -> LightPo
 
 pub fn lighting(
     material: materials::Material,
+    shape: shapes::Shape,
     light: LightPoint,
     point: tuples::Point,
     eyev: tuples::Point,
@@ -32,7 +34,7 @@ pub fn lighting(
 
     let mut _col = tuples::COLOR_WHITE;
     match material.pattern {
-        Some(p) => _col = patterns::stripe_at(p, point.clone()),
+        Some(p) => _col = patterns::stripe_at_object(p, shape, point.clone()),
         None => _col = material.color,
     }
 
@@ -64,6 +66,7 @@ pub fn lighting(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::spheres;
 
     #[test]
     fn test_light_point_has_position_intensity() {
@@ -91,8 +94,10 @@ mod tests {
         let intensity = tuples::COLOR_WHITE;
         let light = light_point(position, intensity);
         let in_shadow = true;
+        let s = spheres::sphere();
         let col = lighting(
             materials::MATERIAL_DEFAULT,
+            s,
             light,
             position,
             eyev,
