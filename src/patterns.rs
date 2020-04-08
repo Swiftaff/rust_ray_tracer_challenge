@@ -15,6 +15,12 @@ pub const PATTERN_DEFAULT: Pattern = Pattern {
     transform: matrices::IDENTITY_MATRIX,
 };
 
+pub const PATTERN_PINK: Pattern = Pattern {
+    a: tuples::COLOR_WHITE,
+    b: tuples::COLOR_PINK,
+    transform: matrices::IDENTITY_MATRIX,
+};
+
 pub fn stripe_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
     Pattern {
         a: a,

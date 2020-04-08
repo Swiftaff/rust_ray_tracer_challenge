@@ -149,7 +149,12 @@ pub fn shape_sphere_middle() -> shapes::Shape {
     mat.color = tuples::color(0.1, 1.0, 0.5);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-    mat.pattern = Some(patterns::PATTERN_DEFAULT);
+    let mut pat = patterns::PATTERN_PINK;
+    pat.transform = transformations::matrix4_transform_chain(vec![
+        transformations::matrix4_scaling(0.1, 0.2, 0.1),
+        transformations::matrix4_translation(0.5, 0.0, 0.0),
+    ]);
+    mat.pattern = Some(pat);
     shape.material = mat;
     shape
 }
@@ -164,7 +169,6 @@ pub fn shape_sphere_right() -> shapes::Shape {
     mat.color = tuples::color(0.5, 1.0, 0.1);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-    mat.pattern = Some(patterns::PATTERN_DEFAULT);
     shape.material = mat;
     shape
 }
@@ -179,7 +183,9 @@ pub fn shape_sphere_right2() -> shapes::Shape {
     mat.color = tuples::color(0.5, 1.0, 0.1);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-    mat.pattern = Some(patterns::PATTERN_DEFAULT);
+    let mut pat = patterns::PATTERN_PINK;
+    pat.transform = transformations::matrix4_scaling(0.25, 0.25, 0.25);
+    mat.pattern = Some(pat);
     shape.material = mat;
     shape
 }
@@ -194,7 +200,12 @@ pub fn shape_sphere_left() -> shapes::Shape {
     mat.color = tuples::color(1.0, 0.8, 0.1);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
-    mat.pattern = Some(patterns::PATTERN_DEFAULT);
+    let mut pat = patterns::PATTERN_PINK;
+    pat.transform = transformations::matrix4_transform_chain(vec![
+        transformations::matrix4_scaling(0.25, 0.25, 0.25),
+        transformations::matrix4_rotation_y_rad(PI * 2.0),
+    ]);
+    mat.pattern = Some(pat);
     shape.material = mat;
     shape
 }

@@ -23,6 +23,12 @@ pub const COLOR_RED: Color = Color {
     blue: ZERO,
 };
 
+pub const COLOR_PINK: Color = Color {
+    red: 0.75,
+    green: 0.25,
+    blue: 0.5,
+};
+
 pub const POINT_ORIGIN: Point = Point {
     x: 0.0,
     y: 0.0,
