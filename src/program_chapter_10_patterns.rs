@@ -23,12 +23,9 @@ pub fn world_main(w: u32, h: u32) {
     world.objects = vec![
         shape_floor(),
         shape_wall_behind(),
-        //shape_wall_left_behind(),
-        //shape_wall_right_behind(),
-        //shape_wall_infront(),
-        //shape_wall_left_infront(),
-        //shape_wall_right_infront(),
+        shape_wall_behind_right(),
         shape_sphere_middle(),
+        shape_sphere_right(),
         shape_sphere_right2(),
         shape_sphere_left(),
     ];
@@ -80,6 +77,16 @@ pub fn material_floor() -> materials::Material {
 pub fn shape_floor() -> shapes::Shape {
     let mut shape = planes::plane();
     shape.material = material_floor();
+    let c1 = tuples::color(0.8, 0.2, 0.2);
+    let c2 = tuples::color(0.2, 0.05, 0.05);
+    let mut pat = patterns::ring_pattern(c1, c2);
+    let mut mat = materials::MATERIAL_DEFAULT;
+    pat.transform = transformations::matrix4_transform_chain(vec![
+        transformations::matrix4_scaling(0.2, 0.2, 0.2),
+        transformations::matrix4_translation(0.5, 0.0, 0.0),
+    ]);
+    mat.pattern = Some(pat);
+    shape.material = mat;
     shape
 }
 
@@ -88,71 +95,46 @@ pub fn shape_wall_behind() -> shapes::Shape {
     let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
     let t2 = transformations::matrix4_translation(0.0, 0.0, 2.0);
     shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
-    shape.material = material_floor();
+    let mut mat = material_floor();
+    let mut pat = patterns::PATTERN_PINK;
+    pat.transform = transformations::matrix4_rotation_y_rad(PI / 4.0);
+    mat.pattern = Some(pat);
+    shape.material = mat;
     shape
 }
 
-pub fn shape_wall_left_behind() -> shapes::Shape {
-    let mut shape = planes::plane();
-    let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
-    let t2 = transformations::matrix4_rotation_y_rad(2.0 * PI / 3.0);
-    let t3 = transformations::matrix4_translation(-2.0, 0.0, 2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
-    shape.material = material_floor();
-    shape
-}
-
-pub fn shape_wall_right_behind() -> shapes::Shape {
-    let mut shape = planes::plane();
-    let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
-    let t2 = transformations::matrix4_rotation_y_rad(-2.0 * PI / 3.0);
-    let t3 = transformations::matrix4_translation(2.0, 0.0, 2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
-    shape.material = material_floor();
-    shape
-}
-
-pub fn shape_wall_left_infront() -> shapes::Shape {
+pub fn shape_wall_behind_right() -> shapes::Shape {
     let mut shape = planes::plane();
     let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
-    let t2 = transformations::matrix4_rotation_y_rad(2.0 * PI / 3.0);
-    let t3 = transformations::matrix4_translation(2.0, 0.0, -2.0);
+    let t2 = transformations::matrix4_rotation_y_rad(PI / 2.0);
+    let t3 = transformations::matrix4_translation(2.5, 0.0, 2.0);
     shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
-    shape.material = material_floor();
-    shape
-}
-
-pub fn shape_wall_right_infront() -> shapes::Shape {
-    let mut shape = planes::plane();
-    let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
-    let t2 = transformations::matrix4_rotation_y_rad(-2.0 * PI / 3.0);
-    let t3 = transformations::matrix4_translation(-2.0, 0.0, -2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
-    shape.material = material_floor();
-    shape
-}
-
-pub fn shape_wall_infront() -> shapes::Shape {
-    let mut shape = planes::plane();
-    let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
-    let t2 = transformations::matrix4_translation(0.0, 0.0, -2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
-    shape.material = material_floor();
+    let mut mat = material_floor();
+    let mut pat = patterns::checkers_pattern(tuples::COLOR_WHITE, tuples::COLOR_BLACK);
+    pat.transform = transformations::matrix4_transform_chain(vec![
+        transformations::matrix4_scaling(0.2, 5.0, 0.2),
+        transformations::matrix4_rotation_y_rad(PI / 16.0),
+    ]);
+    mat.pattern = Some(pat);
+    shape.material = mat;
     shape
 }
 
 pub fn shape_sphere_middle() -> shapes::Shape {
     let mut shape = spheres::sphere();
     shape.transform = transformations::matrix4_translation(-0.5, 1.0, 0.5);
-
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(0.1, 1.0, 0.5);
-    mat.diffuse = 0.7;
-    mat.specular = 0.3;
-    let mut pat = patterns::PATTERN_PINK;
+    mat.diffuse = 0.8;
+    mat.specular = 0.7;
+    let mut pat = patterns::PATTERN_DEFAULT;
+    pat.a = tuples::color(0.0, 0.8, 0.0);
+    pat.b = tuples::color(0.0, 0.9, 0.5);
     pat.transform = transformations::matrix4_transform_chain(vec![
-        transformations::matrix4_scaling(0.1, 0.2, 0.1),
+        transformations::matrix4_scaling(0.1, 1.0, 0.1),
         transformations::matrix4_translation(0.5, 0.0, 0.0),
+        transformations::matrix4_rotation_y_rad(PI / 4.0),
+        transformations::matrix4_rotation_x_rad(PI / 4.0),
     ]);
     mat.pattern = Some(pat);
     shape.material = mat;
@@ -166,9 +148,14 @@ pub fn shape_sphere_right() -> shapes::Shape {
     shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
 
     let mut mat = materials::MATERIAL_DEFAULT;
-    mat.color = tuples::color(0.5, 1.0, 0.1);
     mat.diffuse = 0.7;
     mat.specular = 0.3;
+    let mut pat = patterns::PATTERN_DEFAULT;
+    pat.a = tuples::color(0.9, 1.0, 0.1);
+    pat.b = tuples::color(0.1, 0.5, 0.2);
+    pat.pattern_type = patterns::PatternType::Gradient;
+    pat.transform = transformations::matrix4_scaling(0.25, 0.25, 0.25);
+    mat.pattern = Some(pat);
     shape.material = mat;
     shape
 }
@@ -184,6 +171,8 @@ pub fn shape_sphere_right2() -> shapes::Shape {
     mat.diffuse = 0.7;
     mat.specular = 0.3;
     let mut pat = patterns::PATTERN_PINK;
+    pat.a = tuples::color(0.0, 0.0, 0.8);
+    pat.b = tuples::color(0.1, 0.1, 0.4);
     pat.transform = transformations::matrix4_scaling(0.25, 0.25, 0.25);
     mat.pattern = Some(pat);
     shape.material = mat;

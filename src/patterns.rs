@@ -85,7 +85,7 @@ pub fn ring_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
 }
 
 pub fn ring_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
-    let rem = ((p.x * p.x) + (p.z * p.z)).sqrt() % 2.0;
+    let rem = ((p.x * p.x) + (p.z * p.z)).sqrt().trunc() % 2.0;
     if rem == 0.0 {
         pat.a
     } else {
@@ -104,7 +104,6 @@ pub fn checkers_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
 
 pub fn checkers_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
     let rem = (p.x.abs().trunc() + p.y.abs().trunc() + p.z.abs().trunc()) % 2.0;
-    println!("testy {}", rem);
     if rem == 0.0 {
         pat.a
     } else {
