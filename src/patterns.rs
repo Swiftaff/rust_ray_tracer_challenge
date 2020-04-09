@@ -7,6 +7,7 @@ pub enum PatternType {
     Stripe,
     PatternTest,
     Gradient,
+    Ring,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -73,6 +74,24 @@ pub fn gradient_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
     tuples::colors_add(&pat.a, &d_times_f)
 }
 
+pub fn ring_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
+    Pattern {
+        a: a,
+        b: b,
+        transform: matrices::IDENTITY_MATRIX,
+        pattern_type: PatternType::Ring,
+    }
+}
+
+pub fn ring_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
+    let rem = ((p.x * p.x) + (p.z * p.z)).sqrt() % 2.0;
+    if rem == 0.0 {
+        pat.a
+    } else {
+        pat.b
+    }
+}
+
 pub fn test_pattern() -> Pattern {
     let mut p = PATTERN_DEFAULT;
     p.pattern_type = PatternType::PatternTest;
@@ -92,6 +111,7 @@ pub fn pattern_at_shape(pat: Pattern, s: shapes::Shape, p: tuples::Point) -> tup
         PatternType::Stripe => stripe_at(pat, pattern_point),
         PatternType::PatternTest => test_pattern_at(pat, pattern_point),
         PatternType::Gradient => gradient_pattern_at(pat, pattern_point),
+        PatternType::Ring => ring_pattern_at(pat, pattern_point),
     }
 }
 
@@ -298,6 +318,32 @@ mod tests {
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c4, &tuples::color(0.25, 0.25, 0.25)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_a_ring_should_extend_in_both_x_and_z() {
+        //A ring should extend in both x and z
+        let p = ring_pattern(tuples::COLOR_WHITE, tuples::COLOR_BLACK);
+        let c1 = ring_pattern_at(p, tuples::point(0.0, 0.0, 0.0));
+        let c2 = ring_pattern_at(p, tuples::point(1.0, 0.0, 0.0));
+        let c3 = ring_pattern_at(p, tuples::point(0.0, 0.0, 1.0));
+        let c4 = ring_pattern_at(p, tuples::point(0.708, 0.0, 0.708));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c1, &tuples::COLOR_WHITE),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c2, &tuples::COLOR_BLACK),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c3, &tuples::COLOR_BLACK),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c4, &tuples::COLOR_BLACK),
             true
         );
     }
