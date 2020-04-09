@@ -8,6 +8,7 @@ pub enum PatternType {
     PatternTest,
     Gradient,
     Ring,
+    Checkers,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -92,6 +93,25 @@ pub fn ring_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
     }
 }
 
+pub fn checkers_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
+    Pattern {
+        a: a,
+        b: b,
+        transform: matrices::IDENTITY_MATRIX,
+        pattern_type: PatternType::Checkers,
+    }
+}
+
+pub fn checkers_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
+    let rem = (p.x.abs().trunc() + p.y.abs().trunc() + p.z.abs().trunc()) % 2.0;
+    println!("testy {}", rem);
+    if rem == 0.0 {
+        pat.a
+    } else {
+        pat.b
+    }
+}
+
 pub fn test_pattern() -> Pattern {
     let mut p = PATTERN_DEFAULT;
     p.pattern_type = PatternType::PatternTest;
@@ -112,6 +132,7 @@ pub fn pattern_at_shape(pat: Pattern, s: shapes::Shape, p: tuples::Point) -> tup
         PatternType::PatternTest => test_pattern_at(pat, pattern_point),
         PatternType::Gradient => gradient_pattern_at(pat, pattern_point),
         PatternType::Ring => ring_pattern_at(pat, pattern_point),
+        PatternType::Checkers => checkers_pattern_at(pat, pattern_point),
     }
 }
 
@@ -344,6 +365,27 @@ mod tests {
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c4, &tuples::COLOR_BLACK),
+            true
+        );
+    }
+
+    #[test]
+    fn test_checkers_should_repeat_in_x() {
+        //Checkers should repeat in x
+        let p = checkers_pattern(tuples::COLOR_WHITE, tuples::COLOR_BLACK);
+        let c1 = checkers_pattern_at(p, tuples::point(0.0, 0.0, 0.0));
+        let c2 = checkers_pattern_at(p, tuples::point(0.99, 0.0, 0.0));
+        let c3 = checkers_pattern_at(p, tuples::point(1.01, 0.0, 0.0));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c1, &tuples::COLOR_WHITE),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c2, &tuples::COLOR_WHITE),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c3, &tuples::COLOR_BLACK),
             true
         );
     }
