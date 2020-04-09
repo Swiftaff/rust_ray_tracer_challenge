@@ -6,6 +6,7 @@ use crate::tuples;
 pub enum PatternType {
     Stripe,
     PatternTest,
+    Gradient,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -56,6 +57,28 @@ pub fn stripe_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
     }
 }
 
+pub fn gradient_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
+    Pattern {
+        a: a,
+        b: b,
+        transform: matrices::IDENTITY_MATRIX,
+        pattern_type: PatternType::Gradient,
+    }
+}
+
+pub fn gradient_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
+    let distance = tuples::colors_subtract(&pat.b, &pat.a);
+    let fraction = p.x - p.x.trunc();
+    let d_times_f = tuples::colors_scalar_multiply(&distance, fraction);
+    tuples::colors_add(&pat.a, &d_times_f)
+}
+
+pub fn test_pattern() -> Pattern {
+    let mut p = PATTERN_DEFAULT;
+    p.pattern_type = PatternType::PatternTest;
+    p
+}
+
 pub fn test_pattern_at(_pat: Pattern, p: tuples::Point) -> tuples::Color {
     tuples::color(p.x, p.y, p.z)
 }
@@ -68,6 +91,7 @@ pub fn pattern_at_shape(pat: Pattern, s: shapes::Shape, p: tuples::Point) -> tup
     match pat.pattern_type {
         PatternType::Stripe => stripe_at(pat, pattern_point),
         PatternType::PatternTest => test_pattern_at(pat, pattern_point),
+        PatternType::Gradient => gradient_pattern_at(pat, pattern_point),
     }
 }
 
@@ -76,12 +100,6 @@ mod tests {
     use super::*;
     use crate::spheres;
     use crate::transformations;
-
-    pub fn test_pattern() -> Pattern {
-        let mut p = PATTERN_DEFAULT;
-        p.pattern_type = PatternType::PatternTest;
-        p
-    }
 
     #[test]
     fn test_creating_a_stripe_pattern() {
@@ -254,6 +272,32 @@ mod tests {
         let c = pattern_at_shape(p, s, tuples::point(2.5, 3.0, 3.5));
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &tuples::color(0.75, 0.5, 0.25)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_a_gradient_linearly_interpolates_between_colors() {
+        //A gradient linearly interpolates between colors
+        let p = gradient_pattern(tuples::COLOR_WHITE, tuples::COLOR_BLACK);
+        let c1 = gradient_pattern_at(p, tuples::point(0.0, 0.0, 0.0));
+        let c2 = gradient_pattern_at(p, tuples::point(0.25, 0.0, 0.0));
+        let c3 = gradient_pattern_at(p, tuples::point(0.5, 0.0, 0.0));
+        let c4 = gradient_pattern_at(p, tuples::point(0.75, 0.0, 0.0));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c1, &tuples::COLOR_WHITE),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c2, &tuples::color(0.75, 0.75, 0.75)),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c3, &tuples::color(0.5, 0.5, 0.5)),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c4, &tuples::color(0.25, 0.25, 0.25)),
             true
         );
     }
