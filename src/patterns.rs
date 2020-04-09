@@ -2,23 +2,32 @@ use crate::matrices;
 use crate::shapes;
 use crate::tuples;
 
+#[derive(Debug, Clone, Copy)]
+pub enum PatternType {
+    Stripe,
+    PatternTest,
+}
+
 #[derive(Debug, Copy, Clone)]
 pub struct Pattern {
     pub a: tuples::Color,
     pub b: tuples::Color,
     pub transform: matrices::Matrix4,
+    pub pattern_type: PatternType,
 }
 
 pub const PATTERN_DEFAULT: Pattern = Pattern {
     a: tuples::COLOR_WHITE,
     b: tuples::COLOR_BLACK,
     transform: matrices::IDENTITY_MATRIX,
+    pattern_type: PatternType::Stripe,
 };
 
 pub const PATTERN_PINK: Pattern = Pattern {
     a: tuples::COLOR_WHITE,
     b: tuples::COLOR_PINK,
     transform: matrices::IDENTITY_MATRIX,
+    pattern_type: PatternType::Stripe,
 };
 
 pub fn stripe_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
@@ -26,6 +35,7 @@ pub fn stripe_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
         a: a,
         b: b,
         transform: matrices::IDENTITY_MATRIX,
+        pattern_type: PatternType::Stripe,
     }
 }
 
@@ -46,12 +56,19 @@ pub fn stripe_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
     }
 }
 
-pub fn stripe_at_object(pat: Pattern, s: shapes::Shape, p: tuples::Point) -> tuples::Color {
+pub fn test_pattern_at(_pat: Pattern, p: tuples::Point) -> tuples::Color {
+    tuples::color(p.x, p.y, p.z)
+}
+
+pub fn pattern_at_shape(pat: Pattern, s: shapes::Shape, p: tuples::Point) -> tuples::Color {
     let local_point: tuples::Point =
         matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), p);
     let pattern_point: tuples::Point =
         matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(pat.transform), local_point);
-    stripe_at(pat, pattern_point)
+    match pat.pattern_type {
+        PatternType::Stripe => stripe_at(pat, pattern_point),
+        PatternType::PatternTest => test_pattern_at(pat, pattern_point),
+    }
 }
 
 #[cfg(test)]
@@ -59,6 +76,12 @@ mod tests {
     use super::*;
     use crate::spheres;
     use crate::transformations;
+
+    pub fn test_pattern() -> Pattern {
+        let mut p = PATTERN_DEFAULT;
+        p.pattern_type = PatternType::PatternTest;
+        p
+    }
 
     #[test]
     fn test_creating_a_stripe_pattern() {
@@ -142,7 +165,7 @@ mod tests {
         //Stripes with an object transformation
         let mut s = spheres::sphere();
         s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
-        let stripe_color = stripe_at_object(PATTERN_DEFAULT, s, tuples::point(1.5, 0.0, 0.0));
+        let stripe_color = pattern_at_shape(PATTERN_DEFAULT, s, tuples::point(1.5, 0.0, 0.0));
         assert_eq!(
             tuples::get_bool_colors_are_equal(&stripe_color, &tuples::COLOR_WHITE),
             true
@@ -155,7 +178,7 @@ mod tests {
         let s = spheres::sphere();
         let mut p = PATTERN_DEFAULT;
         p.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
-        let stripe_color = stripe_at_object(p, s, tuples::point(1.5, 0.0, 0.0));
+        let stripe_color = pattern_at_shape(p, s, tuples::point(1.5, 0.0, 0.0));
         assert_eq!(
             tuples::get_bool_colors_are_equal(&stripe_color, &tuples::COLOR_WHITE),
             true
@@ -169,9 +192,68 @@ mod tests {
         s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
         let mut p = PATTERN_DEFAULT;
         p.transform = transformations::matrix4_translation(0.5, 0.0, 0.0);
-        let stripe_color = stripe_at_object(p, s, tuples::point(2.5, 0.0, 0.0));
+        let stripe_color = pattern_at_shape(p, s, tuples::point(2.5, 0.0, 0.0));
         assert_eq!(
             tuples::get_bool_colors_are_equal(&stripe_color, &tuples::COLOR_WHITE),
+            true
+        );
+    }
+
+    #[test]
+    fn test_the_default_pattern_transformation() {
+        //The default Pattern trasnformation
+        let p = test_pattern();
+        assert_eq!(
+            matrices::get_bool_equal_m4(p.transform, matrices::IDENTITY_MATRIX),
+            true
+        );
+    }
+
+    #[test]
+    fn test_assigning_a_pattern_transformation() {
+        //Assigning a pattern transformation
+        let mut p = test_pattern();
+        let t = transformations::matrix4_translation(1.0, 2.0, 3.0);
+        p.transform = t;
+        assert_eq!(matrices::get_bool_equal_m4(p.transform, t), true);
+    }
+
+    #[test]
+    fn test_a_pattern_with_an_object_transformation() {
+        //A pattern with an object transformation
+        let mut s = spheres::sphere();
+        s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
+        let p = test_pattern();
+        let c = pattern_at_shape(p, s, tuples::point(2.0, 3.0, 4.0));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::color(1.0, 1.5, 2.0)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_a_pattern_with_a_pattern_transformation() {
+        //A pattern with a pattern transformation
+        let s = spheres::sphere();
+        let mut p = test_pattern();
+        p.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
+        let c = pattern_at_shape(p, s, tuples::point(2.0, 3.0, 4.0));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::color(1.0, 1.5, 2.0)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_a_pattern_with_both_an_object_and_a_pattern_transformation() {
+        //A pattern with both an object and a pattern transformation
+        let mut s = spheres::sphere();
+        s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
+        let mut p = test_pattern();
+        p.transform = transformations::matrix4_translation(0.5, 1.0, 1.5);
+        let c = pattern_at_shape(p, s, tuples::point(2.5, 3.0, 3.5));
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.75, 0.5, 0.25)),
             true
         );
     }

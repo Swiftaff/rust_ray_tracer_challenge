@@ -34,7 +34,7 @@ pub fn lighting(
 
     let mut _col = tuples::COLOR_WHITE;
     match material.pattern {
-        Some(p) => _col = patterns::stripe_at_object(p, shape, point.clone()),
+        Some(p) => _col = patterns::pattern_at_shape(p, shape, point.clone()),
         None => _col = material.color,
     }
 
