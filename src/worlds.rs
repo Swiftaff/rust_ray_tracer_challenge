@@ -115,6 +115,14 @@ pub fn is_shadowed(w: World, p: tuples::Point) -> bool {
     }
 }
 
+pub fn reflected_color(w: World, c: intersections::Comps) -> tuples::Color {
+    if c.object.material.reflective == 0.0 {
+        tuples::COLOR_BLACK
+    } else {
+        tuples::COLOR_WHITE
+    }
+}
+
 #[cfg(test)]
 use crate::matrices;
 mod tests {
@@ -327,5 +335,21 @@ mod tests {
         let w = world_default();
         let p = tuples::point(-2.0, 2.0, -2.0);
         assert_eq!(is_shadowed(w, p), false);
+    }
+
+    #[test]
+    fn test_reflected_color_of_nonrflective_material() {
+        //The reflected color of a non reflective material
+        let w = world_default();
+        let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
+        let mut s = w.objects[1].clone();
+        s.material.ambient = 1.0;
+        let i = intersections::intersection(1.0, s);
+        let comps = intersections::prepare_computations(i, r);
+        let col = reflected_color(w, comps);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
+            true
+        );
     }
 }
