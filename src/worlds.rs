@@ -80,7 +80,7 @@ pub fn shade_hit(w: World, c: intersections::Comps) -> tuples::Color {
         );
         col = tuples::colors_add(&col, &this_lights_effect);
     }
-    col
+    tuples::colors_add(&col, &reflected_color(w, c))
 }
 
 pub fn color_at(w: World, r: rays::Ray) -> tuples::Color {
@@ -373,6 +373,27 @@ mod tests {
         let col = reflected_color(w, comps);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.19033, 0.23791, 0.14275)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_shade_hit_with_reflective_material() {
+        //shade_hit() with a reflective material
+        let mut w = world_default();
+        let mut s = planes::plane();
+        s.material.reflective = 0.5;
+        s.transform = transformations::matrix4_translation(0.0, -1.0, 0.0);
+        w.objects.push(s.clone());
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, -3.0),
+            tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let i = intersections::intersection(2.0_f64.sqrt(), s);
+        let comps = intersections::prepare_computations(i, r);
+        let col = shade_hit(w, comps);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.87676, 0.92434, 0.82917)),
             true
         );
     }
