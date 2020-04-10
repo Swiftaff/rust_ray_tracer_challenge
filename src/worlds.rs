@@ -119,7 +119,9 @@ pub fn reflected_color(w: World, c: intersections::Comps) -> tuples::Color {
     if c.object.material.reflective == 0.0 {
         tuples::COLOR_BLACK
     } else {
-        tuples::COLOR_WHITE
+        let reflect_ray = rays::ray(c.over_point, c.reflectv);
+        let col = color_at(w, reflect_ray);
+        tuples::colors_scalar_multiply(&col, c.object.material.reflective)
     }
 }
 
@@ -127,6 +129,7 @@ pub fn reflected_color(w: World, c: intersections::Comps) -> tuples::Color {
 use crate::matrices;
 mod tests {
     use super::*;
+    use crate::planes;
 
     fn world() -> World {
         World {
@@ -338,8 +341,8 @@ mod tests {
     }
 
     #[test]
-    fn test_reflected_color_of_nonrflective_material() {
-        //The reflected color of a non reflective material
+    fn test_reflected_color_for_nonreflective_material() {
+        //The reflected color for a non reflective material
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
         let mut s = w.objects[1].clone();
@@ -349,6 +352,27 @@ mod tests {
         let col = reflected_color(w, comps);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
+            true
+        );
+    }
+
+    #[test]
+    fn test_reflected_color_for_reflective_material() {
+        //The reflected color for a reflective material
+        let mut w = world_default();
+        let mut s = planes::plane();
+        s.material.reflective = 0.5;
+        s.transform = transformations::matrix4_translation(0.0, -1.0, 0.0);
+        w.objects.push(s.clone());
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, -3.0),
+            tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let i = intersections::intersection(2.0_f64.sqrt(), s);
+        let comps = intersections::prepare_computations(i, r);
+        let col = reflected_color(w, comps);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.19033, 0.23791, 0.14275)),
             true
         );
     }
