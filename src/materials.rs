@@ -8,6 +8,7 @@ pub const MATERIAL_DEFAULT: Material = Material {
     diffuse: 0.9,
     specular: 0.9,
     shininess: 200.0,
+    reflective: 0.0,
 };
 
 #[derive(Debug, Copy, Clone)]
@@ -18,6 +19,7 @@ pub struct Material {
     pub diffuse: f64,
     pub specular: f64,
     pub shininess: f64,
+    pub reflective: f64,
 }
 
 pub fn material(
@@ -27,6 +29,7 @@ pub fn material(
     diffuse: f64,
     specular: f64,
     shininess: f64,
+    reflective: f64,
 ) -> Material {
     Material {
         pattern: pattern,
@@ -35,6 +38,7 @@ pub fn material(
         diffuse: diffuse,
         specular: specular,
         shininess: shininess,
+        reflective: reflective,
     }
 }
 
@@ -207,5 +211,12 @@ mod tests {
             tuples::get_bool_colors_are_equal(&c2, &tuples::COLOR_BLACK),
             true
         );
+    }
+
+    #[test]
+    fn test_refelectivity_for_default_material() {
+        //Reflectivity for the default material
+        let a = MATERIAL_DEFAULT;
+        assert_eq!(tuples::get_bool_numbers_are_equal(a.reflective, 0.0), true);
     }
 }

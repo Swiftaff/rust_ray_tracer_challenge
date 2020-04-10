@@ -13,6 +13,7 @@ pub fn comp_default(shape_type: &shapes::ShapeType) -> Comps {
         over_point: tuples::point(0.0, 0.0, 0.0),
         eyev: tuples::vector(0.0, 0.0, 0.0),
         normalv: tuples::vector(0.0, 0.0, 0.0),
+        reflectv: tuples::vector(0.0, 0.0, 0.0),
         inside: false,
     }
 }
@@ -25,6 +26,7 @@ pub struct Comps {
     pub over_point: tuples::Point,
     pub eyev: tuples::Vector,
     pub normalv: tuples::Vector,
+    pub reflectv: tuples::Vector,
     pub inside: bool,
 }
 
@@ -67,6 +69,8 @@ pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
     comps.point = rays::position(r, comps.t);
     comps.eyev = tuples::tuple_multiply(r.direction, -1.0);
     comps.normalv = shapes::normal_at(comps.clone().object, comps.clone().point);
+    comps.reflectv =
+        tuples::tuple_reflect(&tuples::tuple_multiply(comps.eyev, -1.0), &comps.normalv);
     comps.over_point = tuples::tuple_add(
         &comps.point,
         &(tuples::tuple_scalar_multiply(&comps.clone().normalv, tuples::EPSILON)),
@@ -81,7 +85,9 @@ pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::intersections;
     use crate::matrices;
+    use crate::planes;
     use crate::spheres;
     use crate::transformations;
 
@@ -258,5 +264,28 @@ mod tests {
         let comps = prepare_computations(i.clone(), r);
         assert_eq!(&comps.over_point.z < &(tuples::EPSILON / -2.0), true);
         assert_eq!(&comps.point.z > &comps.over_point.z, true);
+    }
+
+    #[test]
+    fn test_precomputing_the_reflection_vector() {
+        //Precomputing the reflection vector
+        let s = planes::plane();
+        let r = rays::ray(
+            tuples::point(0.0, 1.0, -1.0),
+            tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let i = intersections::intersection(2.0_f64.sqrt(), s);
+        let comps = prepare_computations(i, r);
+        println!(
+            "testy {} {} {}",
+            comps.reflectv.x, comps.reflectv.y, comps.reflectv.z
+        );
+        assert_eq!(
+            tuples::get_bool_tuples_are_equal(
+                &comps.reflectv,
+                &tuples::vector(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0)
+            ),
+            true
+        );
     }
 }
