@@ -71,7 +71,7 @@ pub fn render(c: Camera, w: worlds::World) -> canvas::PixelCanvas {
     for y in 0..c.vsize.clone() {
         for x in 0..c.hsize.clone() {
             let r = ray_for_pixel(c.clone(), x, y);
-            let col = worlds::color_at(w.clone(), r);
+            let col = worlds::color_at(w.clone(), r, worlds::RECURSIVE_DEPTH);
             image = canvas::pixel_write(image, x, y, col);
         }
     }
@@ -113,7 +113,7 @@ pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas:
         pc = percent_message(y as f64, c.vsize.clone() as f64, pc, incr, timer.elapsed());
         for x in 0..c.hsize.clone() {
             let r = ray_for_pixel(c.clone(), x, y);
-            let col = worlds::color_at(w.clone(), r);
+            let col = worlds::color_at(w.clone(), r, worlds::RECURSIVE_DEPTH);
             image = canvas::pixel_write(image, x, y, col);
         }
     }

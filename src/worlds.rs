@@ -13,6 +13,8 @@ pub struct World {
     pub light: Vec<lights::LightPoint>,
 }
 
+pub const RECURSIVE_DEPTH: i32 = 4;
+
 pub fn world_default() -> World {
     let mut s1 = spheres::sphere();
     let mut m1 = materials::MATERIAL_DEFAULT;
@@ -65,7 +67,7 @@ pub fn world_intersect(w: World, r: rays::Ray) -> Vec<intersections::Intersectio
     intersections::intersection_list(xs_list_unsorted)
 }
 
-pub fn shade_hit(w: World, c: intersections::Comps) -> tuples::Color {
+pub fn shade_hit(w: World, c: intersections::Comps, remaining: i32) -> tuples::Color {
     let mut col = tuples::COLOR_BLACK;
     for index in 0..w.light.len() {
         let this_light = w.clone().light[index];
@@ -80,17 +82,17 @@ pub fn shade_hit(w: World, c: intersections::Comps) -> tuples::Color {
         );
         col = tuples::colors_add(&col, &this_lights_effect);
     }
-    tuples::colors_add(&col, &reflected_color(w, c))
+    tuples::colors_add(&col, &reflected_color(w, c, remaining))
 }
 
-pub fn color_at(w: World, r: rays::Ray) -> tuples::Color {
+pub fn color_at(w: World, r: rays::Ray, remaining: i32) -> tuples::Color {
     let xs = world_intersect(w.clone(), r);
     let hit_temp = intersections::hit(xs);
     match hit_temp {
         Err(_) => tuples::COLOR_BLACK,
         Ok(hit) => {
             let comp = intersections::prepare_computations(hit, r);
-            shade_hit(w, comp)
+            shade_hit(w, comp, remaining)
         }
     }
 }
@@ -115,12 +117,12 @@ pub fn is_shadowed(w: World, p: tuples::Point) -> bool {
     }
 }
 
-pub fn reflected_color(w: World, c: intersections::Comps) -> tuples::Color {
-    if c.object.material.reflective == 0.0 {
+pub fn reflected_color(w: World, c: intersections::Comps, remaining: i32) -> tuples::Color {
+    if c.object.material.reflective == 0.0 || remaining < 1 {
         tuples::COLOR_BLACK
     } else {
         let reflect_ray = rays::ray(c.over_point, c.reflectv);
-        let col = color_at(w, reflect_ray);
+        let col = color_at(w, reflect_ray, remaining - 1);
         tuples::colors_scalar_multiply(&col, c.object.material.reflective)
     }
 }
@@ -207,7 +209,7 @@ mod tests {
         let s = w.objects[0].clone();
         let i = intersections::intersection(4.0, s);
         let comps = intersections::prepare_computations(i, r);
-        let c = shade_hit(w, comps);
+        let c = shade_hit(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &tuples::color(0.38066, 0.47583, 0.2855)),
             true
@@ -226,7 +228,7 @@ mod tests {
         let s = w.objects[1].clone();
         let i = intersections::intersection(0.5, s);
         let comps = intersections::prepare_computations(i, r);
-        let c = shade_hit(w, comps);
+        let c = shade_hit(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &tuples::color(0.1, 0.1, 0.1)), //&tuples::color(0.90498, 0.90498, 0.90498)),
             //TODO check if this is an error, or if it should actually be this non 0.1 value
@@ -250,7 +252,7 @@ mod tests {
         let r = rays::ray(tuples::point(0.0, 0.0, 5.0), tuples::vector(0.0, 0.0, 1.0));
         let i = intersections::intersection(4.0, s2);
         let comps = intersections::prepare_computations(i, r);
-        let c = shade_hit(w, comps);
+        let c = shade_hit(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &tuples::color(0.1, 0.1, 0.1)),
             true
@@ -262,7 +264,7 @@ mod tests {
         //The color when a ray misses
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 1.0, 0.0));
-        let c = color_at(w, r);
+        let c = color_at(w, r, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &tuples::COLOR_BLACK),
             true
@@ -274,7 +276,7 @@ mod tests {
         //The color when a ray hits
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
-        let c = color_at(w, r);
+        let c = color_at(w, r, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &tuples::color(0.38066, 0.47583, 0.2855)),
             true
@@ -292,16 +294,7 @@ mod tests {
             tuples::point(0.0, 0.0, 0.75),
             tuples::vector(0.0, 0.0, -1.0),
         );
-        let c = color_at(w.clone(), r);
-        println!(
-            "c({},{},{}) inner({},{},{})",
-            c.red,
-            c.green,
-            c.blue,
-            w.objects[1].material.color.red,
-            w.objects[1].material.color.green,
-            w.objects[1].material.color.blue
-        );
+        let c = color_at(w.clone(), r, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c, &w.objects[1].material.color),
             true
@@ -349,7 +342,7 @@ mod tests {
         s.material.ambient = 1.0;
         let i = intersections::intersection(1.0, s);
         let comps = intersections::prepare_computations(i, r);
-        let col = reflected_color(w, comps);
+        let col = reflected_color(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
             true
@@ -370,7 +363,7 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(i, r);
-        let col = reflected_color(w, comps);
+        let col = reflected_color(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.19033, 0.23791, 0.14275)),
             true
@@ -391,9 +384,59 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(i, r);
-        let col = shade_hit(w, comps);
+        let col = shade_hit(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.87676, 0.92434, 0.82917)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_color_at_with_mutually_reflective_surfaces() {
+        //color_at() with mutually reflective surfaces
+        let mut w = world();
+        w.light = vec![lights::light_point(
+            tuples::point(0.0, 0.0, 0.0),
+            tuples::COLOR_WHITE,
+        )];
+
+        let mut lower = planes::plane();
+        lower.material.reflective = 1.0;
+        lower.transform = transformations::matrix4_translation(0.0, -1.0, 0.0);
+        w.objects.push(lower);
+
+        let mut upper = planes::plane();
+        upper.material.reflective = 1.0;
+        upper.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
+        w.objects.push(upper);
+
+        let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
+        let col = color_at(w, r, RECURSIVE_DEPTH);
+        println!("testy {} {} {}", col.red, col.green, col.blue);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.2, 0.2, 0.2)),
+            true
+        );
+    }
+
+    #[test]
+    fn test_reflected_color_at_maximum_recursive_depth() {
+        //Reflected color at maximum recursive depth
+        let mut w = world_default();
+        let mut s = planes::plane();
+        s.material.reflective = 0.5;
+        s.transform = transformations::matrix4_translation(0.0, -1.0, 0.0);
+        w.objects.push(s.clone());
+
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, -3.0),
+            tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let i = intersections::intersection(2.0_f64.sqrt(), s);
+        let comps = intersections::prepare_computations(i, r);
+        let col = reflected_color(w, comps, 0);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
             true
         );
     }
