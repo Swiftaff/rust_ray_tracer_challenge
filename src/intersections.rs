@@ -15,6 +15,8 @@ pub fn comp_default(shape_type: &shapes::ShapeType) -> Comps {
         normalv: tuples::vector(0.0, 0.0, 0.0),
         reflectv: tuples::vector(0.0, 0.0, 0.0),
         inside: false,
+        n1: 0.0,
+        n2: 0.0,
     }
 }
 
@@ -28,6 +30,8 @@ pub struct Comps {
     pub normalv: tuples::Vector,
     pub reflectv: tuples::Vector,
     pub inside: bool,
+    pub n1: f64,
+    pub n2: f64,
 }
 
 #[derive(Debug, Clone)]
@@ -62,10 +66,14 @@ pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
     }
 }
 
-pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
+pub fn prepare_computations(
+    i: Intersection,
+    r: rays::Ray,
+    xs_option: Option<Vec<Intersection>>,
+) -> Comps {
     let mut comps: Comps = comp_default(&i.object.shape_type);
-    comps.t = i.t;
-    comps.object = i.object;
+    comps.t = i.clone().t;
+    comps.object = i.clone().object;
     comps.point = rays::position(r, comps.t);
     comps.eyev = tuples::tuple_multiply(r.direction, -1.0);
     comps.normalv = shapes::normal_at(comps.clone().object, comps.clone().point);
@@ -78,6 +86,53 @@ pub fn prepare_computations(i: Intersection, r: rays::Ray) -> Comps {
     if tuples::vector_dot_product(&comps.normalv, &comps.eyev) < 0.0 {
         comps.inside = true;
         comps.normalv = tuples::tuple_multiply(comps.normalv, -1.0);
+    }
+    let xs: Vec<Intersection>;
+    let mut containers: Vec<shapes::Shape> = Vec::new();
+    match xs_option {
+        Some(the_xs) => {
+            xs = the_xs;
+        }
+        None => {
+            xs = vec![i.clone()];
+        }
+    }
+    let hit_result = hit(xs.clone());
+    match hit_result {
+        Ok(the_hit) => {
+            for index in 0..xs.clone().len() {
+                if xs[index].object.id == the_hit.object.id {
+                    if containers.len() == 0 {
+                        comps.n1 = 1.0;
+                    } else {
+                        comps.n1 = containers[containers.len() - 1].material.refractive_index;
+                    }
+                }
+
+                let is_object_already_in_container =
+                    containers.iter().position(|x| x.id >= i.object.id);
+                match is_object_already_in_container {
+                    Some(existing_object_index) => {
+                        containers.remove(existing_object_index);
+                    }
+                    None => {
+                        containers.push(xs[index].clone().object);
+                    }
+                }
+
+                if xs[index].object.id == the_hit.object.id {
+                    if containers.len() == 0 {
+                        comps.n2 = 1.0;
+                    } else {
+                        comps.n2 = containers.last().unwrap().material.refractive_index;
+                    }
+                }
+            }
+        }
+        Err(_) => {
+            comps.n1 = 1.0;
+            comps.n2 = 1.0;
+        }
     }
     comps
 }
@@ -191,7 +246,7 @@ mod tests {
         let r = rays::ray(p.clone(), d.clone());
         let testp = &tuples::point(0.0, 0.0, -1.0);
         let testv = &tuples::vector(0.0, 0.0, -1.0);
-        let comps = prepare_computations(i.clone(), r);
+        let comps = prepare_computations(i.clone(), r, None);
         assert_eq!(comps.t == i.t, true);
         assert_eq!(
             tuples::get_bool_colors_are_equal(
@@ -222,7 +277,7 @@ mod tests {
         let s = spheres::sphere();
         let i = intersection(4.0, s);
         let r = rays::ray(p.clone(), d.clone());
-        let comps = prepare_computations(i.clone(), r);
+        let comps = prepare_computations(i.clone(), r, None);
         assert_eq!(comps.inside, false);
     }
 
@@ -236,7 +291,7 @@ mod tests {
         let r = rays::ray(p.clone(), d.clone());
         let testp = tuples::point(0.0, 0.0, 1.0);
         let testv = tuples::vector(0.0, 0.0, -1.0);
-        let comps = prepare_computations(i.clone(), r);
+        let comps = prepare_computations(i.clone(), r, None);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&comps.point, &testp),
             true
@@ -261,7 +316,7 @@ mod tests {
         s.transform = transformations::matrix4_translation(0.0, 0.0, 1.0);
         let i = intersection(5.0, s);
         let r = rays::ray(p, d);
-        let comps = prepare_computations(i.clone(), r);
+        let comps = prepare_computations(i.clone(), r, None);
         assert_eq!(&comps.over_point.z < &(tuples::EPSILON / -2.0), true);
         assert_eq!(&comps.point.z > &comps.over_point.z, true);
     }
@@ -275,7 +330,7 @@ mod tests {
             tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
-        let comps = prepare_computations(i, r);
+        let comps = prepare_computations(i, r, None);
         println!(
             "testy {} {} {}",
             comps.reflectv.x, comps.reflectv.y, comps.reflectv.z
@@ -287,5 +342,54 @@ mod tests {
             ),
             true
         );
+    }
+
+    #[test]
+    fn test_finding_n1_and_n2_at_various_intersections() {
+        //Finding n1 and n2 at various intersections
+        let mut a = spheres::sphere_glass();
+        a.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
+        a.material.refractive_index = 1.5;
+
+        let mut b = spheres::sphere_glass();
+        b.transform = transformations::matrix4_translation(0.0, 0.0, -0.25);
+        b.material.refractive_index = 2.0;
+
+        let mut c = spheres::sphere_glass();
+        c.transform = transformations::matrix4_translation(0.0, 0.0, 0.25);
+        c.material.refractive_index = 2.5;
+
+        let r = rays::ray(tuples::point(0.0, 0.0, -4.0), tuples::vector(0.0, 0.0, 1.0));
+        let results = [
+            [1.0, 1.5],
+            [1.5, 2.0],
+            [2.0, 2.5],
+            [2.5, 2.5],
+            [2.5, 1.5],
+            [1.5, 1.0],
+        ];
+        let xs = intersection_list(vec![
+            intersection(2.0, a.clone()),
+            intersection(2.75, b.clone()),
+            intersection(3.25, c.clone()),
+            intersection(4.75, b.clone()),
+            intersection(5.25, c.clone()),
+            intersection(6.0, a.clone()),
+        ]);
+        for index in 0..xs.clone().len() {
+            let comps = prepare_computations(xs[index].clone(), r, Some(xs.clone()));
+            println!(
+                "index: {}, n1: {}={}, n2: {}={}",
+                index, comps.n1, results[index][0], comps.n2, results[index][1]
+            );
+            assert_eq!(
+                tuples::get_bool_numbers_are_equal(comps.n1, results[index][0]),
+                true
+            );
+            assert_eq!(
+                tuples::get_bool_numbers_are_equal(comps.n2, results[index][1]),
+                true
+            );
+        }
     }
 }
