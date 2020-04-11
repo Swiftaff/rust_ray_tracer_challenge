@@ -5,7 +5,7 @@
   "main": "src/main.rs",
   "scripts": {
     "watch_fmt_test": "cargo watch -d 4 -x fmt -x test",
-    "watch_fmt_test_nocapture": "cargo test -- --nocapture",
+    "watch_fmt_test_nocapture": "cargo watch -x \"test test_finding_n1_and_n2_at_various_intersections -- --nocapture\"",
     "watch_fmt_build": "cargo watch -d 4 -x fmt -x build",
     "run": "cargo run",
     "build": "cargo build",
