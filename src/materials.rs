@@ -9,7 +9,15 @@ pub const MATERIAL_DEFAULT: Material = Material {
     specular: 0.9,
     shininess: 200.0,
     reflective: 0.0,
+    transparency: 0.0,
+    refractive_index: REFRACTIVE_INDEX_VACUUM,
 };
+
+pub const REFRACTIVE_INDEX_VACUUM: f64 = 1.0;
+pub const REFRACTIVE_INDEX_AIR: f64 = 1.00029;
+pub const REFRACTIVE_INDEX_WATER: f64 = 1.333;
+pub const REFRACTIVE_INDEX_GLASS: f64 = 1.52;
+pub const REFRACTIVE_INDEX_DIAMOND: f64 = 2.417;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Material {
@@ -20,6 +28,8 @@ pub struct Material {
     pub specular: f64,
     pub shininess: f64,
     pub reflective: f64,
+    pub transparency: f64,
+    pub refractive_index: f64,
 }
 
 pub fn material(
@@ -30,6 +40,8 @@ pub fn material(
     specular: f64,
     shininess: f64,
     reflective: f64,
+    transparency: f64,
+    refractive_index: f64,
 ) -> Material {
     Material {
         pattern: pattern,
@@ -39,6 +51,8 @@ pub fn material(
         specular: specular,
         shininess: shininess,
         reflective: reflective,
+        transparency: transparency,
+        refractive_index: refractive_index,
     }
 }
 
@@ -218,5 +232,19 @@ mod tests {
         //Reflectivity for the default material
         let a = MATERIAL_DEFAULT;
         assert_eq!(tuples::get_bool_numbers_are_equal(a.reflective, 0.0), true);
+    }
+
+    #[test]
+    fn test_transparency_and_refractive_index_for_default_material() {
+        //Transparency and reflective index for default material
+        let a = MATERIAL_DEFAULT;
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(a.transparency, 0.0),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(a.refractive_index, REFRACTIVE_INDEX_VACUUM),
+            true
+        );
     }
 }

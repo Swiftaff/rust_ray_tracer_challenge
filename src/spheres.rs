@@ -1,4 +1,5 @@
 use crate::intersections;
+use crate::materials;
 use crate::rays;
 use crate::shapes;
 use crate::tuples;
@@ -13,6 +14,13 @@ pub struct Discriminant {
 
 pub fn sphere() -> shapes::Shape {
     shapes::shape(shapes::ShapeType::Sphere)
+}
+
+pub fn sphere_glass() -> shapes::Shape {
+    let mut s = sphere();
+    s.material.transparency = 1.0;
+    s.material.refractive_index = materials::REFRACTIVE_INDEX_GLASS;
+    s
 }
 
 pub fn discriminant(ray: rays::Ray) -> Discriminant {
