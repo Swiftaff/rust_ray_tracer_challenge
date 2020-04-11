@@ -52,6 +52,11 @@ pub fn intersection_list(mut xs: Vec<Intersection>) -> Vec<Intersection> {
     xs
 }
 
+pub fn get_bool_intersections_are_equal(i1: &Intersection, i2: &Intersection) -> bool {
+    tuples::get_bool_numbers_are_equal(i1.t, i2.t)
+        && i1.object.id == i2.object.id
+}
+
 pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
     let mut the_hit: i32 = -1;
     for index in 0..xs.len() {
@@ -99,59 +104,39 @@ pub fn prepare_computations(
         }
     }
 
-    let mut testy: String = "inside test...\r\n".to_string();
-
     let hit_result = hit(xs.clone());
     match hit_result {
         Ok(hit) => {
             for index in 0..xs.clone().len() {
-                testy = format!("{}\r\nXS:{} {} {} {}\r\n", testy, index, xs[index].object.id, i.t, i.object.id);
-                let i_eq_hit = xs[index].object.id == i.object.id;
+                let i_eq_hit = get_bool_intersections_are_equal(&xs[index], &i);
                 if i_eq_hit {
-                    testy = format!("{} n1:is hit", testy);
                     if containers.len() == 0 {
-                        testy = format!("{} n1:containers.len() == 0", testy);
                         comps.n1 = materials::REFRACTIVE_INDEX_VACUUM;
                     } else {
-                        testy =
-                            format!("{} n1:containers.len() != 0 it={}", testy, containers.len());
                         comps.n1 = containers[containers.len() - 1].material.refractive_index;
                     }
                 }
 
                 let is_object_already_in_container =
-                    containers.iter().position(|x| x.id == i.object.id);
-                testy = format!(
-                    "{} is_object_already_in_container={:?} cont: {} {}",
-                    testy,
-                    is_object_already_in_container,
-                    containers.len(), i.object.id
-                );
+                    containers.iter().position(|x| x.id == xs[index].clone().object.id);
                 match is_object_already_in_container {
                     Some(existing_object_index) => {
                         containers.remove(existing_object_index);
-                        testy = format!("{} removed, containers.len()={}", testy, containers.len());
                     }
                     None => {
-                        containers.push(i.clone().object);
-                        testy = format!("{} pushed, containers.len()={}", testy, containers.len());
+                        containers.push(xs[index].clone().object);
                     }
                 }
 
                 if i_eq_hit {
-                    testy = format!("{} n2:is hit", testy);
                     if containers.len() == 0 {
-                        testy = format!("{} n2:containers.len() == 0", testy);
                         comps.n2 = materials::REFRACTIVE_INDEX_VACUUM;
                     } else {
-                        testy =
-                            format!("{} n2:containers.len() != 0 it={}", testy, containers.len());
                         comps.n2 = containers[containers.len() - 1].material.refractive_index;
                     }
                     break;
                 }
             }
-            println!("{}\r\n{} {}\r\n", testy, comps.n1, comps.n2);
         }
         Err(_) => {
             comps.n1 = materials::REFRACTIVE_INDEX_VACUUM;
@@ -403,19 +388,14 @@ mod tests {
         ]);
         for inter in 0..xs.clone().len() {
             let comps = prepare_computations(xs[inter].clone(), r, Some(xs.clone()));
-            println!(
-                "intersection: {}, n1: {}={}, n2: {}={}... {}",
-                inter, results[inter][0], comps.n1, results[inter][1], comps.n2, xs.clone()[inter].object.id
-            );
-            /*assert_eq!(
-                tuples::get_bool_numbers_are_equal(comps.n1, results[index][0]),
+            assert_eq!(
+                tuples::get_bool_numbers_are_equal(comps.n1, results[inter][0]),
                 true
             );
             assert_eq!(
-                tuples::get_bool_numbers_are_equal(comps.n2, results[index][1]),
+                tuples::get_bool_numbers_are_equal(comps.n2, results[inter][1]),
                 true
-            );*/
-            assert_eq!(true,true);
+            );
         }
     }
 }
