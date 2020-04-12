@@ -128,7 +128,11 @@ pub fn reflected_color(w: World, c: intersections::Comps, remaining: i32) -> tup
 }
 
 pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tuples::Color {
-    if c.object.material.reflective == 0.0 || remaining < 1 {
+    let n_ratio: f64 = c.n1 / c.n2;
+    let cos_i = tuples::vector_dot_product(&c.eyev, &c.normalv);
+    let sin2_t = n_ratio * n_ratio * (1.0 - cos_i * cos_i);
+
+    if c.object.material.reflective == 0.0 || remaining < 1 || sin2_t > 1.0 {
         tuples::COLOR_BLACK
     } else {
         tuples::COLOR_WHITE
@@ -455,14 +459,55 @@ mod tests {
     #[test]
     fn test_refracted_color_with_an_opaque_surface() {
         //Refracted color with an opaque surface
-        let mut w = world_default();
+        let w = world_default();
         let s = w.objects[0].clone();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let i1 = intersections::intersection(4.0, s.clone());
-        let i2 = intersections::intersection(4.0, s.clone());
+        let i2 = intersections::intersection(6.0, s.clone());
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
-        let col = refracted_color(w, comps, 5);
+        let col = refracted_color(w, comps, RECURSIVE_DEPTH);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
+            true
+        );
+    }
+
+    #[test]
+    fn test_refracted_color_at_maximum_recursive_depth() {
+        //Refracted color at the maximum recursive depth
+        let w = world_default();
+        let mut s = w.objects[0].clone();
+        s.material.transparency = 1.0;
+        s.material.refractive_index = 1.5;
+        let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
+        let i1 = intersections::intersection(4.0, s.clone());
+        let i2 = intersections::intersection(6.0, s.clone());
+        let xs = intersections::intersection_list(vec![i1, i2]);
+        let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
+        let col = refracted_color(w, comps, 0);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
+            true
+        );
+    }
+
+    #[test]
+    fn test_refracted_color_under_total_internal_reflection() {
+        //Refracted color under total internal reflection
+        let w = world_default();
+        let mut s = w.objects[0].clone();
+        s.material.transparency = 1.0;
+        s.material.refractive_index = 1.5;
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
+            tuples::vector(0.0, 1.0, 0.0),
+        );
+        let i1 = intersections::intersection(2.0_f64.sqrt() / -2.0, s.clone());
+        let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s.clone());
+        let xs = intersections::intersection_list(vec![i1, i2]);
+        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
+        let col = refracted_color(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
             true
