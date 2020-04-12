@@ -82,9 +82,20 @@ pub fn shade_hit(w: World, c: intersections::Comps, remaining: i32) -> tuples::C
         );
         col = tuples::colors_add(&col, &this_lights_effect);
     }
-    let col_and_reflected_col =
-        tuples::colors_add(&col, &reflected_color(w.clone(), c.clone(), remaining));
-    tuples::colors_add(&col_and_reflected_col, &refracted_color(w, c, remaining))
+    let reflected = reflected_color(w.clone(), c.clone(), remaining);
+    let refracted = refracted_color(w, c.clone(), remaining);
+    let material = c.object.material.clone();
+    if material.reflective > 0.0 && material.transparency > 0.0 {
+        let reflectance = schlick(c);
+        let c1 = tuples::colors_add(
+            &col,
+            &(tuples::colors_scalar_multiply(&reflected, reflectance)),
+        );
+        let c2 = tuples::colors_scalar_multiply(&refracted, 1.0 - reflectance);
+        tuples::colors_add(&c1, &c2)
+    } else {
+        tuples::colors_add(&tuples::colors_add(&col, &reflected), &refracted)
+    }
 }
 
 pub fn color_at(w: World, r: rays::Ray, remaining: i32) -> tuples::Color {
@@ -450,7 +461,6 @@ mod tests {
 
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
         let col = color_at(w, r, RECURSIVE_DEPTH);
-        println!("testy {} {} {}", col.red, col.green, col.blue);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.2, 0.2, 0.2)),
             true
@@ -621,7 +631,6 @@ mod tests {
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
         let reflectance = schlick(comps);
-        println!("{}", reflectance);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(reflectance, 0.04257),
             true
@@ -641,9 +650,41 @@ mod tests {
         let xs = intersections::intersection_list(vec![i]);
         let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
         let reflectance = schlick(comps);
-        println!("{}", reflectance);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(reflectance, 0.4901),
+            true
+        );
+    }
+
+    #[test]
+    fn test_shade_hit_with_a_reflective_transparent_material() {
+        //shade_hit() with a reflective transparent material
+        let mut w = world_default();
+
+        let mut floor = planes::plane();
+        floor.transform = transformations::matrix4_translation(0.0, -1.0, 0.0);
+        floor.material.reflective = 0.5;
+        floor.material.transparency = 0.5;
+        floor.material.refractive_index = 1.5;
+        w.objects.push(floor.clone());
+
+        let mut ball = w.objects[0].clone();
+        ball.material.color = tuples::color(1.0, 0.0, 0.0);
+        ball.material.ambient = 0.5;
+        ball.transform = transformations::matrix4_translation(0.0, -3.5, -0.5);
+        w.objects.push(ball);
+
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, -3.0),
+            tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let i = intersections::intersection(2.0_f64.sqrt(), floor);
+        let xs = intersections::intersection_list(vec![i]);
+        let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs.clone()));
+        let col = shade_hit(w, comps, RECURSIVE_DEPTH);
+        println!("{} {} {}", col.red, col.green, col.blue);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.93391, 0.69643, 0.69243)),
             true
         );
     }
