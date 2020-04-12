@@ -111,7 +111,7 @@ pub fn prepare_computations(
 
     let hit_result = hit(xs.clone());
     match hit_result {
-        Ok(hit) => {
+        Ok(_hit) => {
             for index in 0..xs.clone().len() {
                 let i_eq_hit = get_bool_intersections_are_equal(&xs[index], &i);
                 if i_eq_hit {

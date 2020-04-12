@@ -162,8 +162,7 @@ pub fn tuple_subtract(a: &Tuple, b: &Tuple) -> Tuple {
         tuple(a.x, a.y, a.z, a.w)
     //TODO - create an error?
     } else {
-        let w = a.w - b.w;
-        tuple(a.x - b.x, a.y - b.y, a.z - b.z, w)
+        tuple(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w)
     }
 }
 
