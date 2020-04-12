@@ -11,6 +11,7 @@ pub fn comp_default(shape_type: &shapes::ShapeType) -> Comps {
         object: shapes::shape(*shape_type),
         point: tuples::point(0.0, 0.0, 0.0),
         over_point: tuples::point(0.0, 0.0, 0.0),
+        under_point: tuples::point(0.0, 0.0, 0.0),
         eyev: tuples::vector(0.0, 0.0, 0.0),
         normalv: tuples::vector(0.0, 0.0, 0.0),
         reflectv: tuples::vector(0.0, 0.0, 0.0),
@@ -26,6 +27,7 @@ pub struct Comps {
     pub object: shapes::Shape,
     pub point: tuples::Point,
     pub over_point: tuples::Point,
+    pub under_point: tuples::Point,
     pub eyev: tuples::Vector,
     pub normalv: tuples::Vector,
     pub reflectv: tuples::Vector,
@@ -53,8 +55,7 @@ pub fn intersection_list(mut xs: Vec<Intersection>) -> Vec<Intersection> {
 }
 
 pub fn get_bool_intersections_are_equal(i1: &Intersection, i2: &Intersection) -> bool {
-    tuples::get_bool_numbers_are_equal(i1.t, i2.t)
-        && i1.object.id == i2.object.id
+    tuples::get_bool_numbers_are_equal(i1.t, i2.t) && i1.object.id == i2.object.id
 }
 
 pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
@@ -88,6 +89,10 @@ pub fn prepare_computations(
         &comps.point,
         &(tuples::tuple_scalar_multiply(&comps.clone().normalv, tuples::EPSILON)),
     );
+    comps.under_point = tuples::tuple_subtract(
+        &comps.point,
+        &(tuples::tuple_scalar_multiply(&comps.clone().normalv, tuples::EPSILON)),
+    );
     if tuples::vector_dot_product(&comps.normalv, &comps.eyev) < 0.0 {
         comps.inside = true;
         comps.normalv = tuples::tuple_multiply(comps.normalv, -1.0);
@@ -117,8 +122,9 @@ pub fn prepare_computations(
                     }
                 }
 
-                let is_object_already_in_container =
-                    containers.iter().position(|x| x.id == xs[index].clone().object.id);
+                let is_object_already_in_container = containers
+                    .iter()
+                    .position(|x| x.id == xs[index].clone().object.id);
                 match is_object_already_in_container {
                     Some(existing_object_index) => {
                         containers.remove(existing_object_index);
@@ -341,10 +347,6 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = prepare_computations(i, r, None);
-        println!(
-            "testy {} {} {}",
-            comps.reflectv.x, comps.reflectv.y, comps.reflectv.z
-        );
         assert_eq!(
             tuples::get_bool_tuples_are_equal(
                 &comps.reflectv,
@@ -397,5 +399,18 @@ mod tests {
                 true
             );
         }
+    }
+
+    #[test]
+    fn test_the_under_point_is_offset_below_the_surface() {
+        //The under point is offset below the surface
+        let mut s = spheres::sphere_glass();
+        s.transform = transformations::matrix4_translation(0.0, 0.0, 1.0);
+        let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
+        let i = intersections::intersection(5.0, s);
+        let xs = intersection_list(vec![i.clone()]);
+        let comps = prepare_computations(i, r, Some(xs));
+        assert_eq!(comps.under_point.z > tuples::EPSILON / 2.0, true);
+        assert_eq!(comps.point.z < comps.under_point.z, true);
     }
 }

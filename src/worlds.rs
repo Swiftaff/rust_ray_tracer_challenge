@@ -127,6 +127,17 @@ pub fn reflected_color(w: World, c: intersections::Comps, remaining: i32) -> tup
     }
 }
 
+pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tuples::Color {
+    if c.object.material.reflective == 0.0 || remaining < 1 {
+        tuples::COLOR_BLACK
+    } else {
+        tuples::COLOR_WHITE
+        //    let reflect_ray = rays::ray(c.over_point, c.reflectv);
+        //    let col = color_at(w, reflect_ray, remaining - 1);
+        //    tuples::colors_scalar_multiply(&col, c.object.material.reflective)
+    }
+}
+
 #[cfg(test)]
 use crate::matrices;
 mod tests {
@@ -435,6 +446,23 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(i, r, None);
         let col = reflected_color(w, comps, 0);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
+            true
+        );
+    }
+
+    #[test]
+    fn test_refracted_color_with_an_opaque_surface() {
+        //Refracted color with an opaque surface
+        let mut w = world_default();
+        let s = w.objects[0].clone();
+        let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
+        let i1 = intersections::intersection(4.0, s.clone());
+        let i2 = intersections::intersection(4.0, s.clone());
+        let xs = intersections::intersection_list(vec![i1, i2]);
+        let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
+        let col = refracted_color(w, comps, 5);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
             true
