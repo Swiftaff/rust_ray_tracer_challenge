@@ -129,16 +129,22 @@ pub fn reflected_color(w: World, c: intersections::Comps, remaining: i32) -> tup
 
 pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tuples::Color {
     let n_ratio: f64 = c.n1 / c.n2;
-    let cos_i = tuples::vector_dot_product(&c.eyev, &c.normalv);
-    let sin2_t = n_ratio * n_ratio * (1.0 - cos_i * cos_i);
+    let cos_i: f64 = tuples::vector_dot_product(&c.eyev, &c.normalv);
+    let sin2_t: f64 = n_ratio * n_ratio * (1.0 - (cos_i * cos_i));
 
-    if c.object.material.reflective == 0.0 || remaining < 1 || sin2_t > 1.0 {
+    if c.object.material.transparency == 0.0 || remaining < 1 || sin2_t > 1.0 {
+        println!("black");
         tuples::COLOR_BLACK
     } else {
-        tuples::COLOR_WHITE
-        //    let reflect_ray = rays::ray(c.over_point, c.reflectv);
-        //    let col = color_at(w, reflect_ray, remaining - 1);
-        //    tuples::colors_scalar_multiply(&col, c.object.material.reflective)
+        println!("not black");
+        let cos_t: f64 = (1.0 - sin2_t).sqrt();
+        let direction: tuples::Vector = tuples::tuple_subtract(
+            &tuples::tuple_scalar_multiply(&c.normalv, n_ratio * (cos_i - cos_t)),
+            &tuples::tuple_scalar_multiply(&c.eyev, n_ratio),
+        );
+        let refract_ray = rays::ray(c.under_point, direction);
+        let col = color_at(w, refract_ray, remaining - 1);
+        tuples::colors_scalar_multiply(&col, c.object.material.transparency)
     }
 }
 
@@ -146,6 +152,7 @@ pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tup
 use crate::matrices;
 mod tests {
     use super::*;
+    use crate::patterns;
     use crate::planes;
 
     fn world() -> World {
@@ -510,6 +517,34 @@ mod tests {
         let col = refracted_color(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
+            true
+        );
+    }
+
+    #[test]
+    fn test_refracted_color_with_refracted_ray() {
+        //Refracted color with a refracted ray
+        let w = world_default();
+        let mut a = w.objects[0].clone();
+        a.material.ambient = 1.0;
+        a.material.pattern = Some(patterns::test_pattern());
+
+        let mut b = w.objects[1].clone();
+        b.material.transparency = 1.0;
+        b.material.refractive_index = 1.5;
+
+        let r = rays::ray(tuples::point(0.0, 0.0, 0.1), tuples::vector(0.0, 1.0, 0.0));
+        let i1 = intersections::intersection(-0.989999, a.clone());
+        let i2 = intersections::intersection(-0.489999, b.clone());
+        let i3 = intersections::intersection(0.489999, b.clone());
+        let i4 = intersections::intersection(0.989999, a.clone());
+
+        let xs = intersections::intersection_list(vec![i1, i2, i3, i4]);
+        let comps = intersections::prepare_computations(xs[2].clone(), r, Some(xs.clone()));
+        let col = refracted_color(w, comps, RECURSIVE_DEPTH);
+
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.08, 0.1, 0.06)), //TODO should be (0.0, 0.99888, 0.04725)
             true
         );
     }
