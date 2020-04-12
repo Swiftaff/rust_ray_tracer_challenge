@@ -150,6 +150,21 @@ pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tup
     }
 }
 
+pub fn schlick(c: intersections::Comps) -> f64 {
+    let cos = tuples::vector_dot_product(&c.eyev, &c.normalv);
+    if c.n1 > c.n2 {
+        let n = c.n1 / c.n2;
+        let sin2_t = n * n * (1.0 - cos * cos);
+        if sin2_t > 1.0 {
+            1.0
+        } else {
+            0.0
+        }
+    } else {
+        0.0
+    }
+}
+
 #[cfg(test)]
 use crate::matrices;
 mod tests {
@@ -577,5 +592,22 @@ mod tests {
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.93642, 0.68642, 0.68642)),
             true
         );
+    }
+
+    #[test]
+    fn test_schlick_approximation_under_total_internal_reflection() {
+        //Schlick approximation under total internal reflection
+        let s = spheres::sphere_glass();
+
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
+            tuples::vector(0.0, 1.0, 0.0),
+        );
+        let i1 = intersections::intersection(2.0_f64.sqrt() / -2.0, s.clone());
+        let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s);
+        let xs = intersections::intersection_list(vec![i1, i2]);
+        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
+        let reflectance = schlick(comps);
+        assert_eq!(tuples::get_bool_numbers_are_equal(reflectance, 1.0), true);
     }
 }
