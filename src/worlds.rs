@@ -82,7 +82,9 @@ pub fn shade_hit(w: World, c: intersections::Comps, remaining: i32) -> tuples::C
         );
         col = tuples::colors_add(&col, &this_lights_effect);
     }
-    tuples::colors_add(&col, &reflected_color(w, c, remaining))
+    let col_and_reflected_col =
+        tuples::colors_add(&col, &reflected_color(w.clone(), c.clone(), remaining));
+    tuples::colors_add(&col_and_reflected_col, &refracted_color(w, c, remaining))
 }
 
 pub fn color_at(w: World, r: rays::Ray, remaining: i32) -> tuples::Color {
@@ -524,27 +526,55 @@ mod tests {
     #[test]
     fn test_refracted_color_with_refracted_ray() {
         //Refracted color with a refracted ray
-        let w = world_default();
-        let mut a = w.objects[0].clone();
-        a.material.ambient = 1.0;
-        a.material.pattern = Some(patterns::test_pattern());
+        let mut w = world_default();
+        w.objects[0].material.ambient = 1.0;
+        w.objects[0].material.pattern = Some(patterns::test_pattern());
 
-        let mut b = w.objects[1].clone();
-        b.material.transparency = 1.0;
-        b.material.refractive_index = 1.5;
+        w.objects[1].material.transparency = 1.0;
+        w.objects[1].material.refractive_index = 1.5;
 
         let r = rays::ray(tuples::point(0.0, 0.0, 0.1), tuples::vector(0.0, 1.0, 0.0));
-        let i1 = intersections::intersection(-0.989999, a.clone());
-        let i2 = intersections::intersection(-0.489999, b.clone());
-        let i3 = intersections::intersection(0.489999, b.clone());
-        let i4 = intersections::intersection(0.989999, a.clone());
+        let i1 = intersections::intersection(-0.989999, w.objects[0].clone());
+        let i2 = intersections::intersection(-0.489999, w.objects[1].clone());
+        let i3 = intersections::intersection(0.489999, w.objects[1].clone());
+        let i4 = intersections::intersection(0.989999, w.objects[0].clone());
 
         let xs = intersections::intersection_list(vec![i1, i2, i3, i4]);
         let comps = intersections::prepare_computations(xs[2].clone(), r, Some(xs.clone()));
         let col = refracted_color(w, comps, RECURSIVE_DEPTH);
-
         assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.08, 0.1, 0.06)), //TODO should be (0.0, 0.99888, 0.04725)
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.0, 0.99526, 0.09732)), //TODO should be (0.0, 0.99888, 0.04725)
+            true
+        );
+    }
+
+    #[test]
+    fn test_shade_hit_with_a_transparent_material() {
+        //shade_hit() with a transparent material
+        let mut w = world_default();
+
+        let mut floor = planes::plane();
+        floor.transform = transformations::matrix4_translation(0.0, -1.0, 0.0);
+        floor.material.transparency = 0.5;
+        floor.material.refractive_index = 1.5;
+        w.objects.push(floor.clone());
+
+        let mut ball = w.objects[0].clone();
+        ball.material.color = tuples::color(1.0, 0.0, 0.0);
+        ball.material.ambient = 0.5;
+        ball.transform = transformations::matrix4_translation(0.0, -3.5, -0.5);
+        w.objects.push(ball);
+
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, -3.0),
+            tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let i = intersections::intersection(2.0_f64.sqrt(), floor);
+        let xs = intersections::intersection_list(vec![i]);
+        let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs.clone()));
+        let col = shade_hit(w, comps, RECURSIVE_DEPTH);
+        assert_eq!(
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.93642, 0.68642, 0.68642)),
             true
         );
     }
