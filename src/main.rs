@@ -12,6 +12,7 @@ mod patterns;
 mod planes;
 mod program_chapter_10_patterns;
 mod program_chapter_11_reflection;
+mod program_chapter_11_refractions;
 mod program_chapter_9_planes;
 mod program_fire_canon;
 mod program_sphere_lighting;
@@ -24,7 +25,7 @@ mod transformations;
 mod tuples;
 mod worlds;
 
-const DEFAULT_SIZE_INDICES: [usize; 7] = [4, 2, 3, 2, 1, 1, 1];
+const DEFAULT_SIZE_INDICES: [usize; 8] = [4, 2, 3, 2, 1, 1, 1, 1];
 
 fn main() {
     let sizes_arr: [[u32; 2]; 5] = [[50, 25], [100, 50], [200, 100], [400, 200], [500, 250]];
@@ -60,6 +61,7 @@ fn get_selected_program() -> u32 {
 4. program_chapter_9_planes(100,50)
 5. program_chapter_10_patterns(100,50)
 6. program_chapter_11_reflection(100,50)
+7. program_chapter_11_refractions(100,50)
 ? ",
     );
     input::<u32>().msg(message).get()
@@ -90,5 +92,7 @@ fn run_selected_program(program: u32, x: u32, y: u32) {
         program_chapter_10_patterns::world_main(x, y);
     } else if program == 6 {
         program_chapter_11_reflection::world_main(x, y);
+    } else if program == 7 {
+        program_chapter_11_refractions::world_main(x, y);
     }
 }

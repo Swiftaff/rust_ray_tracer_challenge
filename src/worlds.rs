@@ -146,10 +146,10 @@ pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tup
     let sin2_t: f64 = n_ratio * n_ratio * (1.0 - (cos_i * cos_i));
 
     if c.object.material.transparency == 0.0 || remaining < 1 || sin2_t > 1.0 {
-        println!("black");
+        //println!("black");
         tuples::COLOR_BLACK
     } else {
-        println!("not black");
+        //println!("not black");
         let cos_t: f64 = (1.0 - sin2_t).sqrt();
         let direction: tuples::Vector = tuples::tuple_subtract(
             &tuples::tuple_scalar_multiply(&c.normalv, n_ratio * (cos_i - cos_t)),
@@ -566,6 +566,7 @@ mod tests {
         let xs = intersections::intersection_list(vec![i1, i2, i3, i4]);
         let comps = intersections::prepare_computations(xs[2].clone(), r, Some(xs.clone()));
         let col = refracted_color(w, comps, RECURSIVE_DEPTH);
+        println!("{} {} {}", col.red, col.green, col.blue);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.0, 0.99526, 0.09732)), //TODO should be (0.0, 0.99888, 0.04725)
             true
