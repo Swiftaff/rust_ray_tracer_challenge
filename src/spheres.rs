@@ -328,4 +328,25 @@ mod tests {
         let type_name = print_type_of(&s);
         assert_eq!(type_name, "rust_ray_tracer_challenge::shapes::Shape");
     }
+
+    #[test]
+    fn test_a_helper_for_producing_a_sphere_with_a_glassy_material() {
+        //A helper for producing a sphere with a glassy material
+        let s = sphere_glass();
+        assert_eq!(
+            matrices::get_bool_equal_m4(s.transform, matrices::IDENTITY_MATRIX),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(s.material.transparency, 1.0),
+            true
+        );
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(
+                s.material.refractive_index,
+                materials::REFRACTIVE_INDEX_GLASS
+            ),
+            true
+        );
+    }
 }

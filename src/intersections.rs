@@ -153,6 +153,20 @@ pub fn prepare_computations(
     comps
 }
 
+pub fn schlick(c: Comps) -> f64 {
+    let mut cos = tuples::vector_dot_product(&c.eyev, &c.normalv);
+    if c.n1 > c.n2 {
+        let n = c.n1 / c.n2;
+        let sin2_t = n.powi(2) * (1.0 - cos.powi(2));
+        if sin2_t > 1.0 {
+            return 1.0;
+        };
+        cos = (1.0 - sin2_t).sqrt();
+    }
+    let r0 = ((c.n1 - c.n2) / (c.n1 + c.n2)).powi(2);
+    return r0 + (1.0 - r0) * ((1.0 - cos).powi(5));
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -412,5 +426,58 @@ mod tests {
         let comps = prepare_computations(i, r, Some(xs));
         assert_eq!(comps.under_point.z > tuples::EPSILON / 2.0, true);
         assert_eq!(comps.point.z < comps.under_point.z, true);
+    }
+
+    #[test]
+    fn test_schlick_approximation_under_total_internal_reflection() {
+        //Schlick approximation under total internal reflection
+        let s = spheres::sphere_glass();
+
+        let r = rays::ray(
+            tuples::point(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
+            tuples::vector(0.0, 1.0, 0.0),
+        );
+        let i1 = intersections::intersection(2.0_f64.sqrt() / -2.0, s.clone());
+        let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s);
+        let xs = intersections::intersection_list(vec![i1, i2]);
+        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
+        let reflectance = schlick(comps);
+        assert_eq!(tuples::get_bool_numbers_are_equal(reflectance, 1.0), true);
+    }
+
+    #[test]
+    fn test_schlick_approximation_with_a_perpendicular_viewing_angle() {
+        //Schlick approximation with a perpendicular angle
+        let s = spheres::sphere_glass();
+
+        let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
+        let i1 = intersections::intersection(-1.0, s.clone());
+        let i2 = intersections::intersection(1.0, s);
+        let xs = intersections::intersection_list(vec![i1, i2]);
+        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
+        let reflectance = schlick(comps);
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(reflectance, 0.04257),
+            true
+        );
+    }
+
+    #[test]
+    fn test_schlick_approximation_with_a_small_angle_and_n2_greater_than_n1() {
+        //Schlick approximation with a small angle and n1 > n1
+        let s = spheres::sphere_glass();
+
+        let r = rays::ray(
+            tuples::point(0.0, 0.99, -2.0),
+            tuples::vector(0.0, 0.0, 1.0),
+        );
+        let i = intersections::intersection(1.8589, s.clone());
+        let xs = intersections::intersection_list(vec![i]);
+        let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
+        let reflectance = schlick(comps);
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(reflectance, 0.4901),
+            true
+        );
     }
 }

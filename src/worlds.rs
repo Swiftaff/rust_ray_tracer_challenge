@@ -78,7 +78,7 @@ pub fn shade_hit(w: World, c: intersections::Comps, remaining: i32) -> tuples::C
             c.over_point,
             c.eyev,
             c.normalv,
-            is_shadowed(w.clone(), c.over_point),
+            is_shadowed(w.clone(), c.over_point), //TODO maybe try ternary for under_point?
         );
         col = tuples::colors_add(&col, &this_lights_effect);
     }
@@ -86,7 +86,7 @@ pub fn shade_hit(w: World, c: intersections::Comps, remaining: i32) -> tuples::C
     let refracted = refracted_color(w, c.clone(), remaining);
     let material = c.object.material.clone();
     if material.reflective > 0.0 && material.transparency > 0.0 {
-        let reflectance = schlick(c);
+        let reflectance = intersections::schlick(c);
         let c1 = tuples::colors_add(
             &col,
             &(tuples::colors_scalar_multiply(&reflected, reflectance)),
@@ -164,20 +164,6 @@ pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tup
         let col = color_at(w, refract_ray, remaining - 1);
         tuples::colors_scalar_multiply(&col, c.object.material.transparency)
     }
-}
-
-pub fn schlick(c: intersections::Comps) -> f64 {
-    let mut cos = tuples::vector_dot_product(&c.eyev, &c.normalv);
-    if c.n1 > c.n2 {
-        let n = c.n1 / c.n2;
-        let sin2_t = n.powi(2) * (1.0 - cos.powi(2));
-        if sin2_t > 1.0 {
-            return 1.0;
-        };
-        cos = (1.0 - sin2_t).sqrt();
-    }
-    let r0 = ((c.n1 - c.n2) / (c.n1 + c.n2)).powi(2);
-    return r0 + (1.0 - r0) * (1.0 - cos).powi(5);
 }
 
 #[cfg(test)]
@@ -563,17 +549,17 @@ mod tests {
         w.objects[1].material.refractive_index = 1.5;
 
         let r = rays::ray(tuples::point(0.0, 0.0, 0.1), tuples::vector(0.0, 1.0, 0.0));
-        let i1 = intersections::intersection(-0.989999, w.objects[0].clone());
-        let i2 = intersections::intersection(-0.489999, w.objects[1].clone());
-        let i3 = intersections::intersection(0.489999, w.objects[1].clone());
-        let i4 = intersections::intersection(0.989999, w.objects[0].clone());
+        let i1 = intersections::intersection(-0.9899, w.objects[0].clone());
+        let i2 = intersections::intersection(-0.4899, w.objects[1].clone());
+        let i3 = intersections::intersection(0.4899, w.objects[1].clone());
+        let i4 = intersections::intersection(0.9899, w.objects[0].clone());
 
         let xs = intersections::intersection_list(vec![i1, i2, i3, i4]);
         let comps = intersections::prepare_computations(xs[2].clone(), r, Some(xs.clone()));
         let col = refracted_color(w, comps, RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
         assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.0, 0.99889, 0.047241)), //TODO should be (0.0, 0.99888, 0.04725)
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.0, 0.99889, 0.04722)),
             true
         );
     }
@@ -605,59 +591,6 @@ mod tests {
         let col = shade_hit(w, comps, RECURSIVE_DEPTH);
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.93642, 0.68642, 0.68642)),
-            true
-        );
-    }
-
-    #[test]
-    fn test_schlick_approximation_under_total_internal_reflection() {
-        //Schlick approximation under total internal reflection
-        let s = spheres::sphere_glass();
-
-        let r = rays::ray(
-            tuples::point(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
-            tuples::vector(0.0, 1.0, 0.0),
-        );
-        let i1 = intersections::intersection(2.0_f64.sqrt() / -2.0, s.clone());
-        let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s);
-        let xs = intersections::intersection_list(vec![i1, i2]);
-        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
-        let reflectance = schlick(comps);
-        assert_eq!(tuples::get_bool_numbers_are_equal(reflectance, 1.0), true);
-    }
-
-    #[test]
-    fn test_schlick_approximation_with_a_perpendicular_viewing_angle() {
-        //Schlick approximation with a perpendicular angle
-        let s = spheres::sphere_glass();
-
-        let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
-        let i1 = intersections::intersection(-1.0, s.clone());
-        let i2 = intersections::intersection(1.0, s);
-        let xs = intersections::intersection_list(vec![i1, i2]);
-        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
-        let reflectance = schlick(comps);
-        assert_eq!(
-            tuples::get_bool_numbers_are_equal(reflectance, 0.04257),
-            true
-        );
-    }
-
-    #[test]
-    fn test_schlick_approximation_with_a_small_angle_and_n2_greater_than_n1() {
-        //Schlick approximation with a small angle and n1 > n1
-        let s = spheres::sphere_glass();
-
-        let r = rays::ray(
-            tuples::point(0.0, 0.99, -2.0),
-            tuples::vector(0.0, 0.0, 1.0),
-        );
-        let i = intersections::intersection(1.8589, s.clone());
-        let xs = intersections::intersection_list(vec![i]);
-        let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
-        let reflectance = schlick(comps);
-        assert_eq!(
-            tuples::get_bool_numbers_are_equal(reflectance, 0.4901),
             true
         );
     }
