@@ -102,7 +102,7 @@ pub fn matrix4_multiply(m1: Matrix4, m2: Matrix4) -> Matrix4 {
             for xx in 0..4 {
                 this_result = this_result + m1[y][xx] * m2[xx][x];
             }
-            result[y][x] = this_result; //trunc(thisResult);
+            result[y][x] = this_result;
         }
     }
     result

@@ -61,7 +61,7 @@ pub fn get_bool_intersections_are_equal(i1: &Intersection, i2: &Intersection) ->
 pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
     let mut the_hit: i32 = -1;
     for index in 0..xs.len() {
-        if the_hit == -1 && xs[index].t >= 0.0 {
+        if the_hit == -1 && xs[index].t >= tuples::EPSILON {
             the_hit = index as i32;
         }
     }

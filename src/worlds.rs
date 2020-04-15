@@ -152,10 +152,15 @@ pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tup
         //println!("not black");
         let cos_t: f64 = (1.0 - sin2_t).sqrt();
         let direction: tuples::Vector = tuples::tuple_subtract(
-            &tuples::tuple_scalar_multiply(&c.normalv, n_ratio * (cos_i - cos_t)),
+            &tuples::tuple_scalar_multiply(&c.normalv, (n_ratio * cos_i) - cos_t),
             &tuples::tuple_scalar_multiply(&c.eyev, n_ratio),
         );
-        let refract_ray = rays::ray(c.under_point, direction);
+        let start_point = if c.inside {
+            c.over_point
+        } else {
+            c.under_point
+        };
+        let refract_ray = rays::ray(start_point, direction);
         let col = color_at(w, refract_ray, remaining - 1);
         tuples::colors_scalar_multiply(&col, c.object.material.transparency)
     }
@@ -568,7 +573,7 @@ mod tests {
         let col = refracted_color(w, comps, RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
         assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.0, 0.99526, 0.09732)), //TODO should be (0.0, 0.99888, 0.04725)
+            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.0, 0.99889, 0.047241)), //TODO should be (0.0, 0.99888, 0.04725)
             true
         );
     }

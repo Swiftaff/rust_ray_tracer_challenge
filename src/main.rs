@@ -28,7 +28,17 @@ mod worlds;
 const DEFAULT_SIZE_INDICES: [usize; 8] = [4, 2, 3, 2, 1, 1, 1, 1];
 
 fn main() {
-    let sizes_arr: [[u32; 2]; 5] = [[50, 25], [100, 50], [200, 100], [400, 200], [500, 250]];
+    let sizes_arr: [[u32; 2]; 9] = [
+        [50, 25],
+        [100, 50],
+        [200, 100],
+        [400, 200],
+        [500, 250],
+        [50, 50],
+        [100, 100],
+        [200, 200],
+        [300, 300],
+    ];
     let size: u32 = get_selected_size();
     let program: u32 = get_selected_program();
     let index: usize = get_size_for_program(size, program);
@@ -46,6 +56,11 @@ fn get_selected_size() -> u32 {
 3. Small(200,100)
 4. Medium(400,200)
 5. Large(500,250)
+
+6. Large(50,50)
+7. Large(100,100)
+8. Large(200,200)
+9. Large(300,300)
 ? ",
     );
     input::<u32>().msg(message).get()

@@ -25,11 +25,11 @@ pub fn world_main(w: u32, h: u32) {
         //shape_wall_behind(),
         //shape_wall_behind_right(),
         shape_sphere_middle(),
-        shape_sphere_right(),
+        //shape_sphere_right(),
         //shape_sphere_right2(),
-        shape_sphere_left(),
-        shape_sphere_left2(),
-        shape_sphere_left3(),
+        //shape_sphere_left(),
+        //shape_sphere_left2(),
+        //shape_sphere_left3(),
     ];
 
     world.light = vec![lights::LightPoint {
@@ -38,9 +38,9 @@ pub fn world_main(w: u32, h: u32) {
     }];
 
     let mut c = camera::camera(w, h, PI / 3.0);
-    let from = tuples::point(-3.0, 2.0, -5.0);
-    let to = tuples::point(0.0, 1.0, 0.0);
-    let up = tuples::vector(0.0, 1.0, 0.0);
+    let from = tuples::point(0.0, 5.0, 0.0);
+    let to = tuples::point(0.0, 0.0, 0.0);
+    let up = tuples::vector(0.0, 0.0, 1.0);
     c.transform = transformations::view_transform(from, to, up);
     let image = camera::render_percent_message(c, world, 0.01);
     let duration1 = start1.elapsed();
@@ -70,7 +70,9 @@ fn save(string: String) -> std::io::Result<()> {
 
 pub fn material_floor() -> materials::Material {
     let mut mat = materials::MATERIAL_DEFAULT;
-    mat.pattern = Some(patterns::PATTERN_DEFAULT);
+    let mut p = patterns::PATTERN_DEFAULT;
+    p.transform = transformations::matrix4_scaling(0.5, 0.5, 0.5);
+    mat.pattern = Some(p);
     mat.color = tuples::color(1.0, 0.9, 0.9);
     mat.specular = 0.0;
     mat
@@ -79,14 +81,14 @@ pub fn material_floor() -> materials::Material {
 pub fn shape_floor() -> shapes::Shape {
     let mut shape = planes::plane();
     shape.material = material_floor();
-    let c1 = tuples::color(0.8, 0.8, 0.8);
-    let c2 = tuples::color(0.5, 0.5, 0.5);
+    let c1 = tuples::color(1.0, 1.0, 1.0);
+    let c2 = tuples::color(0.0, 0.0, 0.0);
     let mut pat = patterns::checkers_pattern(c1, c2);
     let mut mat = materials::MATERIAL_DEFAULT;
-    pat.transform = transformations::matrix4_transform_chain(vec![
-        transformations::matrix4_scaling(2.0, 2.0, 2.0),
-        transformations::matrix4_translation(0.5, 0.0, 0.0),
-    ]);
+    //pat.transform = transformations::matrix4_transform_chain(vec![
+    //    transformations::matrix4_scaling(2.0, 2.0, 2.0),
+    //    transformations::matrix4_translation(0.5, 0.0, 0.0),
+    //]);
     mat.pattern = Some(pat);
     mat.reflective = 0.5;
     shape.material = mat;
@@ -125,31 +127,15 @@ pub fn shape_wall_behind_right() -> shapes::Shape {
 
 pub fn shape_sphere_middle() -> shapes::Shape {
     let mut shape = spheres::sphere_glass();
-    shape.transform = transformations::matrix4_translation(-0.5, 1.0, 0.5);
-    shape.material = materials::MATERIAL_DEFAULT;
+    shape.transform = transformations::matrix4_translation(0.0, 2.0, 0.0);
+    //shape.material = materials::MATERIAL_DEFAULT;
     shape.material.transparency = 1.0;
-    shape.material.reflective = 0.1;
-    shape.material.refractive_index = 1.52;
-    shape.material.diffuse = 0.0;
-    shape.material.shininess = 0.0;
-    shape.material.specular = 0.0;
-    shape.material.color = tuples::color(0.1, 0.3, 0.8);
-    //let mut mat = materials::MATERIAL_DEFAULT;
-    //mat.color = tuples::color(0.1, 1.0, 0.5);
-    //mat.diffuse = 0.8;
-    //mat.specular = 0.7;
-    //let mut pat = patterns::PATTERN_DEFAULT;
-    //pat.a = tuples::color(0.0, 0.8, 0.0);
-    //pat.b = tuples::color(0.0, 0.9, 0.5);
-    //pat.transform = transformations::matrix4_transform_chain(vec![
-    //    transformations::matrix4_scaling(0.1, 1.0, 0.1),
-    //    transformations::matrix4_translation(0.5, 0.0, 0.0),
-    //    transformations::matrix4_rotation_y_rad(PI / 4.0),
-    //    transformations::matrix4_rotation_x_rad(PI / 4.0),
-    //]);
-    //mat.pattern = Some(pat);
-    //mat.reflective = 0.8;
-    //shape.material = mat;
+    shape.material.reflective = 1.0;
+    //shape.material.refractive_index = 1.5;
+    //shape.material.diffuse = 0.0;
+    //shape.material.shininess = 0.0;
+    //shape.material.specular = 0.0;
+    shape.material.color = tuples::color(0.1, 0.1, 0.1);
     shape
 }
 
