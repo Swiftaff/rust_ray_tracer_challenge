@@ -1,3 +1,5 @@
+extern crate image;
+
 use crate::tuples;
 
 const CLAMP_LIMIT: u32 = 255;
@@ -51,6 +53,48 @@ pub fn ppm_get(c: PixelCanvas) -> String {
     let limit = format!("\n{}\n", CLAMP_LIMIT);
     let data = str_from_canvas_data_get(c);
     format!("{}{} {}{}{}", header, w, h, limit, data)
+}
+
+pub fn png_get(c: PixelCanvas) -> image::RgbImage {
+    let w = c.width;
+    let h = c.height;
+    let mut imgbuf = image::ImageBuffer::new(w, h);
+    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
+        let col = c.data[y as usize * w as usize + x as usize];
+        let r64: f64 = if col.red > 1.0 {
+            1.0
+        } else {
+            if col.red < 0.0 {
+                0.0
+            } else {
+                col.red
+            }
+        };
+        let g64: f64 = if col.green > 1.0 {
+            1.0
+        } else {
+            if col.green < 0.0 {
+                0.0
+            } else {
+                col.green
+            }
+        };
+        let b64: f64 = if col.blue > 1.0 {
+            1.0
+        } else {
+            if col.blue < 0.0 {
+                0.0
+            } else {
+                col.blue
+            }
+        };
+        *pixel = image::Rgb([
+            (r64 * 255.0).floor() as u8,
+            (b64 * 255.0).floor() as u8,
+            (b64 * 255.0).floor() as u8,
+        ]);
+    }
+    imgbuf
 }
 
 fn str_row_get(row: u32, c: &PixelCanvas) -> String {

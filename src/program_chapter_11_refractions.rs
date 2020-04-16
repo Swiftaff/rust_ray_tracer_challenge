@@ -1,3 +1,5 @@
+extern crate image;
+
 use chrono::prelude::*;
 use std::f64::consts::PI;
 use std::fs;
@@ -15,8 +17,10 @@ use crate::transformations;
 use crate::tuples;
 use crate::worlds;
 
+const PROGRAM_NAME: &str = "chapter_11b";
+
 pub fn world_main(w: u32, h: u32) {
-    println!("chapter 11 patterns");
+    println!("{} patterns", PROGRAM_NAME.to_string());
     let start1 = Instant::now();
 
     let mut world = worlds::world_default();
@@ -47,24 +51,43 @@ pub fn world_main(w: u32, h: u32) {
     println!("Time to calculate data: {:?}", duration1);
 
     let start2 = Instant::now();
-    let data = canvas::ppm_get(image);
+    let data_ppm = canvas::ppm_get(image.clone());
+    let data_png = canvas::png_get(image);
     let duration2 = start2.elapsed();
     println!("Time to generate file data: {:?}", duration2);
 
     let start3 = Instant::now();
-    let f = save(data);
-    let _f = match f {
+    //let f = save_ppm(data_ppm);
+    //let _f = match f {
+    //    Ok(file) => file,
+    //    Err(error) => panic!("Problem saving the ppm file: {:?}", error),
+    //};
+
+    let f2 = save_png(data_png);
+    let _f2 = match f2 {
         Ok(file) => file,
-        Err(error) => panic!("Problem saving the file: {:?}", error),
+        Err(error) => panic!("Problem saving the png file: {:?}", error),
     };
     let duration3 = start3.elapsed();
     println!("Time to save file: {:?}", duration3);
 }
 
-fn save(string: String) -> std::io::Result<()> {
+fn save_ppm(string: String) -> std::io::Result<()> {
     let utc = Utc::now();
     let d = utc.format("%Y-%m-%d-%H-%M").to_string();
-    fs::write(format!("images/chapter_11b_{}.ppm", d), string)?;
+    fs::write(
+        format!("images/{}_{}.ppm", PROGRAM_NAME.to_string(), d),
+        string,
+    )?;
+    Ok(())
+}
+
+fn save_png(imgbuf: image::RgbImage) -> std::io::Result<()> {
+    let utc = Utc::now();
+    let d = utc.format("%Y-%m-%d-%H-%M").to_string();
+    imgbuf
+        .save(format!("images/{}_{}.png", PROGRAM_NAME.to_string(), d))
+        .unwrap();
     Ok(())
 }
 
