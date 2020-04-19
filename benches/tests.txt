@@ -2,3 +2,5 @@
 "rename tuple_divide function\n" "2020-04-19-16-00" Size: 0 Program: 7 Time to generate: 637.5073ms Time to save: 63µs
 "rename tuple_divide function\n" "2020-04-19-16-00" Size: 0 Program: 7 Time to generate: 729.6256ms Time to save: 28.9µs
 "rename tuple_divide function\n" "2020-04-19-16-01" Size: 0 Program: 7 Time to generate: 615.2045ms Time to save: 42.8µs
+"colors_scalar_multiply borrowing\n" "2020-04-19-16-08" Size: 0 Program: 7 Time to generate: 568.533ms Time to save: 56.4µs
+"colors_scalar_multiply borrowing\n" "2020-04-19-16-08" Size: 0 Program: 7 Time to generate: 605.425ms Time to save: 73.5µs

@@ -231,7 +231,10 @@ mod tests {
     fn test_refelectivity_for_default_material() {
         //Reflectivity for the default material
         let a = MATERIAL_DEFAULT;
-        assert_eq!(tuples::get_bool_numbers_are_equal(a.reflective, 0.0), true);
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(&a.reflective, &0.0),
+            true
+        );
     }
 
     #[test]
@@ -239,11 +242,11 @@ mod tests {
         //Transparency and reflective index for default material
         let a = MATERIAL_DEFAULT;
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(a.transparency, 0.0),
+            tuples::get_bool_numbers_are_equal(&a.transparency, &0.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(a.refractive_index, REFRACTIVE_INDEX_VACUUM),
+            tuples::get_bool_numbers_are_equal(&a.refractive_index, &REFRACTIVE_INDEX_VACUUM),
             true
         );
     }

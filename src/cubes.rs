@@ -92,11 +92,11 @@ mod tests {
                     );
                     assert_eq!(xs.len(), 2);
                     assert_eq!(
-                        tuples::get_bool_numbers_are_equal(xs[0].t, test_rays[index][6]),
+                        tuples::get_bool_numbers_are_equal(&xs[0].t, &test_rays[index][6]),
                         true
                     );
                     assert_eq!(
-                        tuples::get_bool_numbers_are_equal(xs[1].t, test_rays[index][7]),
+                        tuples::get_bool_numbers_are_equal(&xs[1].t, &test_rays[index][7]),
                         true
                     );
                 }

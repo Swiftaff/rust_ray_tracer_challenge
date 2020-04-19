@@ -338,13 +338,13 @@ mod tests {
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(s.material.transparency, 1.0),
+            tuples::get_bool_numbers_are_equal(&s.material.transparency, &1.0),
             true
         );
         assert_eq!(
             tuples::get_bool_numbers_are_equal(
-                s.material.refractive_index,
-                materials::REFRACTIVE_INDEX_GLASS
+                &s.material.refractive_index,
+                &materials::REFRACTIVE_INDEX_GLASS
             ),
             true
         );

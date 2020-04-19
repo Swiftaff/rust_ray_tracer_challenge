@@ -136,7 +136,7 @@ mod tests {
         assert_eq!(c.hsize, 160);
         assert_eq!(c.vsize, 120);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(c.field_of_view as f64, PI / 2.0),
+            tuples::get_bool_numbers_are_equal(&(c.field_of_view as f64), &(PI / 2.0)),
             true
         );
         assert_eq!(
@@ -149,14 +149,20 @@ mod tests {
     fn test_pixel_size_horizontal_canvas() {
         //The pixel size for a horizontal canvas
         let c = camera(200, 150, PI / 2.0);
-        assert_eq!(tuples::get_bool_numbers_are_equal(c.pixel_size, 0.01), true);
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(&c.pixel_size, &0.01),
+            true
+        );
     }
 
     #[test]
     fn test_pixel_size_vertical_canvas() {
         //The pixel size for a vertical canvas
         let c = camera(125, 200, PI / 2.0);
-        assert_eq!(tuples::get_bool_numbers_are_equal(c.pixel_size, 0.01), true);
+        assert_eq!(
+            tuples::get_bool_numbers_are_equal(&c.pixel_size, &0.01),
+            true
+        );
     }
 
     #[test]

@@ -55,7 +55,7 @@ pub fn intersection_list(mut xs: Vec<Intersection>) -> Vec<Intersection> {
 }
 
 pub fn get_bool_intersections_are_equal(i1: &Intersection, i2: &Intersection) -> bool {
-    tuples::get_bool_numbers_are_equal(i1.t, i2.t) && i1.object.id == i2.object.id
+    tuples::get_bool_numbers_are_equal(&i1.t, &i2.t) && i1.object.id == i2.object.id
 }
 
 pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
@@ -181,7 +181,7 @@ mod tests {
         //An intersection encapsulates t and object
         let s = spheres::sphere();
         let i = intersection(3.5, s);
-        assert_eq!(tuples::get_bool_numbers_are_equal(i.t, 3.5), true);
+        assert_eq!(tuples::get_bool_numbers_are_equal(&i.t, &3.5), true);
         assert_eq!(
             matrices::get_bool_equal_m4(i.object.transform, matrices::IDENTITY_MATRIX),
             true
@@ -200,8 +200,8 @@ mod tests {
         let i2 = intersection(2.0, s.clone());
         let xs = intersection_list(vec![i2, i1]);
         assert_eq!(xs.len() == 2, true);
-        assert_eq!(tuples::get_bool_numbers_are_equal(xs[0].t, 1.0), true);
-        assert_eq!(tuples::get_bool_numbers_are_equal(xs[1].t, 2.0), true);
+        assert_eq!(tuples::get_bool_numbers_are_equal(&xs[0].t, &1.0), true);
+        assert_eq!(tuples::get_bool_numbers_are_equal(&xs[1].t, &2.0), true);
     }
 
     #[test]
@@ -405,11 +405,11 @@ mod tests {
         for inter in 0..xs.clone().len() {
             let comps = prepare_computations(xs[inter].clone(), r, Some(xs.clone()));
             assert_eq!(
-                tuples::get_bool_numbers_are_equal(comps.n1, results[inter][0]),
+                tuples::get_bool_numbers_are_equal(&comps.n1, &results[inter][0]),
                 true
             );
             assert_eq!(
-                tuples::get_bool_numbers_are_equal(comps.n2, results[inter][1]),
+                tuples::get_bool_numbers_are_equal(&comps.n2, &results[inter][1]),
                 true
             );
         }
@@ -442,7 +442,7 @@ mod tests {
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
         let reflectance = schlick(comps);
-        assert_eq!(tuples::get_bool_numbers_are_equal(reflectance, 1.0), true);
+        assert_eq!(tuples::get_bool_numbers_are_equal(&reflectance, &1.0), true);
     }
 
     #[test]
@@ -457,7 +457,7 @@ mod tests {
         let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
         let reflectance = schlick(comps);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(reflectance, 0.04257),
+            tuples::get_bool_numbers_are_equal(&reflectance, &0.04257),
             true
         );
     }
@@ -476,7 +476,7 @@ mod tests {
         let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
         let reflectance = schlick(comps);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(reflectance, 0.4901),
+            tuples::get_bool_numbers_are_equal(&reflectance, &0.4901),
             true
         );
     }

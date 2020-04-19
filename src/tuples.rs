@@ -252,21 +252,21 @@ pub fn colors_scalar_multiply(a: &Color, s: &f64) -> Color {
     color(a.red * s, a.green * s, a.blue * s)
 }
 
-pub fn get_bool_numbers_are_equal(a: f64, b: f64) -> bool {
+pub fn get_bool_numbers_are_equal(a: &f64, b: &f64) -> bool {
     (a - b).abs() < EPSILON
 }
 
 pub fn get_bool_tuples_are_equal(t1: &Tuple, t2: &Tuple) -> bool {
-    get_bool_numbers_are_equal(t1.x, t2.x)
-        && get_bool_numbers_are_equal(t1.y, t2.y)
-        && get_bool_numbers_are_equal(t1.z, t2.z)
+    get_bool_numbers_are_equal(&t1.x, &t2.x)
+        && get_bool_numbers_are_equal(&t1.y, &t2.y)
+        && get_bool_numbers_are_equal(&t1.z, &t2.z)
         && t1.w == t2.w
 }
 
 pub fn get_bool_colors_are_equal(c1: &Color, c2: &Color) -> bool {
-    get_bool_numbers_are_equal(c1.red, c2.red)
-        && get_bool_numbers_are_equal(c1.green, c2.green)
-        && get_bool_numbers_are_equal(c1.blue, c2.blue)
+    get_bool_numbers_are_equal(&c1.red, &c2.red)
+        && get_bool_numbers_are_equal(&c1.green, &c2.green)
+        && get_bool_numbers_are_equal(&c1.blue, &c2.blue)
 }
 
 #[cfg(test)]
@@ -585,7 +585,7 @@ mod tests {
         //Computing the magnitude ofvector(1, 0, 0)
         let v = vector(1.0, 0.0, 0.0);
         let a = vector_magnitude(&v);
-        assert_eq!(get_bool_numbers_are_equal(a, 1.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &1.0), true);
     }
 
     #[test]
@@ -593,7 +593,7 @@ mod tests {
         //Computing the magnitude of vector(0, 1, 0)
         let v = vector(0.0, 1.0, 0.0);
         let a = vector_magnitude(&v);
-        assert_eq!(get_bool_numbers_are_equal(a, 1.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &1.0), true);
     }
 
     #[test]
@@ -601,7 +601,7 @@ mod tests {
         //Computing the magnitude of vector(0, 0, 1)
         let v = vector(0.0, 0.0, 1.0);
         let a = vector_magnitude(&v);
-        assert_eq!(get_bool_numbers_are_equal(a, 1.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &1.0), true);
     }
 
     #[test]
@@ -610,7 +610,7 @@ mod tests {
         let v = vector(1.0, 2.0, 3.0);
         let a = vector_magnitude(&v);
         let f = 14.0_f64;
-        assert_eq!(get_bool_numbers_are_equal(a, f.sqrt()), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &f.sqrt()), true);
     }
 
     #[test]
@@ -619,7 +619,7 @@ mod tests {
         let v = vector(-1.0, -2.0, -3.0);
         let a = vector_magnitude(&v);
         let f = 14.0_f64;
-        assert_eq!(get_bool_numbers_are_equal(a, f.sqrt()), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &f.sqrt()), true);
     }
 
     //vector_normalize
@@ -649,7 +649,7 @@ mod tests {
         let v = vector(1.0, 2.0, 3.0);
         let n = vector_normalize(&v);
         let mag = vector_magnitude(&n);
-        assert_eq!(get_bool_numbers_are_equal(mag, 1.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&mag, &1.0), true);
     }
 
     #[test]
@@ -667,7 +667,7 @@ mod tests {
         let v1 = vector(1.0, 2.0, 3.0);
         let v2 = vector(2.0, 3.0, 4.0);
         let a = vector_dot_product(&v1, &v2);
-        assert_eq!(get_bool_numbers_are_equal(a, 20.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &20.0), true);
     }
 
     #[test]
@@ -676,7 +676,7 @@ mod tests {
         let p1 = point(1.0, 2.0, 3.0);
         let v1 = vector(2.0, 3.0, 4.0);
         let a = vector_dot_product(&p1, &v1);
-        assert_eq!(get_bool_numbers_are_equal(a, 0.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &0.0), true);
     }
 
     #[test]
@@ -685,7 +685,7 @@ mod tests {
         let p1 = point(1.0, 2.0, 3.0);
         let p2 = point(2.0, 3.0, 4.0);
         let a = vector_dot_product(&p1, &p2);
-        assert_eq!(get_bool_numbers_are_equal(a, 0.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &0.0), true);
     }
 
     #[test]
@@ -694,7 +694,7 @@ mod tests {
         let v1 = vector(1.0, 2.0, 3.0);
         let p1 = point(2.0, 3.0, 4.0);
         let a = vector_dot_product(&v1, &p1);
-        assert_eq!(get_bool_numbers_are_equal(a, 0.0), true);
+        assert_eq!(get_bool_numbers_are_equal(&a, &0.0), true);
     }
 
     //vector_crossProduct

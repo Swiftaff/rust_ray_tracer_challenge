@@ -46,7 +46,7 @@ pub fn get_bool_equal_m4(m1: Matrix4, m2: Matrix4) -> bool {
     let cols = m1[0].len();
     for y in 0..rows {
         for x in 0..cols {
-            if tuples::get_bool_numbers_are_equal(m1[y][x], m2[y][x]) == false {
+            if tuples::get_bool_numbers_are_equal(&m1[y][x], &m2[y][x]) == false {
                 are_equal = false;
             }
         }
@@ -60,7 +60,7 @@ pub fn get_bool_equal_m3(m1: Matrix3, m2: Matrix3) -> bool {
     let cols = m1[0].len();
     for y in 0..rows {
         for x in 0..cols {
-            if tuples::get_bool_numbers_are_equal(m1[y][x], m2[y][x]) == false {
+            if tuples::get_bool_numbers_are_equal(&m1[y][x], &m2[y][x]) == false {
                 are_equal = false;
             }
         }
@@ -74,7 +74,7 @@ pub fn get_bool_equal_m2(m1: Matrix2, m2: Matrix2) -> bool {
     let cols = m1[0].len();
     for y in 0..rows {
         for x in 0..cols {
-            if tuples::get_bool_numbers_are_equal(m1[y][x], m2[y][x]) == false {
+            if tuples::get_bool_numbers_are_equal(&m1[y][x], &m2[y][x]) == false {
                 are_equal = false;
             }
         }
@@ -83,15 +83,15 @@ pub fn get_bool_equal_m2(m1: Matrix2, m2: Matrix2) -> bool {
 }
 
 fn get_bool_matrix4_is_invertible(m: Matrix4) -> bool {
-    !tuples::get_bool_numbers_are_equal(matrix4_determinant(m), 0.0)
+    !tuples::get_bool_numbers_are_equal(&matrix4_determinant(m), &0.0)
 }
 
 fn get_bool_matrix3_is_invertible(m: Matrix3) -> bool {
-    !tuples::get_bool_numbers_are_equal(matrix3_determinant(m), 0.0)
+    !tuples::get_bool_numbers_are_equal(&matrix3_determinant(m), &0.0)
 }
 
 fn get_bool_matrix2_is_invertible(m: Matrix2) -> bool {
-    !tuples::get_bool_numbers_are_equal(matrix2_determinant(m), 0.0)
+    !tuples::get_bool_numbers_are_equal(&matrix2_determinant(m), &0.0)
 }
 
 pub fn matrix4_multiply(m1: Matrix4, m2: Matrix4) -> Matrix4 {
@@ -445,7 +445,7 @@ mod tests {
         //Calculating the determinant of a 2x2 matrix
         let m1 = [[1.0, 5.0], [-3.0, 2.0]];
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix2_determinant(m1), 17.0),
+            tuples::get_bool_numbers_are_equal(&matrix2_determinant(m1), &17.0),
             true
         );
     }
@@ -478,10 +478,10 @@ mod tests {
         let s = matrix3_submatrix2(m, 1, 0);
         let d = matrix2_determinant(s);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_minor(m, 1, 0), d),
+            tuples::get_bool_numbers_are_equal(&matrix3_minor(m, 1, 0), &d),
             true
         );
-        assert_eq!(tuples::get_bool_numbers_are_equal(d, 25.0), true);
+        assert_eq!(tuples::get_bool_numbers_are_equal(&d, &25.0), true);
     }
 
     #[test]
@@ -489,19 +489,19 @@ mod tests {
         //Calculating a cofactor of a 3 x 3 matrix
         let m = [[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]];
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_minor(m, 0, 0), -12.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_minor(m, 0, 0), &-12.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_cofactor(m, 0, 0), -12.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(m, 0, 0), &-12.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_minor(m, 1, 0), 25.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_minor(m, 1, 0), &25.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_cofactor(m, 1, 0), -25.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(m, 1, 0), &-25.0),
             true
         );
     }
@@ -511,19 +511,19 @@ mod tests {
         //Calculating the determinant of a 3 x 3 matrix
         let m1 = [[1.0, 2.0, 6.0], [-5.0, 8.0, -4.0], [2.0, 6.0, 4.0]];
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_cofactor(m1, 0, 0), 56.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(m1, 0, 0), &56.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_cofactor(m1, 0, 1), 12.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(m1, 0, 1), &12.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_cofactor(m1, 0, 2), -46.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(m1, 0, 2), &-46.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix3_determinant(m1), -196.0),
+            tuples::get_bool_numbers_are_equal(&matrix3_determinant(m1), &-196.0),
             true
         );
     }
@@ -538,23 +538,23 @@ mod tests {
             [-6.0, 7.0, 7.0, -9.0],
         ];
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 0, 0), 690.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(m1, 0, 0), &690.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 0, 1), 447.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(m1, 0, 1), &447.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 0, 2), 210.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(m1, 0, 2), &210.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 0, 3), 51.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(m1, 0, 3), &51.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), -4071.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_determinant(m1), &-4071.0),
             true
         );
     }
@@ -569,7 +569,7 @@ mod tests {
             [9.0, 1.0, 7.0, -6.0],
         ];
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), -2120.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_determinant(m1), &-2120.0),
             true
         );
         assert_eq!(get_bool_matrix4_is_invertible(m1), true)
@@ -585,7 +585,7 @@ mod tests {
             [0.0, 0.0, 0.0, 0.0],
         ];
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), 0.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_determinant(m1), &0.0),
             true
         );
         assert_eq!(get_bool_matrix4_is_invertible(m1), false)
@@ -608,23 +608,23 @@ mod tests {
             [-0.52256, -0.81391, -0.30075, 0.30639],
         ];
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_determinant(m1), 532.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_determinant(m1), &532.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 2, 3), -160.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(m1, 2, 3), &-160.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(m2[3][2], -160.0 / 532.0),
+            tuples::get_bool_numbers_are_equal(&m2[3][2], &(-160.0 / 532.0)),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(matrix4_cofactor(m1, 3, 2), 105.0),
+            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(m1, 3, 2), &105.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(m2[2][3], 105.0 / 532.0),
+            tuples::get_bool_numbers_are_equal(&m2[2][3], &(105.0 / 532.0)),
             true
         );
         assert_eq!(get_bool_equal_m4(m2, result), true);
