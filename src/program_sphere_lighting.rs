@@ -71,7 +71,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
                                 &nrm,
                                 &false,
                             );
-                            c = canvas::pixel_write(c, x, y, col);
+                            c = canvas::pixel_write(c, &x, &y, col);
                         }
                     }
                 }
@@ -83,7 +83,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
     println!("Time to calculate data: {:?}", duration1);
 
     let start2 = Instant::now();
-    let data = canvas::ppm_get(c);
+    let data = canvas::ppm_get(&c);
     let duration2 = start2.elapsed();
     println!("Time to generate file: {:?}", duration2);
 

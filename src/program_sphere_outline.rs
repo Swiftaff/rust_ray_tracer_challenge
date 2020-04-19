@@ -43,7 +43,7 @@ pub fn sphere_outline_main(w: u32, h: u32) {
             match xs_result {
                 Err(_) => {} //println!("Error: {}", e),
                 Ok(_xs) => {
-                    c = canvas::pixel_write(c, x, y, tuples::COLOR_RED);
+                    c = canvas::pixel_write(c, &x, &y, tuples::COLOR_RED);
                 }
             }
         }
@@ -53,7 +53,7 @@ pub fn sphere_outline_main(w: u32, h: u32) {
     println!("Time to calculate data: {:?}", duration1);
 
     let start2 = Instant::now();
-    let data = canvas::ppm_get(c);
+    let data = canvas::ppm_get(&c);
     let duration2 = start2.elapsed();
     println!("Time to generate file: {:?}", duration2);
 

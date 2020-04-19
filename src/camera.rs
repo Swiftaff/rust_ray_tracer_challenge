@@ -39,7 +39,7 @@ pub fn camera(hsize: u32, vsize: u32, field_of_view: f64) -> Camera {
     }
 }
 
-pub fn ray_for_pixel(camera: Camera, px: u32, py: u32) -> rays::Ray {
+pub fn ray_for_pixel(camera: &Camera, px: u32, py: u32) -> rays::Ray {
     //the offset from the edge of the canvas to the pixel's center
     let xoffset: f64 = (px as f64 + 0.5) * camera.pixel_size;
     let yoffset: f64 = (py as f64 + 0.5) * camera.pixel_size;
@@ -66,13 +66,13 @@ pub fn ray_for_pixel(camera: Camera, px: u32, py: u32) -> rays::Ray {
     rays::ray(origin, direction)
 }
 
-pub fn render(c: Camera, w: worlds::World) -> canvas::PixelCanvas {
+pub fn render(c: &Camera, w: &worlds::World) -> canvas::PixelCanvas {
     let mut image = canvas::pixel_canvas(c.hsize.clone(), c.vsize.clone(), tuples::COLOR_BLACK);
     for y in 0..c.vsize.clone() {
         for x in 0..c.hsize.clone() {
-            let r = ray_for_pixel(c.clone(), x, y);
+            let r = ray_for_pixel(&c, x, y);
             let col = worlds::color_at(&w, &r, &worlds::RECURSIVE_DEPTH);
-            image = canvas::pixel_write(image, x, y, col);
+            image = canvas::pixel_write(image, &x, &y, col);
         }
     }
     image
@@ -112,9 +112,9 @@ pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas:
     for y in 0..c.vsize.clone() {
         pc = percent_message(y as f64, c.vsize.clone() as f64, pc, incr, timer.elapsed());
         for x in 0..c.hsize.clone() {
-            let r = ray_for_pixel(c.clone(), x, y);
+            let r = ray_for_pixel(&c, x, y);
             let col = worlds::color_at(&w, &r, &worlds::RECURSIVE_DEPTH);
-            image = canvas::pixel_write(image, x, y, col);
+            image = canvas::pixel_write(image, &x, &y, col);
         }
     }
     image
@@ -169,7 +169,7 @@ mod tests {
     fn test_constructing_ray_through_center_of_canvas() {
         //Constructing a ray through the center of the canvas
         let c = camera(201, 101, PI / 2.0);
-        let r = ray_for_pixel(c, 100, 50);
+        let r = ray_for_pixel(&c, 100, 50);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r.origin, &tuples::point(0.0, 0.0, 0.0)),
             true
@@ -184,7 +184,7 @@ mod tests {
     fn test_constructing_ray_through_corner_of_canvas() {
         //Constructing a ray through a corner of the canvas
         let c = camera(201, 101, PI / 2.0);
-        let r = ray_for_pixel(c, 0, 0);
+        let r = ray_for_pixel(&c, 0, 0);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r.origin, &tuples::point(0.0, 0.0, 0.0)),
             true
@@ -205,7 +205,7 @@ mod tests {
         let rot = transformations::matrix4_rotation_y_rad(PI / 4.0);
         let tran = transformations::matrix4_translation(0.0, -2.0, 5.0);
         c.transform = matrices::matrix4_multiply(&rot, &tran);
-        let r = ray_for_pixel(c, 100, 50);
+        let r = ray_for_pixel(&c, 100, 50);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r.origin, &tuples::point(0.0, 2.0, -5.0)),
             true
@@ -228,8 +228,8 @@ mod tests {
         let up = tuples::vector(0.0, 1.0, 0.0);
         let mut c = camera(11, 11, PI / 2.0);
         c.transform = transformations::view_transform(&from, &to, &up);
-        let image = render(c, w);
-        let pa = canvas::pixel_get(image, 5, 5);
+        let image = render(&c, &w);
+        let pa = canvas::pixel_get(&image, &5, &5);
         let col = tuples::color(0.38066, 0.47583, 0.2855);
         assert_eq!(tuples::get_bool_colors_are_equal(&pa, &col), true);
     }

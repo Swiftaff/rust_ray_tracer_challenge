@@ -22,3 +22,5 @@
 "spheres, shapes, planes borrowing\n" "2020-04-19-17-30" Size: 3 Program: 7 Time to generate: 7.5863943s Time to save: 1.3847ms
 "rays and intersections borrowing\n" "2020-04-19-17-37" Size: 0 Program: 7 Time to generate: 468.8253ms Time to save: 17.4µs
 "rays and intersections borrowing\n" "2020-04-19-17-37" Size: 3 Program: 7 Time to generate: 7.5599529s Time to save: 1.2055ms
+"lights borrowing\n" "2020-04-19-17-48" Size: 0 Program: 7 Time to generate: 591.2155ms Time to save: 23.6µs
+"lights borrowing\n" "2020-04-19-17-48" Size: 3 Program: 7 Time to generate: 7.6407403s Time to save: 3.708ms

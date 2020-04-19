@@ -32,7 +32,7 @@ pub fn fire_canon_main(w: u32, h: u32) {
         //    "Tick: {:?}. Projectile Position ({:?},{:?}). Velocity:{:?}",
         //    tick_count, proj.position.x, proj.position.y, proj.velocity
         //);
-        c = canvas::pixel_write(c, proj.position.x as u32, y, orange);
+        c = canvas::pixel_write(c, &(proj.position.x as u32), &y, orange);
         tick_count = tick_count + 1;
         if orange.red > 0.01 {
             orange.red = orange.red - 0.01;
@@ -50,7 +50,7 @@ pub fn fire_canon_main(w: u32, h: u32) {
     );
 
     let start2 = Instant::now();
-    let data = canvas::ppm_get(c);
+    let data = canvas::ppm_get(&c);
     let duration2 = start2.elapsed();
     println!("Time to generate file: {:?}", duration2);
 
@@ -72,6 +72,6 @@ fn save(string: String) -> std::io::Result<()> {
 }
 
 fn test_color(mut c: canvas::PixelCanvas, i: u32, col: tuples::Color) -> String {
-    c = canvas::pixel_write(c, 0, 0, col);
+    c = canvas::pixel_write(c, &0, &0, col);
     canvas::str_from_color_get(c.data[i as usize])
 }

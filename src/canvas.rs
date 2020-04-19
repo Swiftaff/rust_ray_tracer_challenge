@@ -26,7 +26,7 @@ pub fn pixel_canvas(width: u32, height: u32, default_color: tuples::Color) -> Pi
     }
 }
 
-pub fn pixel_write(canvas: PixelCanvas, x: u32, y: u32, col: tuples::Color) -> PixelCanvas {
+pub fn pixel_write(canvas: PixelCanvas, x: &u32, y: &u32, col: tuples::Color) -> PixelCanvas {
     let index = (canvas.width * y + x) as u32;
     let mut new_canvas = canvas;
     if index < new_canvas.length {
@@ -37,7 +37,7 @@ pub fn pixel_write(canvas: PixelCanvas, x: u32, y: u32, col: tuples::Color) -> P
     }
 }
 
-pub fn pixel_get(canvas: PixelCanvas, x: u32, y: u32) -> tuples::Color {
+pub fn pixel_get(canvas: &PixelCanvas, x: &u32, y: &u32) -> tuples::Color {
     let index = canvas.width * y + x;
     let mut col = tuples::color(1.0, 0.8, 0.8); //default bright pink?
     if index < canvas.length {
@@ -46,7 +46,7 @@ pub fn pixel_get(canvas: PixelCanvas, x: u32, y: u32) -> tuples::Color {
     col
 }
 
-pub fn ppm_get(c: PixelCanvas) -> String {
+pub fn ppm_get(c: &PixelCanvas) -> String {
     let header = String::from("P3\n");
     let w = c.width.to_string();
     let h = c.height.to_string();
@@ -55,7 +55,7 @@ pub fn ppm_get(c: PixelCanvas) -> String {
     format!("{}{} {}{}{}", header, w, h, limit, data)
 }
 
-pub fn png_get(c: PixelCanvas) -> image::RgbImage {
+pub fn png_get(c: &PixelCanvas) -> image::RgbImage {
     let w = c.width;
     let h = c.height;
     let mut imgbuf = image::ImageBuffer::new(w, h);
@@ -107,7 +107,7 @@ fn str_row_get(row: u32, c: &PixelCanvas) -> String {
     this_row
 }
 
-fn str_from_canvas_data_get(c: PixelCanvas) -> String {
+fn str_from_canvas_data_get(c: &PixelCanvas) -> String {
     let max_cols: u32 = 70;
     let h = c.height;
     let mut data_string: String = String::from("");
@@ -212,7 +212,7 @@ mod tests {
         );
 
         let red = tuples::color(1.0, 0.0, 0.0);
-        pc = pixel_write(pc, 2, 3, red);
+        pc = pixel_write(pc, &2, &3, red);
         assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[32], &red), true)
     }
 
@@ -248,7 +248,7 @@ mod tests {
         //Constructing the PPM header
         let black = tuples::color(0.0, 0.0, 0.0);
         let c = pixel_canvas(5, 3, black);
-        let mut ppm = ppm_get(c);
+        let mut ppm = ppm_get(&c);
         ppm.truncate(11);
         assert_eq!(ppm, "P3\n5 3\n255\n")
     }
@@ -258,7 +258,7 @@ mod tests {
         //Constructing the PPM header
         let black = tuples::color(0.0, 0.0, 0.0);
         let c = pixel_canvas(5, 3, black);
-        let ppm = ppm_get(c);
+        let ppm = ppm_get(&c);
         assert_eq!(ppm.chars().last().unwrap(), '\n')
     }
 
@@ -270,10 +270,10 @@ mod tests {
         let c1 = tuples::color(1.5, 0.0, 0.0);
         let c2 = tuples::color(0.0, 0.5, 0.0);
         let c3 = tuples::color(-0.5, 0.0, 1.0);
-        pc = pixel_write(pc, 0, 0, c1);
-        pc = pixel_write(pc, 2, 1, c2);
-        pc = pixel_write(pc, 4, 2, c3);
-        let ppm = ppm_get(pc);
+        pc = pixel_write(pc, &0, &0, c1);
+        pc = pixel_write(pc, &2, &1, c2);
+        pc = pixel_write(pc, &4, &2, c3);
+        let ppm = ppm_get(&pc);
         let header_size = 11;
         let just_data: String = ppm
             .chars()
@@ -288,7 +288,7 @@ mod tests {
         //Splitting long lines in PPM files
         let black = tuples::color(1.0, 0.8, 0.6);
         let pc = pixel_canvas(10, 2, black);
-        let ppm = ppm_get(pc);
+        let ppm = ppm_get(&pc);
         let header_size = 12;
         let just_data: String = ppm
             .chars()
