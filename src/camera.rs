@@ -20,7 +20,7 @@ pub struct Camera {
 
 pub fn camera(hsize: u32, vsize: u32, field_of_view: f64) -> Camera {
     let half_view: f64 = (field_of_view / 2.0).tan();
-    let aspect: f64 = (hsize.clone() as f64) / vsize.clone() as f64;
+    let aspect: f64 = (hsize as f64) / vsize as f64;
     let mut half_width: f64 = half_view * aspect;
     let mut half_height: f64 = half_view;
     if aspect >= 1.0 {
@@ -67,9 +67,9 @@ pub fn ray_for_pixel(camera: &Camera, px: u32, py: u32) -> rays::Ray {
 }
 
 pub fn render(c: &Camera, w: &worlds::World) -> canvas::PixelCanvas {
-    let mut image = canvas::pixel_canvas(c.hsize.clone(), c.vsize.clone(), tuples::COLOR_BLACK);
-    for y in 0..c.vsize.clone() {
-        for x in 0..c.hsize.clone() {
+    let mut image = canvas::pixel_canvas(c.hsize, c.vsize, tuples::COLOR_BLACK);
+    for y in 0..c.vsize {
+        for x in 0..c.hsize {
             let r = ray_for_pixel(&c, x, y);
             let col = worlds::color_at(&w, &r, &worlds::RECURSIVE_DEPTH);
             image = canvas::pixel_write(image, &x, &y, col);
@@ -87,7 +87,7 @@ pub fn percent_message(
 ) -> f64 {
     let progress = val as f64 / total as f64;
     if progress > pc {
-        let total_time_estimated = timer.as_secs_f64() / pc.clone();
+        let total_time_estimated = timer.as_secs_f64() / pc;
         let remaining_time_estimated = total_time_estimated - progress;
         let remaining_str = if remaining_time_estimated > 60.0 {
             format!("{} mins", remaining_time_estimated / 60.0)
@@ -96,7 +96,7 @@ pub fn percent_message(
         };
         println!(
             "...ray tracing: {:.0}%. Time so far: {:?}. Expected Remaining: {}",
-            pc.clone() * 100.0,
+            pc * 100.0,
             timer,
             remaining_str
         );
@@ -106,12 +106,12 @@ pub fn percent_message(
 }
 
 pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas::PixelCanvas {
-    let mut image = canvas::pixel_canvas(c.hsize.clone(), c.vsize.clone(), tuples::COLOR_BLACK);
+    let mut image = canvas::pixel_canvas(c.hsize, c.vsize, tuples::COLOR_BLACK);
     let mut pc = 0.0;
     let timer = Instant::now();
-    for y in 0..c.vsize.clone() {
-        pc = percent_message(y as f64, c.vsize.clone() as f64, pc, incr, timer.elapsed());
-        for x in 0..c.hsize.clone() {
+    for y in 0..c.vsize {
+        pc = percent_message(y as f64, c.vsize as f64, pc, incr, timer.elapsed());
+        for x in 0..c.hsize {
             let r = ray_for_pixel(&c, x, y);
             let col = worlds::color_at(&w, &r, &worlds::RECURSIVE_DEPTH);
             image = canvas::pixel_write(image, &x, &y, col);

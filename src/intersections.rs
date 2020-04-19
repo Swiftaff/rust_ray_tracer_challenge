@@ -73,14 +73,14 @@ pub fn hit(xs: &Vec<Intersection>) -> Result<Intersection, &'static str> {
 }
 
 pub fn prepare_computations(
-    i: Intersection,
-    r: rays::Ray,
-    xs_option: Option<Vec<Intersection>>,
+    i: &Intersection,
+    r: &rays::Ray,
+    xs_option: &Option<Vec<Intersection>>,
 ) -> Comps {
     let mut comps: Comps = comp_default(&i.object.shape_type);
-    comps.t = i.clone().t;
+    comps.t = i.t;
     comps.object = i.clone().object;
-    comps.point = rays::position(r, comps.t);
+    comps.point = rays::position(*r, comps.t);
     comps.eyev = tuples::tuple_multiply(&r.direction, &-1.0);
     comps.normalv = shapes::normal_at(&comps.object, &comps.point);
     comps.reflectv =
@@ -102,7 +102,7 @@ pub fn prepare_computations(
     let xs: Vec<Intersection>;
     match xs_option {
         Some(the_xs) => {
-            xs = the_xs;
+            xs = the_xs.clone();
         }
         None => {
             xs = vec![i.clone()];
@@ -276,7 +276,7 @@ mod tests {
         let r = rays::ray(p.clone(), d.clone());
         let testp = &tuples::point(0.0, 0.0, -1.0);
         let testv = &tuples::vector(0.0, 0.0, -1.0);
-        let comps = prepare_computations(i.clone(), r, None);
+        let comps = prepare_computations(&i, &r, &None);
         assert_eq!(comps.t == i.t, true);
         assert_eq!(
             tuples::get_bool_colors_are_equal(
@@ -307,7 +307,7 @@ mod tests {
         let s = spheres::sphere();
         let i = intersection(4.0, s);
         let r = rays::ray(p.clone(), d.clone());
-        let comps = prepare_computations(i.clone(), r, None);
+        let comps = prepare_computations(&i, &r, &None);
         assert_eq!(comps.inside, false);
     }
 
@@ -321,7 +321,7 @@ mod tests {
         let r = rays::ray(p.clone(), d.clone());
         let testp = tuples::point(0.0, 0.0, 1.0);
         let testv = tuples::vector(0.0, 0.0, -1.0);
-        let comps = prepare_computations(i.clone(), r, None);
+        let comps = prepare_computations(&i, &r, &None);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&comps.point, &testp),
             true
@@ -346,7 +346,7 @@ mod tests {
         s.transform = transformations::matrix4_translation(0.0, 0.0, 1.0);
         let i = intersection(5.0, s);
         let r = rays::ray(p, d);
-        let comps = prepare_computations(i.clone(), r, None);
+        let comps = prepare_computations(&i, &r, &None);
         assert_eq!(&comps.over_point.z < &(tuples::EPSILON / -2.0), true);
         assert_eq!(&comps.point.z > &comps.over_point.z, true);
     }
@@ -360,7 +360,7 @@ mod tests {
             tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
-        let comps = prepare_computations(i, r, None);
+        let comps = prepare_computations(&i, &r, &None);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(
                 &comps.reflectv,
@@ -403,7 +403,7 @@ mod tests {
             intersection(6.0, a.clone()),
         ]);
         for inter in 0..xs.clone().len() {
-            let comps = prepare_computations(xs[inter].clone(), r, Some(xs.clone()));
+            let comps = prepare_computations(&xs[inter], &r, &Some(xs.clone()));
             assert_eq!(
                 tuples::get_bool_numbers_are_equal(&comps.n1, &results[inter][0]),
                 true
@@ -423,7 +423,7 @@ mod tests {
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let i = intersections::intersection(5.0, s);
         let xs = intersection_list(vec![i.clone()]);
-        let comps = prepare_computations(i, r, Some(xs));
+        let comps = prepare_computations(&i, &r, &Some(xs));
         assert_eq!(comps.under_point.z > tuples::EPSILON / 2.0, true);
         assert_eq!(comps.point.z < comps.under_point.z, true);
     }
@@ -440,7 +440,7 @@ mod tests {
         let i1 = intersections::intersection(2.0_f64.sqrt() / -2.0, s.clone());
         let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s);
         let xs = intersections::intersection_list(vec![i1, i2]);
-        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
+        let comps = intersections::prepare_computations(&xs[1], &r, &Some(xs.clone()));
         let reflectance = schlick(&comps);
         assert_eq!(tuples::get_bool_numbers_are_equal(&reflectance, &1.0), true);
     }
@@ -454,7 +454,7 @@ mod tests {
         let i1 = intersections::intersection(-1.0, s.clone());
         let i2 = intersections::intersection(1.0, s);
         let xs = intersections::intersection_list(vec![i1, i2]);
-        let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
+        let comps = intersections::prepare_computations(&xs[1], &r, &Some(xs.clone()));
         let reflectance = schlick(&comps);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&reflectance, &0.04257),
@@ -473,7 +473,7 @@ mod tests {
         );
         let i = intersections::intersection(1.8589, s.clone());
         let xs = intersections::intersection_list(vec![i]);
-        let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
+        let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
         let reflectance = schlick(&comps);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&reflectance, &0.4901),
