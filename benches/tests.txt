@@ -1,0 +1,1 @@
+"tuple_multiply borrows, del tuples_scalar_multiply\n" "2020-04-19-15-52" Size: 0 Program: 7 Time to generate: 525.7878ms Time to save: 29.1µs

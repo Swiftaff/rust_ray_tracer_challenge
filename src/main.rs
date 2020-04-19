@@ -45,7 +45,7 @@ fn main() {
     let index: usize = get_size_for_program(size, program);
     let x: u32 = sizes_arr[index][0];
     let y: u32 = sizes_arr[index][1];
-    run_selected_program(program, x, y);
+    run_selected_program(index, program, x, y);
 }
 
 fn get_selected_size() -> u32 {
@@ -93,7 +93,7 @@ fn get_size_for_program(size: u32, prog_num: u32) -> usize {
     index
 }
 
-fn run_selected_program(program: u32, x: u32, y: u32) {
+fn run_selected_program(index: usize, program: u32, x: u32, y: u32) {
     if program == 0 {
         program_fire_canon::fire_canon_main(x, y);
     } else if program == 1 {
@@ -109,6 +109,6 @@ fn run_selected_program(program: u32, x: u32, y: u32) {
     } else if program == 6 {
         program_chapter_11_reflection::world_main(x, y);
     } else if program == 7 {
-        program_chapter_11_refractions::world_main(x, y);
+        program_chapter_11_refractions::world_main(index, program, x, y);
     }
 }

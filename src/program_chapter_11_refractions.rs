@@ -1,8 +1,11 @@
 extern crate image;
 
 use chrono::prelude::*;
+use last_git_commit::LastGitCommit;
 use std::f64::consts::PI;
 use std::fs;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::time::Instant;
 
 use crate::camera;
@@ -19,7 +22,7 @@ use crate::worlds;
 
 const PROGRAM_NAME: &str = "chapter_11b";
 
-pub fn world_main(w: u32, h: u32) {
+pub fn world_main(index: usize, program: u32, w: u32, h: u32) {
     println!("{} patterns", PROGRAM_NAME.to_string());
     let start1 = Instant::now();
 
@@ -56,14 +59,26 @@ pub fn world_main(w: u32, h: u32) {
     let duration2 = start2.elapsed();
     println!("Time to generate file data: {:?}", duration2);
 
+    //logging
+    let lgc = LastGitCommit::new().build().unwrap();
+    let message = lgc.message().unwrap();
+    let utc = Utc::now();
+    let d = utc.format("%Y-%m-%d-%H-%M").to_string();
+    let log_txt = format!(
+        "{:?} {:?} Size: {:?} Program: {:?} Time to generate: {:?} Time to save: {:?}",
+        message, d, index, program, duration1, duration2
+    );
+    save_log(log_txt);
+
     let start3 = Instant::now();
-    //let f = save_ppm(data_ppm);
+
+    //let f = save_ppm(d, data_ppm);
     //let _f = match f {
     //    Ok(file) => file,
     //    Err(error) => panic!("Problem saving the ppm file: {:?}", error),
     //};
 
-    let f2 = save_png(data_png);
+    let f2 = save_png(d, data_png);
     let _f2 = match f2 {
         Ok(file) => file,
         Err(error) => panic!("Problem saving the png file: {:?}", error),
@@ -72,9 +87,7 @@ pub fn world_main(w: u32, h: u32) {
     println!("Time to save file: {:?}", duration3);
 }
 
-fn save_ppm(string: String) -> std::io::Result<()> {
-    let utc = Utc::now();
-    let d = utc.format("%Y-%m-%d-%H-%M").to_string();
+fn save_ppm(d: String, string: String) -> std::io::Result<()> {
     fs::write(
         format!("images/{}_{}.ppm", PROGRAM_NAME.to_string(), d),
         string,
@@ -82,13 +95,21 @@ fn save_ppm(string: String) -> std::io::Result<()> {
     Ok(())
 }
 
-fn save_png(imgbuf: image::RgbImage) -> std::io::Result<()> {
-    let utc = Utc::now();
-    let d = utc.format("%Y-%m-%d-%H-%M").to_string();
+fn save_png(d: String, imgbuf: image::RgbImage) -> std::io::Result<()> {
     imgbuf
         .save(format!("images/{}_{}.png", PROGRAM_NAME.to_string(), d))
         .unwrap();
     Ok(())
+}
+
+fn save_log(txt: String) {
+    let mut file = OpenOptions::new()
+        .append(true)
+        .open("benches/tests.txt")
+        .unwrap();
+    if let Err(e) = writeln!(file, "{}", txt) {
+        eprintln!("Couldn't write to file: {}", e);
+    }
 }
 
 pub fn material_floor() -> materials::Material {
