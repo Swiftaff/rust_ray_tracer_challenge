@@ -90,7 +90,7 @@ pub fn png_get(c: PixelCanvas) -> image::RgbImage {
         };
         *pixel = image::Rgb([
             (r64 * 255.0).floor() as u8,
-            (b64 * 255.0).floor() as u8,
+            (g64 * 255.0).floor() as u8,
             (b64 * 255.0).floor() as u8,
         ]);
     }

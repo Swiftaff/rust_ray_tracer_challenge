@@ -51,7 +51,7 @@ pub fn world_main(w: u32, h: u32) {
     println!("Time to calculate data: {:?}", duration1);
 
     let start2 = Instant::now();
-    let data_ppm = canvas::ppm_get(image.clone());
+    //let data_ppm = canvas::ppm_get(image.clone());
     let data_png = canvas::png_get(image);
     let duration2 = start2.elapsed();
     println!("Time to generate file data: {:?}", duration2);

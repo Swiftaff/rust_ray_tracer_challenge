@@ -1,5 +1,6 @@
 use uuid::Uuid;
 
+use crate::cubes;
 use crate::intersections;
 use crate::materials;
 use crate::matrices;
@@ -18,9 +19,10 @@ pub struct Shape {
 
 #[derive(Debug, Clone, Copy)]
 pub enum ShapeType {
-    Sphere,
-    ShapeTest,
+    Cube,
     Plane,
+    ShapeTest,
+    Sphere,
 }
 
 pub fn shape(shape_type: ShapeType) -> Shape {
@@ -35,9 +37,10 @@ pub fn shape(shape_type: ShapeType) -> Shape {
 pub fn intersect(s: Shape, r: rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
     let local_r: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(s.transform));
     match s.shape_type {
-        ShapeType::Sphere => spheres::local_intersect(s, local_r),
-        ShapeType::ShapeTest => test_local_intersect(local_r),
+        ShapeType::Cube => cubes::local_intersect(s, local_r),
         ShapeType::Plane => planes::local_intersect(s, local_r),
+        ShapeType::ShapeTest => test_local_intersect(local_r),
+        ShapeType::Sphere => spheres::local_intersect(s, local_r),
     }
 }
 
@@ -64,9 +67,10 @@ pub fn normal_at(s: Shape, world_point: tuples::Point) -> tuples::Vector {
     let local_point: tuples::Point =
         matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), world_point);
     let local_normal = match s.shape_type {
-        ShapeType::Sphere => spheres::local_normal_at(local_point),
-        ShapeType::ShapeTest => test_local_normal_at(local_point),
+        ShapeType::Cube => cubes::local_normal_at(local_point),
         ShapeType::Plane => planes::local_normal_at(),
+        ShapeType::ShapeTest => test_local_normal_at(local_point),
+        ShapeType::Sphere => spheres::local_normal_at(local_point),
     };
     let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
         matrices::matrix4_transpose(matrices::matrix4_inverse(s.transform)),
