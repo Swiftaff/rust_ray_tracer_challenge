@@ -176,7 +176,7 @@ pub fn vector_negate(a: &Tuple) -> Tuple {
     }
 }
 
-pub fn tuple_scalar_divide(a: &Tuple, s: f64) -> Tuple {
+pub fn tuple_divide(a: &Tuple, s: &f64) -> Tuple {
     let x = a.x / s;
     let y = a.y / s;
     let z = a.z / s;
@@ -565,7 +565,7 @@ mod tests {
     fn test_dividing_vector_by_scalar() {
         //Dividing a vector by a scalar
         let v = vector(1.0, -2.0, 3.0);
-        let v1 = tuple_scalar_divide(&v, 2.0);
+        let v1 = tuple_divide(&v, &2.0);
         let v2 = vector(0.5, -1.0, 1.5);
         assert_eq!(get_bool_tuples_are_equal(&v1, &v2), true);
     }
@@ -574,7 +574,7 @@ mod tests {
     fn test_dividing_point_by_scalar() {
         //Dividing a vector by a scalar
         let p = point(1.0, -2.0, 3.0);
-        let p1 = tuple_scalar_divide(&p, 2.0);
+        let p1 = tuple_divide(&p, &2.0);
         let p2 = point(0.5, -1.0, 1.5);
         assert_eq!(get_bool_tuples_are_equal(&p1, &p2), true);
     }
