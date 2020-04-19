@@ -1,1 +1,4 @@
 "tuple_multiply borrows, del tuples_scalar_multiply\n" "2020-04-19-15-52" Size: 0 Program: 7 Time to generate: 525.7878ms Time to save: 29.1µs
+"rename tuple_divide function\n" "2020-04-19-16-00" Size: 0 Program: 7 Time to generate: 637.5073ms Time to save: 63µs
+"rename tuple_divide function\n" "2020-04-19-16-00" Size: 0 Program: 7 Time to generate: 729.6256ms Time to save: 28.9µs
+"rename tuple_divide function\n" "2020-04-19-16-01" Size: 0 Program: 7 Time to generate: 615.2045ms Time to save: 42.8µs

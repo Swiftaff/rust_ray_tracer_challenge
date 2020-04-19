@@ -71,7 +71,7 @@ pub fn gradient_pattern(a: tuples::Color, b: tuples::Color) -> Pattern {
 pub fn gradient_pattern_at(pat: Pattern, p: tuples::Point) -> tuples::Color {
     let distance = tuples::colors_subtract(&pat.b, &pat.a);
     let fraction = p.x - p.x.trunc();
-    let d_times_f = tuples::colors_scalar_multiply(&distance, fraction);
+    let d_times_f = tuples::colors_scalar_multiply(&distance, &fraction);
     tuples::colors_add(&pat.a, &d_times_f)
 }
 

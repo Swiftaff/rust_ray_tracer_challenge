@@ -248,7 +248,7 @@ pub fn colors_multiply(a: &Color, b: &Color) -> Color {
     color(a.red * b.red, a.green * b.green, a.blue * b.blue)
 }
 
-pub fn colors_scalar_multiply(a: &Color, s: f64) -> Color {
+pub fn colors_scalar_multiply(a: &Color, s: &f64) -> Color {
     color(a.red * s, a.green * s, a.blue * s)
 }
 
@@ -770,7 +770,7 @@ mod tests {
     fn test_colors_scalar_multiply() {
         //multiplying color by a scalar
         let c1 = color(0.2, 0.3, 0.4);
-        let c2 = colors_scalar_multiply(&c1, 2.0);
+        let c2 = colors_scalar_multiply(&c1, &2.0);
         let a = color(0.4, 0.6, 0.8);
         assert_eq!(get_bool_colors_are_equal(&c2, &a), true);
     }

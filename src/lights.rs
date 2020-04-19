@@ -41,19 +41,21 @@ pub fn lighting(
     let effective_color: tuples::Color = tuples::colors_multiply(&_col, &light.intensity);
     let lightv: tuples::Vector =
         tuples::vector_normalize(&tuples::tuple_subtract(&light.position, &point));
-    let ambient: tuples::Color = tuples::colors_scalar_multiply(&effective_color, material.ambient);
+    let ambient: tuples::Color =
+        tuples::colors_scalar_multiply(&effective_color, &material.ambient);
     let light_dot_normal: f64 = tuples::vector_dot_product(&lightv, &normalv);
 
     if light_dot_normal >= 0.0 {
         diffuse = tuples::colors_scalar_multiply(
-            &tuples::colors_scalar_multiply(&effective_color, material.diffuse),
-            light_dot_normal,
+            &tuples::colors_scalar_multiply(&effective_color, &material.diffuse),
+            &light_dot_normal,
         );
         reflectv = tuples::tuple_reflect(&tuples::tuple_multiply(&lightv, &-1.0), &normalv);
         reflect_dot_eye = tuples::vector_dot_product(&reflectv, &eyev);
         if reflect_dot_eye > 0.0 {
             let factor: f64 = reflect_dot_eye.powf(material.shininess);
-            specular = tuples::colors_scalar_multiply(&light.intensity, material.specular * factor);
+            specular =
+                tuples::colors_scalar_multiply(&light.intensity, &(material.specular * factor));
         }
     }
     if in_shadow == true {

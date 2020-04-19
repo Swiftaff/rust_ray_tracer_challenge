@@ -89,9 +89,9 @@ pub fn shade_hit(w: World, c: intersections::Comps, remaining: i32) -> tuples::C
         let reflectance = intersections::schlick(c);
         let c1 = tuples::colors_add(
             &col,
-            &(tuples::colors_scalar_multiply(&reflected, reflectance)),
+            &(tuples::colors_scalar_multiply(&reflected, &reflectance)),
         );
-        let c2 = tuples::colors_scalar_multiply(&refracted, 1.0 - reflectance);
+        let c2 = tuples::colors_scalar_multiply(&refracted, &(1.0 - reflectance));
         tuples::colors_add(&c1, &c2)
     } else {
         tuples::colors_add(&tuples::colors_add(&col, &reflected), &refracted)
@@ -136,7 +136,7 @@ pub fn reflected_color(w: World, c: intersections::Comps, remaining: i32) -> tup
     } else {
         let reflect_ray = rays::ray(c.over_point, c.reflectv);
         let col = color_at(w, reflect_ray, remaining - 1);
-        tuples::colors_scalar_multiply(&col, c.object.material.reflective)
+        tuples::colors_scalar_multiply(&col, &c.object.material.reflective)
     }
 }
 
@@ -162,7 +162,7 @@ pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tup
         };
         let refract_ray = rays::ray(start_point, direction);
         let col = color_at(w, refract_ray, remaining - 1);
-        tuples::colors_scalar_multiply(&col, c.object.material.transparency)
+        tuples::colors_scalar_multiply(&col, &c.object.material.transparency)
     }
 }
 
