@@ -10,25 +10,25 @@ pub fn cube() -> shapes::Shape {
 }
 
 pub fn local_intersect(
-    s: shapes::Shape,
-    ray: rays::Ray,
+    s: &shapes::Shape,
+    ray: &rays::Ray,
 ) -> Result<Vec<intersections::Intersection>, String> {
-    let (xtmin, xtmax) = check_axis(ray.origin.x, ray.direction.x);
-    let (ytmin, ytmax) = check_axis(ray.origin.y, ray.direction.y);
-    let (ztmin, ztmax) = check_axis(ray.origin.z, ray.direction.z);
-    let tmin = get_min(xtmin, ytmin, ztmin);
-    let tmax = get_min(xtmax, ytmax, ztmax);
+    let (xtmin, xtmax) = check_axis(&ray.origin.x, &ray.direction.x);
+    let (ytmin, ytmax) = check_axis(&ray.origin.y, &ray.direction.y);
+    let (ztmin, ztmax) = check_axis(&ray.origin.z, &ray.direction.z);
+    let tmin = get_min(&xtmin, &ytmin, &ztmin);
+    let tmax = get_min(&xtmax, &ytmax, &ztmax);
     let i1: intersections::Intersection = intersections::intersection(tmin, s.clone());
     let i2: intersections::Intersection = intersections::intersection(tmax, s.clone());
     Ok(intersections::intersection_list(vec![i1, i2]))
 }
 
-fn get_min(a: f64, b: f64, c: f64) -> f64 {
-    let items: Vec<f64> = vec![a, b, c];
+fn get_min(a: &f64, b: &f64, c: &f64) -> f64 {
+    let items: Vec<f64> = vec![*a, *b, *c];
     items.iter().fold(INFINITY, |a, &b| a.min(b))
 }
 
-fn check_axis(o: f64, d: f64) -> (f64, f64) {
+fn check_axis(o: &f64, d: &f64) -> (f64, f64) {
     let tmin_numerator: f64 = -1.0 - o;
     let tmax_numerator: f64 = 1.0 - o;
     let tmin: f64;
@@ -47,7 +47,7 @@ fn check_axis(o: f64, d: f64) -> (f64, f64) {
     }
 }
 
-pub fn local_normal_at(local_point: tuples::Point) -> tuples::Vector {
+pub fn local_normal_at(local_point: &tuples::Point) -> tuples::Vector {
     tuples::tuple_subtract(&local_point, &tuples::POINT_ORIGIN)
 }
 

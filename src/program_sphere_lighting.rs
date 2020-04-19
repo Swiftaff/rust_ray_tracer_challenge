@@ -51,7 +51,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
                 ray_origin,
                 tuples::vector_normalize(&tuples::tuple_subtract(&position, &ray_origin)),
             );
-            let xs_result = shapes::intersect(shape.clone(), r);
+            let xs_result = shapes::intersect(&shape, &r);
             match xs_result {
                 Err(_) => {} //println!("Error: {}", e),
                 Ok(xs) => {
@@ -60,7 +60,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
                         Err(_) => {} //println!("Error: {}", e),
                         Ok(h) => {
                             let pnt = rays::position(r, h.t);
-                            let nrm = shapes::normal_at(shape.clone(), pnt);
+                            let nrm = shapes::normal_at(&shape, &pnt);
                             let eye = tuples::tuple_multiply(&r.direction, &-1.0);
                             let col = lights::lighting(
                                 shape.clone().material,

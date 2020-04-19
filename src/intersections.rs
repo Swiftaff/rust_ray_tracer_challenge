@@ -82,7 +82,7 @@ pub fn prepare_computations(
     comps.object = i.clone().object;
     comps.point = rays::position(r, comps.t);
     comps.eyev = tuples::tuple_multiply(&r.direction, &-1.0);
-    comps.normalv = shapes::normal_at(comps.clone().object, comps.clone().point);
+    comps.normalv = shapes::normal_at(&comps.object, &comps.point);
     comps.reflectv =
         tuples::tuple_reflect(&tuples::tuple_multiply(&comps.eyev, &-1.0), &comps.normalv);
     comps.over_point = tuples::tuple_add(

@@ -8,14 +8,14 @@ pub fn plane() -> shapes::Shape {
 }
 
 pub fn local_intersect(
-    s: shapes::Shape,
-    local_r: rays::Ray,
+    s: &shapes::Shape,
+    local_r: &rays::Ray,
 ) -> Result<Vec<intersections::Intersection>, String> {
     if local_r.direction.y.abs() < tuples::EPSILON {
         return Err("No intersections".to_string());
     }
     let t = -1.0 * local_r.origin.y / local_r.direction.y;
-    Ok(vec![intersections::intersection(t, s)])
+    Ok(vec![intersections::intersection(t, s.clone())])
 }
 
 pub fn local_normal_at() -> tuples::Vector {
@@ -33,9 +33,9 @@ mod tests {
     fn test_normal_of_plane_is_constant_everywhere() {
         //The normal of a plane is constant everywhere
         let s = plane();
-        let n1 = shapes::normal_at(s.clone(), tuples::point(0.0, 0.0, 0.0));
-        let n2 = shapes::normal_at(s.clone(), tuples::point(10.0, 0.0, -10.0));
-        let n3 = shapes::normal_at(s.clone(), tuples::point(-5.0, 0.0, 150.0));
+        let n1 = shapes::normal_at(&s, &tuples::point(0.0, 0.0, 0.0));
+        let n2 = shapes::normal_at(&s, &tuples::point(10.0, 0.0, -10.0));
+        let n3 = shapes::normal_at(&s, &tuples::point(-5.0, 0.0, 150.0));
         let result = tuples::vector(0.0, 1.0, 0.0);
         assert_eq!(tuples::get_bool_tuples_are_equal(&n1, &result), true);
         assert_eq!(tuples::get_bool_tuples_are_equal(&n2, &result), true);
@@ -47,7 +47,7 @@ mod tests {
         //Intersect with a ray parallel to the plane
         let s = plane();
         let r = rays::ray(tuples::point(0.0, 10.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => assert_eq!(e, "No intersections"),
             Ok(_xs) => {
@@ -62,7 +62,7 @@ mod tests {
         //Intersect with a coplanar ray
         let s = plane();
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => assert_eq!(e, "No intersections"),
             Ok(_xs) => {
@@ -77,7 +77,7 @@ mod tests {
         //A ray intersects a plane from above
         let r = rays::ray(tuples::point(0.0, 1.0, 0.0), tuples::vector(0.0, -1.0, 0.0));
         let s = plane();
-        let x = shapes::intersect(s.clone(), r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(_) => {
                 println!("Not possible in this test");
@@ -95,7 +95,7 @@ mod tests {
         //A ray intersects a plane from below
         let r = rays::ray(tuples::point(0.0, -1.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
         let s = plane();
-        let x = shapes::intersect(s.clone(), r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(_) => {
                 println!("Not possible in this test");

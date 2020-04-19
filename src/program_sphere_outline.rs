@@ -39,7 +39,7 @@ pub fn sphere_outline_main(w: u32, h: u32) {
                 ray_origin,
                 tuples::vector_normalize(&tuples::tuple_subtract(&position, &ray_origin)),
             );
-            let xs_result = shapes::intersect(shape.clone(), r);
+            let xs_result = shapes::intersect(&shape, &r);
             match xs_result {
                 Err(_) => {} //println!("Error: {}", e),
                 Ok(_xs) => {

@@ -23,7 +23,7 @@ pub fn sphere_glass() -> shapes::Shape {
     s
 }
 
-pub fn discriminant(ray: rays::Ray) -> Discriminant {
+pub fn discriminant(ray: &rays::Ray) -> Discriminant {
     let v_sphere_to_ray: tuples::Vector =
         tuples::tuple_subtract(&ray.origin, &tuples::POINT_ORIGIN);
     let a: f64 = tuples::vector_dot_product(&ray.direction, &ray.direction);
@@ -39,10 +39,10 @@ pub fn discriminant(ray: rays::Ray) -> Discriminant {
 }
 
 pub fn local_intersect(
-    s: shapes::Shape,
-    local_r: rays::Ray,
+    s: &shapes::Shape,
+    local_r: &rays::Ray,
 ) -> Result<Vec<intersections::Intersection>, String> {
-    let disc: Discriminant = discriminant(local_r);
+    let disc: Discriminant = discriminant(&local_r);
     if disc.d < 0.0 {
         Err("No intersections".to_string())
     } else {
@@ -64,7 +64,7 @@ pub fn local_intersect(
     }
 }
 
-pub fn local_normal_at(local_point: tuples::Point) -> tuples::Vector {
+pub fn local_normal_at(local_point: &tuples::Point) -> tuples::Vector {
     tuples::tuple_subtract(&local_point, &tuples::POINT_ORIGIN)
 }
 
@@ -97,7 +97,7 @@ mod tests {
         //A ray intersects a sphere at two points
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let s = sphere();
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => println!("XS Error: {}", e),
             Ok(xs) => {
@@ -113,7 +113,7 @@ mod tests {
         //A ray intersects a sphere at a tangent
         let r = rays::ray(tuples::point(0.0, 1.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let s = sphere();
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => println!("XS Error: {}", e),
             Ok(xs) => {
@@ -129,7 +129,7 @@ mod tests {
         //A ray misses a sphere
         let r = rays::ray(tuples::point(0.0, 2.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let s = sphere();
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => assert_eq!(e == "No intersections", true),
             Ok(_) => {
@@ -144,7 +144,7 @@ mod tests {
         //A ray originates inside a sphere
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
         let s = sphere();
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => println!("XS Error: {}", e),
             Ok(xs) => {
@@ -160,7 +160,7 @@ mod tests {
         //A sphere is behind a ray
         let r = rays::ray(tuples::point(0.0, 0.0, 5.0), tuples::vector(0.0, 0.0, 1.0));
         let s = sphere();
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => println!("XS Error: {}", e),
             Ok(xs) => {
@@ -178,7 +178,7 @@ mod tests {
         let s = sphere();
         let s1 = s.clone();
         let s2 = s.clone();
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => println!("XS Error: {}", e),
             Ok(xs) => {
@@ -196,7 +196,7 @@ mod tests {
         let mut s = sphere();
         let t = transformations::matrix4_scaling(2.0, 2.0, 2.0);
         s.transform = t;
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => println!("XS Error: {}", e),
             Ok(xs) => {
@@ -214,7 +214,7 @@ mod tests {
         let mut s = sphere();
         let t = transformations::matrix4_translation(5.0, 0.0, 0.0);
         s.transform = t;
-        let x = shapes::intersect(s, r);
+        let x = shapes::intersect(&s, &r);
         match x {
             Err(e) => assert_eq!(e == "No intersections", true),
             Ok(_) => {
@@ -229,7 +229,7 @@ mod tests {
     fn test_sphere_normal_at_point_x_axis() {
         //The normal on a sphere at a point on the x axis
         let s = sphere();
-        let n = shapes::normal_at(s, tuples::point(1.0, 0.0, 0.0));
+        let n = shapes::normal_at(&s, &tuples::point(1.0, 0.0, 0.0));
         let r = tuples::vector(1.0, 0.0, 0.0);
         assert_eq!(tuples::get_bool_tuples_are_equal(&n, &r), true);
     }
@@ -238,7 +238,7 @@ mod tests {
     fn test_sphere_normal_at_point_y_axis() {
         //The normal on a sphere at a point on the y axis
         let s = sphere();
-        let n = shapes::normal_at(s, tuples::point(0.0, 1.0, 0.0));
+        let n = shapes::normal_at(&s, &tuples::point(0.0, 1.0, 0.0));
         let r = tuples::vector(0.0, 1.0, 0.0);
         assert_eq!(tuples::get_bool_tuples_are_equal(&n, &r), true);
     }
@@ -247,7 +247,7 @@ mod tests {
     fn test_sphere_normal_at_point_z_axis() {
         //The normal on a sphere at a point on the z axis
         let s = sphere();
-        let n = shapes::normal_at(s, tuples::point(0.0, 0.0, 1.0));
+        let n = shapes::normal_at(&s, &tuples::point(0.0, 0.0, 1.0));
         let r = tuples::vector(0.0, 0.0, 1.0);
         assert_eq!(tuples::get_bool_tuples_are_equal(&n, &r), true);
     }
@@ -257,8 +257,8 @@ mod tests {
         //The normal on a sphere at a nonaxial point
         let s = sphere();
         let n = shapes::normal_at(
-            s,
-            tuples::point(
+            &s,
+            &tuples::point(
                 3.0_f64.sqrt() / 3.0,
                 3.0_f64.sqrt() / 3.0,
                 3.0_f64.sqrt() / 3.0,
@@ -277,8 +277,8 @@ mod tests {
         //The normal is a normalized vector
         let s = sphere();
         let n = shapes::normal_at(
-            s,
-            tuples::point(
+            &s,
+            &tuples::point(
                 3.0_f64.sqrt() / 3.0,
                 3.0_f64.sqrt() / 3.0,
                 3.0_f64.sqrt() / 3.0,
@@ -300,7 +300,7 @@ mod tests {
         //Computing the normal on a translated sphere
         let mut s = sphere();
         s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
-        let n = shapes::normal_at(s, tuples::point(0.0, 1.70711, -0.70711));
+        let n = shapes::normal_at(&s, &tuples::point(0.0, 1.70711, -0.70711));
         let r = tuples::vector(0.0, 0.70711, -0.70711);
         assert_eq!(tuples::get_bool_tuples_are_equal(&r, &n), true);
     }
@@ -314,8 +314,8 @@ mod tests {
         let m = matrices::matrix4_multiply(&m1, &m2);
         s.transform = m;
         let n = shapes::normal_at(
-            s,
-            tuples::point(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0),
+            &s,
+            &tuples::point(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0),
         );
         let r = tuples::vector(0.0, 0.97014, -0.24254);
         assert_eq!(tuples::get_bool_tuples_are_equal(&r, &n), true);
