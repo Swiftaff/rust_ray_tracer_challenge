@@ -144,6 +144,15 @@ pub fn tuple_multiply(a: Tuple, s: f64) -> Tuple {
     }
 }
 
+pub fn tuple_multiply_borrow(a: &Tuple, s: &f64) -> Tuple {
+    Tuple {
+        x: a.x * s,
+        y: a.y * s,
+        z: a.z * s,
+        w: a.w,
+    }
+}
+
 pub fn tick(env: &Environment, proj: &Projectile) -> Projectile {
     let v = &proj.velocity;
     let p = &proj.position;

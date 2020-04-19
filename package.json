@@ -11,6 +11,7 @@
     "build": "cargo build",
     "format": "cargo fmt",
     "test": "cargo test",
+    "bench": "cargo bench",
     "fmt_build_run_current_program": "cargo fmt && cargo build && set RUST_BACKTRACE=1 && H:\\Development\\rust_ray_tracer_challenge\\target\\debug\\rust_ray_tracer_challenge.exe",
     "fmt_build_release_run_current_program": "cargo fmt && cargo build --release && H:\\Development\\rust_ray_tracer_challenge\\target\\release\\rust_ray_tracer_challenge.exe"
   },
