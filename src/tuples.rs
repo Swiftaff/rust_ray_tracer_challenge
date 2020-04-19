@@ -135,16 +135,7 @@ pub fn tuple_add(a: &Tuple, b: &Tuple) -> Tuple {
     }
 }
 
-pub fn tuple_multiply(a: Tuple, s: f64) -> Tuple {
-    Tuple {
-        x: a.x * s,
-        y: a.y * s,
-        z: a.z * s,
-        w: a.w,
-    }
-}
-
-pub fn tuple_multiply_borrow(a: &Tuple, s: &f64) -> Tuple {
+pub fn tuple_multiply(a: &Tuple, s: &f64) -> Tuple {
     Tuple {
         x: a.x * s,
         y: a.y * s,
@@ -164,7 +155,6 @@ pub fn tick(env: &Environment, proj: &Projectile) -> Projectile {
     projectile(position, velocity)
 }
 
-#[allow(dead_code)]
 pub fn tuple_subtract(a: &Tuple, b: &Tuple) -> Tuple {
     if a.w < b.w {
         //println!("tuple_subtract: can't subtract a point from a vector");
@@ -175,7 +165,6 @@ pub fn tuple_subtract(a: &Tuple, b: &Tuple) -> Tuple {
     }
 }
 
-#[allow(dead_code)]
 pub fn vector_negate(a: &Tuple) -> Tuple {
     let t = tuple(-a.x, -a.y, -a.z, a.w);
     if t.w == 1 {
@@ -187,15 +176,6 @@ pub fn vector_negate(a: &Tuple) -> Tuple {
     }
 }
 
-#[allow(dead_code)]
-pub fn tuple_scalar_multiply(a: &Tuple, s: f64) -> Tuple {
-    let x = a.x * s;
-    let y = a.y * s;
-    let z = a.z * s;
-    tuple(x, y, z, a.w)
-}
-
-#[allow(dead_code)]
 pub fn tuple_scalar_divide(a: &Tuple, s: f64) -> Tuple {
     let x = a.x / s;
     let y = a.y / s;
@@ -203,15 +183,13 @@ pub fn tuple_scalar_divide(a: &Tuple, s: f64) -> Tuple {
     tuple(x, y, z, a.w)
 }
 
-#[allow(dead_code)]
 pub fn tuple_reflect(v: &Tuple, normal: &Tuple) -> Tuple {
     let dp = vector_dot_product(&v, &normal);
-    let mult1 = tuple_scalar_multiply(&normal, 2.0);
-    let mult2 = tuple_scalar_multiply(&mult1, dp);
+    let mult1 = tuple_multiply(&normal, &2.0);
+    let mult2 = tuple_multiply(&mult1, &dp);
     tuple_subtract(&v, &mult2)
 }
 
-#[allow(dead_code)]
 pub fn vector_magnitude(a: &Tuple) -> f64 {
     let x = a.x * a.x;
     let y = a.y * a.y;
@@ -220,7 +198,6 @@ pub fn vector_magnitude(a: &Tuple) -> f64 {
     (x + y + z + f64::from(w)).sqrt()
 }
 
-#[allow(dead_code)]
 pub fn vector_normalize(a: &Tuple) -> Tuple {
     let m = vector_magnitude(a);
 
@@ -234,7 +211,6 @@ pub fn vector_normalize(a: &Tuple) -> Tuple {
     }
 }
 
-#[allow(dead_code)]
 pub fn vector_dot_product(a: &Tuple, b: &Tuple) -> f64 {
     if a.w == 1 || b.w == 1 {
         //println!("vector_dot_product: can only dotproduct two vectors");
@@ -245,7 +221,6 @@ pub fn vector_dot_product(a: &Tuple, b: &Tuple) -> f64 {
     }
 }
 
-#[allow(dead_code)]
 pub fn vector_cross_product(a: &Tuple, b: &Tuple) -> Tuple {
     if a.w == 1 || b.w == 1 {
         //println!("vector_crossProduct: can only crossproduct two vectors");
@@ -260,33 +235,27 @@ pub fn vector_cross_product(a: &Tuple, b: &Tuple) -> Tuple {
     }
 }
 
-#[allow(dead_code)]
 pub fn colors_add(a: &Color, b: &Color) -> Color {
     color(a.red + b.red, a.green + b.green, a.blue + b.blue)
 }
 
-#[allow(dead_code)]
 pub fn colors_subtract(a: &Color, b: &Color) -> Color {
     color(a.red - b.red, a.green - b.green, a.blue - b.blue)
 }
 
-#[allow(dead_code)]
 pub fn colors_multiply(a: &Color, b: &Color) -> Color {
     //hadamard_product
     color(a.red * b.red, a.green * b.green, a.blue * b.blue)
 }
 
-#[allow(dead_code)]
 pub fn colors_scalar_multiply(a: &Color, s: f64) -> Color {
     color(a.red * s, a.green * s, a.blue * s)
 }
 
-#[allow(dead_code)]
 pub fn get_bool_numbers_are_equal(a: f64, b: f64) -> bool {
     (a - b).abs() < EPSILON
 }
 
-#[allow(dead_code)]
 pub fn get_bool_tuples_are_equal(t1: &Tuple, t2: &Tuple) -> bool {
     get_bool_numbers_are_equal(t1.x, t2.x)
         && get_bool_numbers_are_equal(t1.y, t2.y)
@@ -294,7 +263,6 @@ pub fn get_bool_tuples_are_equal(t1: &Tuple, t2: &Tuple) -> bool {
         && t1.w == t2.w
 }
 
-#[allow(dead_code)]
 pub fn get_bool_colors_are_equal(c1: &Color, c2: &Color) -> bool {
     get_bool_numbers_are_equal(c1.red, c2.red)
         && get_bool_numbers_are_equal(c1.green, c2.green)
@@ -555,12 +523,12 @@ mod tests {
         assert_eq!(get_bool_tuples_are_equal(&p1, &p), true);
     }
 
-    //tuple_scalar_multiply
+    //tuple_multiply
     #[test]
     fn test_multiply_vector_by_scalar() {
         //Multiplying a vector by a scalar
         let v = vector(1.0, -2.0, 3.0);
-        let v1 = tuple_scalar_multiply(&v, 3.5);
+        let v1 = tuple_multiply(&v, &3.5);
         let v2 = vector(3.5, -7.0, 10.5);
         assert_eq!(get_bool_tuples_are_equal(&v1, &v2), true);
     }
@@ -569,7 +537,7 @@ mod tests {
     fn test_multiply_point_by_scalar() {
         //Multiplying a point by a scalar
         let p = point(1.0, -2.0, 3.0);
-        let p1 = tuple_scalar_multiply(&p, 3.5);
+        let p1 = tuple_multiply(&p, &3.5);
         let p2 = point(3.5, -7.0, 10.5);
         assert_eq!(get_bool_tuples_are_equal(&p1, &p2), true);
     }
@@ -578,7 +546,7 @@ mod tests {
     fn test_multiply_vector_by_fraction() {
         //Multiplying a vector by a fraction
         let v = vector(1.0, -2.0, 3.0);
-        let v1 = tuple_scalar_multiply(&v, 0.5);
+        let v1 = tuple_multiply(&v, &0.5);
         let v2 = vector(0.5, -1.0, 1.5);
         assert_eq!(get_bool_tuples_are_equal(&v1, &v2), true);
     }
@@ -587,7 +555,7 @@ mod tests {
     fn test_multiply_point_by_fraction() {
         //Multiplying a point by a fraction
         let p = point(1.0, -2.0, 3.0);
-        let p1 = tuple_scalar_multiply(&p, 0.5);
+        let p1 = tuple_multiply(&p, &0.5);
         let p2 = point(0.5, -1.0, 1.5);
         assert_eq!(get_bool_tuples_are_equal(&p1, &p2), true);
     }

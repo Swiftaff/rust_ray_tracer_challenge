@@ -49,7 +49,7 @@ pub fn lighting(
             &tuples::colors_scalar_multiply(&effective_color, material.diffuse),
             light_dot_normal,
         );
-        reflectv = tuples::tuple_reflect(&tuples::tuple_multiply(lightv, -1.0), &normalv);
+        reflectv = tuples::tuple_reflect(&tuples::tuple_multiply(&lightv, &-1.0), &normalv);
         reflect_dot_eye = tuples::vector_dot_product(&reflectv, &eyev);
         if reflect_dot_eye > 0.0 {
             let factor: f64 = reflect_dot_eye.powf(material.shininess);

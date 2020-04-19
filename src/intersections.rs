@@ -81,21 +81,21 @@ pub fn prepare_computations(
     comps.t = i.clone().t;
     comps.object = i.clone().object;
     comps.point = rays::position(r, comps.t);
-    comps.eyev = tuples::tuple_multiply(r.direction, -1.0);
+    comps.eyev = tuples::tuple_multiply(&r.direction, &-1.0);
     comps.normalv = shapes::normal_at(comps.clone().object, comps.clone().point);
     comps.reflectv =
-        tuples::tuple_reflect(&tuples::tuple_multiply(comps.eyev, -1.0), &comps.normalv);
+        tuples::tuple_reflect(&tuples::tuple_multiply(&comps.eyev, &-1.0), &comps.normalv);
     comps.over_point = tuples::tuple_add(
         &comps.point,
-        &(tuples::tuple_scalar_multiply(&comps.clone().normalv, tuples::EPSILON)),
+        &(tuples::tuple_multiply(&comps.normalv, &tuples::EPSILON)),
     );
     comps.under_point = tuples::tuple_subtract(
         &comps.point,
-        &(tuples::tuple_scalar_multiply(&comps.clone().normalv, tuples::EPSILON)),
+        &(tuples::tuple_multiply(&comps.normalv, &tuples::EPSILON)),
     );
     if tuples::vector_dot_product(&comps.normalv, &comps.eyev) < 0.0 {
         comps.inside = true;
-        comps.normalv = tuples::tuple_multiply(comps.normalv, -1.0);
+        comps.normalv = tuples::tuple_multiply(&comps.normalv, &-1.0);
     }
     let mut containers: Vec<shapes::Shape> = Vec::new();
 

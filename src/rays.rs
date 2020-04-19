@@ -21,7 +21,7 @@ pub fn ray(o: tuples::Point, d: tuples::Vector) -> Ray {
 }
 
 pub fn position(ray: Ray, t: f64) -> tuples::Tuple {
-    tuples::tuple_add(&ray.origin, &tuples::tuple_multiply(ray.direction, t))
+    tuples::tuple_add(&ray.origin, &tuples::tuple_multiply(&ray.direction, &t))
 }
 
 pub fn ray_transform(r: Ray, m: matrices::Matrix4) -> Ray {

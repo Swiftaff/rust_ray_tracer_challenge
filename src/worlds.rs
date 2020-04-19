@@ -152,8 +152,8 @@ pub fn refracted_color(w: World, c: intersections::Comps, remaining: i32) -> tup
         //println!("not black");
         let cos_t: f64 = (1.0 - sin2_t).sqrt();
         let direction: tuples::Vector = tuples::tuple_subtract(
-            &tuples::tuple_scalar_multiply(&c.normalv, (n_ratio * cos_i) - cos_t),
-            &tuples::tuple_scalar_multiply(&c.eyev, n_ratio),
+            &tuples::tuple_multiply(&c.normalv, &((n_ratio * cos_i) - cos_t)),
+            &tuples::tuple_multiply(&c.eyev, &n_ratio),
         );
         let start_point = if c.inside {
             c.over_point
