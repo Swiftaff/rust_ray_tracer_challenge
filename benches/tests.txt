@@ -4,3 +4,8 @@
 "rename tuple_divide function\n" "2020-04-19-16-01" Size: 0 Program: 7 Time to generate: 615.2045ms Time to save: 42.8µs
 "colors_scalar_multiply borrowing\n" "2020-04-19-16-08" Size: 0 Program: 7 Time to generate: 568.533ms Time to save: 56.4µs
 "colors_scalar_multiply borrowing\n" "2020-04-19-16-08" Size: 0 Program: 7 Time to generate: 605.425ms Time to save: 73.5µs
+"get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-21" Size: 0 Program: 7 Time to generate: 1.0303022s Time to save: 43.1µs
+"get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-22" Size: 0 Program: 7 Time to generate: 723.0336ms Time to save: 22.1µs
+"get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-22" Size: 0 Program: 7 Time to generate: 674.716ms Time to save: 30.8µs
+"get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-23" Size: 2 Program: 7 Time to generate: 2.5053019s Time to save: 256.4µs
+"get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-23" Size: 3 Program: 7 Time to generate: 8.9244751s Time to save: 1.2961ms
