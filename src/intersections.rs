@@ -58,7 +58,7 @@ pub fn get_bool_intersections_are_equal(i1: &Intersection, i2: &Intersection) ->
     tuples::get_bool_numbers_are_equal(&i1.t, &i2.t) && i1.object.id == i2.object.id
 }
 
-pub fn hit(xs: Vec<Intersection>) -> Result<Intersection, &'static str> {
+pub fn hit(xs: &Vec<Intersection>) -> Result<Intersection, &'static str> {
     let mut the_hit: i32 = -1;
     for index in 0..xs.len() {
         if the_hit == -1 && xs[index].t >= tuples::EPSILON {
@@ -109,7 +109,7 @@ pub fn prepare_computations(
         }
     }
 
-    let hit_result = hit(xs.clone());
+    let hit_result = hit(&xs);
     match hit_result {
         Ok(_hit) => {
             for index in 0..xs.clone().len() {
@@ -153,7 +153,7 @@ pub fn prepare_computations(
     comps
 }
 
-pub fn schlick(c: Comps) -> f64 {
+pub fn schlick(c: &Comps) -> f64 {
     let mut cos = tuples::vector_dot_product(&c.eyev, &c.normalv);
     if c.n1 > c.n2 {
         let n = c.n1 / c.n2;
@@ -211,7 +211,7 @@ mod tests {
         let i1 = intersection(1.0, s.clone());
         let i2 = intersection(2.0, s.clone());
         let xs = intersection_list(vec![i2, i1]);
-        match hit(xs) {
+        match hit(&xs) {
             Err(e) => println!("test_hit_intersections_positive_t: {}", e),
             Ok(h) => {
                 assert_eq!(h.t == 1.0, true);
@@ -226,7 +226,7 @@ mod tests {
         let i1 = intersection(-1.0, s.clone());
         let i2 = intersection(1.0, s.clone());
         let xs = intersection_list(vec![i2, i1]);
-        match hit(xs) {
+        match hit(&xs) {
             Err(e) => println!("test_hit_some_intersections_negative_t: {}", e),
             Ok(h) => {
                 assert_eq!(h.t == 1.0, true);
@@ -241,7 +241,7 @@ mod tests {
         let i1 = intersection(-2.0, s.clone());
         let i2 = intersection(-1.0, s.clone());
         let xs = intersection_list(vec![i2, i1]);
-        match hit(xs) {
+        match hit(&xs) {
             Err(e) => assert_eq!(e.to_string() == "No hit", true),
             Ok(_) => {
                 println!("test_hit_all_intersections_negative_t",);
@@ -258,7 +258,7 @@ mod tests {
         let i3 = intersection(-3.0, s.clone());
         let i4 = intersection(2.0, s.clone());
         let xs = intersection_list(vec![i2, i1, i3, i4]);
-        match hit(xs) {
+        match hit(&xs) {
             Err(e) => println!("test_hit_some_intersections_negative_t: {}", e),
             Ok(h) => {
                 assert_eq!(h.t == 2.0, true);
@@ -441,7 +441,7 @@ mod tests {
         let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s);
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
-        let reflectance = schlick(comps);
+        let reflectance = schlick(&comps);
         assert_eq!(tuples::get_bool_numbers_are_equal(&reflectance, &1.0), true);
     }
 
@@ -455,7 +455,7 @@ mod tests {
         let i2 = intersections::intersection(1.0, s);
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(xs[1].clone(), r, Some(xs));
-        let reflectance = schlick(comps);
+        let reflectance = schlick(&comps);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&reflectance, &0.04257),
             true
@@ -474,7 +474,7 @@ mod tests {
         let i = intersections::intersection(1.8589, s.clone());
         let xs = intersections::intersection_list(vec![i]);
         let comps = intersections::prepare_computations(xs[0].clone(), r, Some(xs));
-        let reflectance = schlick(comps);
+        let reflectance = schlick(&comps);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&reflectance, &0.4901),
             true

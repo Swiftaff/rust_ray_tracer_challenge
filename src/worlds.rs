@@ -86,7 +86,7 @@ pub fn shade_hit(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples
     let refracted = refracted_color(&w, &c, &remaining);
     let material = c.object.material.clone();
     if material.reflective > 0.0 && material.transparency > 0.0 {
-        let reflectance = intersections::schlick(c.clone());
+        let reflectance = intersections::schlick(&c);
         let c1 = tuples::colors_add(
             &col,
             &(tuples::colors_scalar_multiply(&reflected, &reflectance)),
@@ -100,7 +100,7 @@ pub fn shade_hit(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples
 
 pub fn color_at(w: &World, r: &rays::Ray, remaining: &i32) -> tuples::Color {
     let xs = world_intersect(&w.clone(), &r);
-    let hit_temp = intersections::hit(xs.clone());
+    let hit_temp = intersections::hit(&xs);
     match hit_temp {
         Err(_) => tuples::COLOR_BLACK,
         Ok(hit) => {
@@ -117,7 +117,7 @@ pub fn is_shadowed(w: &World, p: &tuples::Point) -> bool {
     let direction = tuples::vector_normalize(&v);
     let r = rays::ray(*p, direction);
     let xs = world_intersect(&w, &r);
-    let hit_temp = intersections::hit(xs);
+    let hit_temp = intersections::hit(&xs);
     match hit_temp {
         Err(_) => false,
         Ok(h) => {

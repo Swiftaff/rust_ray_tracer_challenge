@@ -35,7 +35,7 @@ pub fn shape(shape_type: ShapeType) -> Shape {
 }
 
 pub fn intersect(s: &Shape, r: &rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
-    let local_r: rays::Ray = rays::ray_transform(*r, matrices::matrix4_inverse(&s.transform));
+    let local_r: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(&s.transform));
     match s.shape_type {
         ShapeType::Cube => cubes::local_intersect(&s, &local_r),
         ShapeType::Plane => planes::local_intersect(&s, &local_r),

@@ -55,7 +55,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
             match xs_result {
                 Err(_) => {} //println!("Error: {}", e),
                 Ok(xs) => {
-                    let h_result = intersections::hit(xs);
+                    let h_result = intersections::hit(&xs);
                     match h_result {
                         Err(_) => {} //println!("Error: {}", e),
                         Ok(h) => {

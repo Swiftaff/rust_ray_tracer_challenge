@@ -24,7 +24,7 @@ pub fn position(ray: Ray, t: f64) -> tuples::Tuple {
     tuples::tuple_add(&ray.origin, &tuples::tuple_multiply(&ray.direction, &t))
 }
 
-pub fn ray_transform(r: Ray, m: matrices::Matrix4) -> Ray {
+pub fn ray_transform(r: &Ray, m: matrices::Matrix4) -> Ray {
     let o = r.origin;
     let d = r.direction;
     let origin = transformations::transform_tuple_with_chain(&[m].to_vec(), &o);
@@ -80,7 +80,7 @@ mod tests {
         let d = tuples::vector(0.0, 1.0, 0.0);
         let r = ray(o, d);
         let m = transformations::matrix4_translation(3.0, 4.0, 5.0);
-        let r2 = ray_transform(r, m);
+        let r2 = ray_transform(&r, m);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r2.origin, &tuples::point(4.0, 6.0, 8.0)),
             true
@@ -98,7 +98,7 @@ mod tests {
         let d = tuples::vector(0.0, 1.0, 0.0);
         let r = ray(o, d);
         let m = transformations::matrix4_scaling(2.0, 3.0, 4.0);
-        let r2 = ray_transform(r, m);
+        let r2 = ray_transform(&r, m);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r2.origin, &tuples::point(2.0, 6.0, 12.0)),
             true
