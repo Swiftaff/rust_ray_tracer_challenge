@@ -84,13 +84,13 @@ mod tests {
         let light = lights::light_point(tuples::point(0.0, 0.0, -10.0), tuples::COLOR_WHITE);
         let s = spheres::sphere();
         let result = lights::lighting(
-            MATERIAL_DEFAULT,
-            s,
-            light,
-            tuples::POINT_ORIGIN,
-            eyev,
-            normalv,
-            false,
+            &MATERIAL_DEFAULT,
+            &s,
+            &light,
+            &tuples::POINT_ORIGIN,
+            &eyev,
+            &normalv,
+            &false,
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(1.9, 1.9, 1.9)),
@@ -106,13 +106,13 @@ mod tests {
         let light = lights::light_point(tuples::point(0.0, 0.0, -10.0), tuples::COLOR_WHITE);
         let s = spheres::sphere();
         let result = lights::lighting(
-            MATERIAL_DEFAULT,
-            s,
-            light,
-            tuples::POINT_ORIGIN,
-            eyev,
-            normalv,
-            false,
+            &MATERIAL_DEFAULT,
+            &s,
+            &light,
+            &tuples::POINT_ORIGIN,
+            &eyev,
+            &normalv,
+            &false,
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(1.0, 1.0, 1.0)),
@@ -128,13 +128,13 @@ mod tests {
         let light = lights::light_point(tuples::point(0.0, 10.0, -10.0), tuples::COLOR_WHITE);
         let s = spheres::sphere();
         let result = lights::lighting(
-            MATERIAL_DEFAULT,
-            s,
-            light,
-            tuples::POINT_ORIGIN,
-            eyev,
-            normalv,
-            false,
+            &MATERIAL_DEFAULT,
+            &s,
+            &light,
+            &tuples::POINT_ORIGIN,
+            &eyev,
+            &normalv,
+            &false,
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(0.7364, 0.7364, 0.7364)),
@@ -150,13 +150,13 @@ mod tests {
         let light = lights::light_point(tuples::point(0.0, 10.0, -10.0), tuples::COLOR_WHITE);
         let s = spheres::sphere();
         let result = lights::lighting(
-            MATERIAL_DEFAULT,
-            s,
-            light,
-            tuples::POINT_ORIGIN,
-            eyev,
-            normalv,
-            false,
+            &MATERIAL_DEFAULT,
+            &s,
+            &light,
+            &tuples::POINT_ORIGIN,
+            &eyev,
+            &normalv,
+            &false,
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&result, &tuples::color(1.6364, 1.6364, 1.6364)),
@@ -172,13 +172,13 @@ mod tests {
         let light = lights::light_point(tuples::point(0.0, 0.0, 10.0), tuples::COLOR_WHITE);
         let s = spheres::sphere();
         let result = lights::lighting(
-            MATERIAL_DEFAULT,
-            s,
-            light,
-            tuples::POINT_ORIGIN,
-            eyev,
-            normalv,
-            false,
+            &MATERIAL_DEFAULT,
+            &s,
+            &light,
+            &tuples::POINT_ORIGIN,
+            &eyev,
+            &normalv,
+            &false,
         );
         println!("result {},{},{}", result.red, result.green, result.blue);
         assert_eq!(
@@ -200,22 +200,22 @@ mod tests {
         m.specular = 0.0;
         let s = spheres::sphere();
         let c1 = lights::lighting(
-            m.clone(),
-            s.clone(),
-            light.clone(),
-            tuples::point(0.9, 0.0, 0.0),
-            eyev.clone(),
-            normalv.clone(),
-            false,
+            &m,
+            &s,
+            &light,
+            &tuples::point(0.9, 0.0, 0.0),
+            &eyev,
+            &normalv,
+            &false,
         );
         let c2 = lights::lighting(
-            m.clone(),
-            s,
-            light.clone(),
-            tuples::point(1.1, 0.0, 0.0),
-            eyev.clone(),
-            normalv.clone(),
-            false,
+            &m,
+            &s,
+            &light,
+            &tuples::point(1.1, 0.0, 0.0),
+            &eyev,
+            &normalv,
+            &false,
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&c1, &tuples::COLOR_WHITE),

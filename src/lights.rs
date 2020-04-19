@@ -19,13 +19,13 @@ pub fn light_point(position: tuples::Point, intensity: tuples::Color) -> LightPo
 }
 
 pub fn lighting(
-    material: materials::Material,
-    shape: shapes::Shape,
-    light: LightPoint,
-    point: tuples::Point,
-    eyev: tuples::Point,
-    normalv: tuples::Vector,
-    in_shadow: bool,
+    material: &materials::Material,
+    shape: &shapes::Shape,
+    light: &LightPoint,
+    point: &tuples::Point,
+    eyev: &tuples::Point,
+    normalv: &tuples::Vector,
+    in_shadow: &bool,
 ) -> tuples::Color {
     let mut diffuse: tuples::Color = tuples::COLOR_BLACK;
     let mut specular: tuples::Color = tuples::COLOR_BLACK;
@@ -34,7 +34,7 @@ pub fn lighting(
 
     let mut _col = tuples::COLOR_WHITE;
     match material.pattern {
-        Some(p) => _col = patterns::pattern_at_shape(p, shape, point.clone()),
+        Some(p) => _col = patterns::pattern_at_shape(p, shape.clone(), point.clone()),
         None => _col = material.color,
     }
 
@@ -58,7 +58,7 @@ pub fn lighting(
                 tuples::colors_scalar_multiply(&light.intensity, &(material.specular * factor));
         }
     }
-    if in_shadow == true {
+    if in_shadow == &true {
         ambient
     } else {
         tuples::colors_add(&tuples::colors_add(&ambient, &diffuse), &specular)
@@ -98,13 +98,13 @@ mod tests {
         let in_shadow = true;
         let s = spheres::sphere();
         let col = lighting(
-            materials::MATERIAL_DEFAULT,
-            s,
-            light,
-            position,
-            eyev,
-            normalv,
-            in_shadow,
+            &materials::MATERIAL_DEFAULT,
+            &s,
+            &light,
+            &position,
+            &eyev,
+            &normalv,
+            &in_shadow,
         );
         assert_eq!(
             tuples::get_bool_colors_are_equal(&col, &tuples::color(0.1, 0.1, 0.1)),

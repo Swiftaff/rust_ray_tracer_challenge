@@ -72,13 +72,13 @@ pub fn shade_hit(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples
     for index in 0..w.light.len() {
         let this_light = w.clone().light[index];
         let this_lights_effect = lights::lighting(
-            c.object.clone().material,
-            c.object.clone(),
-            this_light,
-            c.over_point,
-            c.eyev,
-            c.normalv,
-            is_shadowed(&w, &c.over_point), //TODO maybe try ternary for under_point?
+            &c.object.material,
+            &c.object,
+            &this_light,
+            &c.over_point,
+            &c.eyev,
+            &c.normalv,
+            &is_shadowed(&w, &c.over_point), //TODO maybe try ternary for under_point?
         );
         col = tuples::colors_add(&col, &this_lights_effect);
     }

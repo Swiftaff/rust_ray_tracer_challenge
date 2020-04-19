@@ -63,13 +63,13 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
                             let nrm = shapes::normal_at(&shape, &pnt);
                             let eye = tuples::tuple_multiply(&r.direction, &-1.0);
                             let col = lights::lighting(
-                                shape.clone().material,
-                                shape.clone(),
-                                light,
-                                pnt,
-                                eye,
-                                nrm,
-                                false,
+                                &shape.material,
+                                &shape,
+                                &light,
+                                &pnt,
+                                &eye,
+                                &nrm,
+                                &false,
                             );
                             c = canvas::pixel_write(c, x, y, col);
                         }
