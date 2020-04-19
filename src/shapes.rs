@@ -35,7 +35,7 @@ pub fn shape(shape_type: ShapeType) -> Shape {
 }
 
 pub fn intersect(s: Shape, r: rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
-    let local_r: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(s.transform));
+    let local_r: rays::Ray = rays::ray_transform(r, matrices::matrix4_inverse(&s.transform));
     match s.shape_type {
         ShapeType::Cube => cubes::local_intersect(s, local_r),
         ShapeType::Plane => planes::local_intersect(s, local_r),
@@ -65,7 +65,7 @@ fn test_local_intersect(local_r: rays::Ray) -> Result<Vec<intersections::Interse
 
 pub fn normal_at(s: Shape, world_point: tuples::Point) -> tuples::Vector {
     let local_point: tuples::Point =
-        matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), world_point);
+        matrices::matrix4_tuple_multiply(&matrices::matrix4_inverse(&s.transform), &world_point);
     let local_normal = match s.shape_type {
         ShapeType::Cube => cubes::local_normal_at(local_point),
         ShapeType::Plane => planes::local_normal_at(),
@@ -73,8 +73,8 @@ pub fn normal_at(s: Shape, world_point: tuples::Point) -> tuples::Vector {
         ShapeType::Sphere => spheres::local_normal_at(local_point),
     };
     let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
-        matrices::matrix4_transpose(matrices::matrix4_inverse(s.transform)),
-        local_normal,
+        &matrices::matrix4_transpose(&matrices::matrix4_inverse(&s.transform)),
+        &local_normal,
     );
     world_normal.w = 0;
     tuples::vector_normalize(&world_normal)
@@ -95,7 +95,7 @@ mod tests {
         //A shape's default transformation
         let s = shape(ShapeType::ShapeTest);
         assert_eq!(
-            matrices::get_bool_equal_m4(s.transform, matrices::IDENTITY_MATRIX),
+            matrices::get_bool_equal_m4(&s.transform, &matrices::IDENTITY_MATRIX),
             true
         );
     }

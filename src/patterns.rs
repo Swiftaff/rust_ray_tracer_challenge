@@ -123,9 +123,9 @@ pub fn test_pattern_at(_pat: Pattern, p: tuples::Point) -> tuples::Color {
 
 pub fn pattern_at_shape(pat: Pattern, s: shapes::Shape, p: tuples::Point) -> tuples::Color {
     let local_point: tuples::Point =
-        matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(s.transform), p);
+        matrices::matrix4_tuple_multiply(&matrices::matrix4_inverse(&s.transform), &p);
     let pattern_point: tuples::Point =
-        matrices::matrix4_tuple_multiply(matrices::matrix4_inverse(pat.transform), local_point);
+        matrices::matrix4_tuple_multiply(&matrices::matrix4_inverse(&pat.transform), &local_point);
     match pat.pattern_type {
         PatternType::Stripe => stripe_at(pat, pattern_point),
         PatternType::PatternTest => test_pattern_at(pat, pattern_point),
@@ -262,7 +262,7 @@ mod tests {
         //The default Pattern trasnformation
         let p = test_pattern();
         assert_eq!(
-            matrices::get_bool_equal_m4(p.transform, matrices::IDENTITY_MATRIX),
+            matrices::get_bool_equal_m4(&p.transform, &matrices::IDENTITY_MATRIX),
             true
         );
     }
@@ -273,7 +273,7 @@ mod tests {
         let mut p = test_pattern();
         let t = transformations::matrix4_translation(1.0, 2.0, 3.0);
         p.transform = t;
-        assert_eq!(matrices::get_bool_equal_m4(p.transform, t), true);
+        assert_eq!(matrices::get_bool_equal_m4(&p.transform, &t), true);
     }
 
     #[test]

@@ -311,7 +311,7 @@ mod tests {
         let mut s = sphere();
         let m1 = transformations::matrix4_scaling(1.0, 0.5, 1.0);
         let m2 = transformations::matrix4_rotation_z_rad(PI / 5.0);
-        let m = matrices::matrix4_multiply(m1, m2);
+        let m = matrices::matrix4_multiply(&m1, &m2);
         s.transform = m;
         let n = shapes::normal_at(
             s,
@@ -334,7 +334,7 @@ mod tests {
         //A helper for producing a sphere with a glassy material
         let s = sphere_glass();
         assert_eq!(
-            matrices::get_bool_equal_m4(s.transform, matrices::IDENTITY_MATRIX),
+            matrices::get_bool_equal_m4(&s.transform, &matrices::IDENTITY_MATRIX),
             true
         );
         assert_eq!(

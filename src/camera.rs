@@ -53,12 +53,12 @@ pub fn ray_for_pixel(camera: Camera, px: u32, py: u32) -> rays::Ray {
     //and then compute the ray's direction vector.
     //(remember that the canvas is at z=-1)
     let pixel: tuples::Point = matrices::matrix4_tuple_multiply(
-        matrices::matrix4_inverse(camera.transform),
-        tuples::point(world_x, world_y, -1.0),
+        &matrices::matrix4_inverse(&camera.transform),
+        &tuples::point(world_x, world_y, -1.0),
     );
     let origin: tuples::Point = matrices::matrix4_tuple_multiply(
-        matrices::matrix4_inverse(camera.transform),
-        tuples::point(0.0, 0.0, 0.0),
+        &matrices::matrix4_inverse(&camera.transform),
+        &tuples::point(0.0, 0.0, 0.0),
     );
     let direction: tuples::Vector =
         tuples::vector_normalize(&tuples::tuple_subtract(&pixel, &origin));
@@ -140,7 +140,7 @@ mod tests {
             true
         );
         assert_eq!(
-            matrices::get_bool_equal_m4(matrices::IDENTITY_MATRIX, c.transform),
+            matrices::get_bool_equal_m4(&matrices::IDENTITY_MATRIX, &c.transform),
             true
         );
     }
@@ -204,7 +204,7 @@ mod tests {
         let mut c = camera(201, 101, PI / 2.0);
         let rot = transformations::matrix4_rotation_y_rad(PI / 4.0);
         let tran = transformations::matrix4_translation(0.0, -2.0, 5.0);
-        c.transform = matrices::matrix4_multiply(rot, tran);
+        c.transform = matrices::matrix4_multiply(&rot, &tran);
         let r = ray_for_pixel(c, 100, 50);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r.origin, &tuples::point(0.0, 2.0, -5.0)),

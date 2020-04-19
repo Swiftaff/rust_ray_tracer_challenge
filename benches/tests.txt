@@ -9,3 +9,8 @@
 "get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-22" Size: 0 Program: 7 Time to generate: 674.716ms Time to save: 30.8µs
 "get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-23" Size: 2 Program: 7 Time to generate: 2.5053019s Time to save: 256.4µs
 "get_bool_tuples_are_equal borrowing\n" "2020-04-19-16-23" Size: 3 Program: 7 Time to generate: 8.9244751s Time to save: 1.2961ms
+"worlds borrowing\n" "2020-04-19-16-31" Size: 0 Program: 7 Time to generate: 587.4055ms Time to save: 26.7µs
+"worlds borrowing\n" "2020-04-19-16-32" Size: 2 Program: 7 Time to generate: 2.6696922s Time to save: 259.8µs
+"worlds borrowing\n" "2020-04-19-16-32" Size: 3 Program: 7 Time to generate: 8.9944964s Time to save: 1.2377ms
+"worlds borrowing\n" "2020-04-19-16-54" Size: 0 Program: 7 Time to generate: 480.0079ms Time to save: 41.4µs
+"worlds borrowing\n" "2020-04-19-16-54" Size: 3 Program: 7 Time to generate: 7.8124237s Time to save: 1.1864ms
