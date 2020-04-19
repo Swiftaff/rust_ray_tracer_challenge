@@ -29,12 +29,14 @@ mod worlds;
 const DEFAULT_SIZE_INDICES: [usize; 8] = [4, 2, 3, 2, 1, 1, 1, 1];
 
 fn main() {
-    let sizes_arr: [[u32; 2]; 9] = [
+    let sizes_arr: [[u32; 2]; 11] = [
         [50, 25],
         [100, 50],
         [200, 100],
         [400, 200],
         [500, 250],
+        [1000, 500],
+        [2000, 1000],
         [50, 50],
         [100, 100],
         [200, 200],
@@ -52,16 +54,18 @@ fn get_selected_size() -> u32 {
     let message: String = String::from(
         "Choose image size to render (square shapes use just x value)
 0. use defaults
-1. X-Tiny(50,25)
+1. X-Tiny(50,25) <-benchmark a
 2. Tiny(100,50)
 3. Small(200,100)
-4. Medium(400,200)
+4. Medium(400,200) <-benchmark b
 5. Large(500,250)
+6. Large(1000,500)
+7. Large(2000,1000)
 
-6. Large(50,50)
-7. Large(100,100)
-8. Large(200,200)
-9. Large(300,300)
+8. Large(50,50)
+9. Large(100,100)
+10. Large(200,200)
+11. Large(300,300)
 ? ",
     );
     input::<u32>().msg(message).get()

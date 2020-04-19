@@ -26,3 +26,6 @@
 "lights borrowing\n" "2020-04-19-17-48" Size: 3 Program: 7 Time to generate: 7.6407403s Time to save: 3.708ms
 "canvas and camera borrowing\n" "2020-04-19-18-00" Size: 0 Program: 7 Time to generate: 520.0162ms Time to save: 51.2µs
 "canvas and camera borrowing\n" "2020-04-19-18-01" Size: 3 Program: 7 Time to generate: 7.9126259s Time to save: 1.1005ms
+"more borrowing\n" "2020-04-19-18-01" Size: 4 Program: 7 Time to generate: 12.0246572s Time to save: 1.6258ms
+"more borrowing\n" "2020-04-19-18-05" Size: 5 Program: 7 Time to generate: 45.9692079s Time to save: 6.795ms
+"more borrowing\n" "2020-04-19-18-09" Size: 6 Program: 7 Time to generate: 181.3071027s Time to save: 27.1349ms
