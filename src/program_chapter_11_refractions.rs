@@ -48,7 +48,7 @@ pub fn world_main(index: usize, program: u32, w: u32, h: u32) {
     let from = tuples::point(-3.0, 2.0, -5.0);
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 1.0, 0.0);
-    c.transform = transformations::view_transform(from, to, up);
+    c.transform = transformations::view_transform(&from, &to, &up);
     let image = camera::render_percent_message(c, world, 0.01);
     let duration1 = start1.elapsed();
     println!("Time to calculate data: {:?}", duration1);
@@ -127,10 +127,12 @@ pub fn shape_floor() -> shapes::Shape {
     let c2 = tuples::color(0.5, 0.5, 0.5);
     let mut pat = patterns::checkers_pattern(c1, c2);
     let mut mat = materials::MATERIAL_DEFAULT;
-    pat.transform = transformations::matrix4_transform_chain(vec![
-        transformations::matrix4_scaling(2.0, 2.0, 2.0),
-        transformations::matrix4_translation(0.5, 0.0, 0.0),
-    ]);
+    pat.transform = transformations::matrix4_transform_chain(
+        &(vec![
+            transformations::matrix4_scaling(2.0, 2.0, 2.0),
+            transformations::matrix4_translation(0.5, 0.0, 0.0),
+        ]),
+    );
     mat.pattern = Some(pat);
     mat.reflective = 0.5;
     shape.material = mat;
@@ -141,7 +143,7 @@ pub fn shape_wall_behind() -> shapes::Shape {
     let mut shape = planes::plane();
     let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
     let t2 = transformations::matrix4_translation(0.0, 0.0, 2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2]));
     let mut mat = material_floor();
     let mut pat = patterns::PATTERN_PINK;
     pat.transform = transformations::matrix4_rotation_y_rad(PI / 4.0);
@@ -155,13 +157,15 @@ pub fn shape_wall_behind_right() -> shapes::Shape {
     let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
     let t2 = transformations::matrix4_rotation_y_rad(PI / 2.0);
     let t3 = transformations::matrix4_translation(2.5, 0.0, 2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2, t3]));
     let mut mat = material_floor();
     let mut pat = patterns::checkers_pattern(tuples::COLOR_WHITE, tuples::COLOR_BLACK);
-    pat.transform = transformations::matrix4_transform_chain(vec![
-        transformations::matrix4_scaling(0.2, 5.0, 0.2),
-        transformations::matrix4_rotation_y_rad(PI / 16.0),
-    ]);
+    pat.transform = transformations::matrix4_transform_chain(
+        &(vec![
+            transformations::matrix4_scaling(0.2, 5.0, 0.2),
+            transformations::matrix4_rotation_y_rad(PI / 16.0),
+        ]),
+    );
     mat.pattern = Some(pat);
     shape.material = mat;
     shape
@@ -201,7 +205,7 @@ pub fn shape_sphere_right() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(0.0, 0.75, 8.0);
     let t2 = transformations::matrix4_scaling(0.75, 0.75, 0.75);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&vec![t2, t1]);
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(1.0, 0.1, 0.1);
@@ -215,7 +219,7 @@ pub fn shape_sphere_right2() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(1.0, 0.5, 8.0);
     let t2 = transformations::matrix4_scaling(1.0, 1.0, 1.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&vec![t2, t1]);
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(0.1, 0.6, 0.8);
@@ -234,7 +238,7 @@ pub fn shape_sphere_left() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(-1.0, 0.5, 3.0);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&vec![t2, t1]);
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(1.0, 0.8, 0.1);
@@ -248,7 +252,7 @@ pub fn shape_sphere_left2() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(0.0, 0.5, 3.0);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&vec![t2, t1]);
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(1.0, 0.8, 0.1);
@@ -262,7 +266,7 @@ pub fn shape_sphere_left3() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(1.0, 0.5, 3.0);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&vec![t2, t1]);
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(1.0, 0.8, 0.1);

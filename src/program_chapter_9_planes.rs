@@ -41,7 +41,7 @@ pub fn world_main(w: u32, h: u32) {
     let from = tuples::point(0.0, 10.0, -1.5);
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 0.0, 1.0);
-    c.transform = transformations::view_transform(from, to, up);
+    c.transform = transformations::view_transform(&from, &to, &up);
     let image = camera::render_percent_message(c, world, 0.01);
     let duration1 = start1.elapsed();
     println!("Time to calculate data: {:?}", duration1);
@@ -84,7 +84,7 @@ pub fn shape_wall_behind() -> shapes::Shape {
     let mut shape = planes::plane();
     let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
     let t2 = transformations::matrix4_translation(0.0, 0.0, 2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2]));
     shape.material = material_floor();
     shape
 }
@@ -94,7 +94,7 @@ pub fn shape_wall_left_behind() -> shapes::Shape {
     let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
     let t2 = transformations::matrix4_rotation_y_rad(2.0 * PI / 3.0);
     let t3 = transformations::matrix4_translation(-2.0, 0.0, 2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2, t3]));
     shape.material = material_floor();
     shape
 }
@@ -104,7 +104,7 @@ pub fn shape_wall_right_behind() -> shapes::Shape {
     let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
     let t2 = transformations::matrix4_rotation_y_rad(-2.0 * PI / 3.0);
     let t3 = transformations::matrix4_translation(2.0, 0.0, 2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2, t3]));
     shape.material = material_floor();
     shape
 }
@@ -114,7 +114,7 @@ pub fn shape_wall_left_infront() -> shapes::Shape {
     let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
     let t2 = transformations::matrix4_rotation_y_rad(2.0 * PI / 3.0);
     let t3 = transformations::matrix4_translation(2.0, 0.0, -2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2, t3]));
     shape.material = material_floor();
     shape
 }
@@ -124,7 +124,7 @@ pub fn shape_wall_right_infront() -> shapes::Shape {
     let t1 = transformations::matrix4_rotation_x_rad(PI / -2.0);
     let t2 = transformations::matrix4_rotation_y_rad(-2.0 * PI / 3.0);
     let t3 = transformations::matrix4_translation(-2.0, 0.0, -2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2, t3]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2, t3]));
     shape.material = material_floor();
     shape
 }
@@ -133,7 +133,7 @@ pub fn shape_wall_infront() -> shapes::Shape {
     let mut shape = planes::plane();
     let t1 = transformations::matrix4_rotation_x_rad(PI / 2.0);
     let t2 = transformations::matrix4_translation(0.0, 0.0, -2.0);
-    shape.transform = transformations::matrix4_transform_chain(vec![t1, t2]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t1, t2]));
     shape.material = material_floor();
     shape
 }
@@ -155,7 +155,7 @@ pub fn shape_sphere_right() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(1.5, 0.5, -0.5);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t2, t1]));
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(0.5, 1.0, 0.1);
@@ -170,7 +170,7 @@ pub fn shape_sphere_right2() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(1.0, 0.5, 0.75);
     let t2 = transformations::matrix4_scaling(0.5, 0.5, 0.5);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t2, t1]));
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(0.5, 1.0, 0.1);
@@ -185,7 +185,7 @@ pub fn shape_sphere_left() -> shapes::Shape {
     let mut shape = spheres::sphere();
     let t1 = transformations::matrix4_translation(-1.5, 0.33, -0.75);
     let t2 = transformations::matrix4_scaling(0.33, 0.33, 0.33);
-    shape.transform = transformations::matrix4_transform_chain(vec![t2, t1]);
+    shape.transform = transformations::matrix4_transform_chain(&(vec![t2, t1]));
 
     let mut mat = materials::MATERIAL_DEFAULT;
     mat.color = tuples::color(1.0, 0.8, 0.1);

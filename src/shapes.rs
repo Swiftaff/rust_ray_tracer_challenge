@@ -178,7 +178,7 @@ mod tests {
         let mut s = shape(ShapeType::ShapeTest);
         let scaling = transformations::matrix4_scaling(1.0, 0.5, 1.0);
         let rot_z = transformations::matrix4_rotation_z_rad(PI / 5.0);
-        let m = transformations::matrix4_transform_chain([rot_z, scaling].to_vec());
+        let m = transformations::matrix4_transform_chain(&([rot_z, scaling].to_vec()));
         s.transform = m;
         let n = normal_at(s, tuples::point(0.0, 2.0_f64.sqrt(), -2.0_f64.sqrt()));
         println!("v({},{},{},{})", n.x, n.y, n.z, n.w,);

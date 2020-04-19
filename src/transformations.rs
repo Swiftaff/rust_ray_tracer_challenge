@@ -18,18 +18,18 @@ pub fn matrix4_scaling(x: f64, y: f64, z: f64) -> matrices::Matrix4 {
 }
 
 pub fn transform_tuple_with_chain(
-    arr: Vec<matrices::Matrix4>,
-    tuple: tuples::Tuple,
+    arr: &Vec<matrices::Matrix4>,
+    tuple: &tuples::Tuple,
 ) -> tuples::Tuple {
     //applied in order provided in array
-    let mut new_tuple = tuple;
+    let mut new_tuple = *tuple;
     for i in 0..arr.len() {
         new_tuple = matrices::matrix4_tuple_multiply(&arr[i], &new_tuple)
     }
     new_tuple
 }
 
-pub fn matrix4_transform_chain(arr: Vec<matrices::Matrix4>) -> matrices::Matrix4 {
+pub fn matrix4_transform_chain(arr: &Vec<matrices::Matrix4>) -> matrices::Matrix4 {
     let mut new_matrix = matrices::IDENTITY_MATRIX;
     for i in 0..arr.len() {
         new_matrix = matrices::matrix4_multiply(&arr[i], &new_matrix)
@@ -76,9 +76,9 @@ pub fn matrix4_shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) ->
 }
 
 pub fn view_transform(
-    from: tuples::Point,
-    to: tuples::Point,
-    up: tuples::Vector,
+    from: &tuples::Point,
+    to: &tuples::Point,
+    up: &tuples::Vector,
 ) -> matrices::Matrix4 {
     let forward = tuples::vector_normalize(&tuples::tuple_subtract(&to, &from));
     let upn = tuples::vector_normalize(&up);
@@ -349,7 +349,7 @@ mod tests {
         let p2 = matrices::matrix4_tuple_multiply(&a, &p);
         let p3 = matrices::matrix4_tuple_multiply(&b, &p2);
         let p4 = matrices::matrix4_tuple_multiply(&c, &p3);
-        let p5 = transform_tuple_with_chain([a, b, c].to_vec(), p);
+        let p5 = transform_tuple_with_chain(&[a, b, c].to_vec(), &p);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&p2, &tuples::point(1.0, -1.0, 0.0)),
             true
@@ -371,7 +371,7 @@ mod tests {
         let from = tuples::point(0.0, 0.0, 0.0);
         let to = tuples::point(0.0, 0.0, -1.0);
         let up = tuples::vector(0.0, 1.0, 0.0);
-        let t = view_transform(from, to, up);
+        let t = view_transform(&from, &to, &up);
         assert_eq!(
             matrices::get_bool_equal_m4(&t, &matrices::IDENTITY_MATRIX),
             true
@@ -384,7 +384,7 @@ mod tests {
         let from = tuples::point(0.0, 0.0, 0.0);
         let to = tuples::point(0.0, 0.0, 1.0);
         let up = tuples::vector(0.0, 1.0, 0.0);
-        let t = view_transform(from, to, up);
+        let t = view_transform(&from, &to, &up);
         let s = matrix4_scaling(-1.0, 1.0, -1.0);
         assert_eq!(matrices::get_bool_equal_m4(&t, &s), true);
     }
@@ -395,7 +395,7 @@ mod tests {
         let from = tuples::point(0.0, 0.0, 8.0);
         let to = tuples::point(0.0, 0.0, 0.0);
         let up = tuples::vector(0.0, 1.0, 0.0);
-        let t = view_transform(from, to, up);
+        let t = view_transform(&from, &to, &up);
         let tran = matrix4_translation(0.0, 0.0, -8.0);
         assert_eq!(matrices::get_bool_equal_m4(&t, &tran), true);
     }
@@ -406,7 +406,7 @@ mod tests {
         let from = tuples::point(1.0, 3.0, 2.0);
         let to = tuples::point(4.0, -2.0, 8.0);
         let up = tuples::vector(1.0, 1.0, 0.0);
-        let t = view_transform(from, to, up);
+        let t = view_transform(&from, &to, &up);
         let r = [
             [-0.50709, 0.50709, 0.67612, -2.36643],
             [0.76772, 0.60609, 0.12122, -2.82843],

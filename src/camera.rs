@@ -227,7 +227,7 @@ mod tests {
         let to = tuples::point(0.0, 0.0, 0.0);
         let up = tuples::vector(0.0, 1.0, 0.0);
         let mut c = camera(11, 11, PI / 2.0);
-        c.transform = transformations::view_transform(from, to, up);
+        c.transform = transformations::view_transform(&from, &to, &up);
         let image = render(c, w);
         let pa = canvas::pixel_get(image, 5, 5);
         let col = tuples::color(0.38066, 0.47583, 0.2855);

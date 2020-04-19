@@ -14,3 +14,5 @@
 "worlds borrowing\n" "2020-04-19-16-32" Size: 3 Program: 7 Time to generate: 8.9944964s Time to save: 1.2377ms
 "worlds borrowing\n" "2020-04-19-16-54" Size: 0 Program: 7 Time to generate: 480.0079ms Time to save: 41.4µs
 "worlds borrowing\n" "2020-04-19-16-54" Size: 3 Program: 7 Time to generate: 7.8124237s Time to save: 1.1864ms
+"matrices borrowing\n" "2020-04-19-17-09" Size: 0 Program: 7 Time to generate: 710.0428ms Time to save: 43.9µs
+"matrices borrowing\n" "2020-04-19-17-09" Size: 3 Program: 7 Time to generate: 7.9046484s Time to save: 1.2029ms
