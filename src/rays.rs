@@ -11,11 +11,10 @@ pub struct Ray {
 
 impl Ray {
     pub fn discriminant(&self) -> spheres::Discriminant {
-        let v_sphere_to_ray: tuples::Vector =
-            tuples::tuple_subtract(&self.origin, &tuples::POINT_ORIGIN);
-        let a: f64 = tuples::vector_dot_product(&self.direction, &self.direction);
-        let b: f64 = tuples::vector_dot_product(&self.direction, &v_sphere_to_ray) * 2.0;
-        let c: f64 = tuples::vector_dot_product(&v_sphere_to_ray, &v_sphere_to_ray) - 1.0;
+        let v_sphere_to_ray: tuples::Vector = self.origin.subtract(&tuples::POINT_ORIGIN);
+        let a: f64 = self.direction.dot_product(&self.direction);
+        let b: f64 = self.direction.dot_product(&v_sphere_to_ray) * 2.0;
+        let c: f64 = v_sphere_to_ray.dot_product(&v_sphere_to_ray) - 1.0;
         let d: f64 = b * b - 4.0 * a * c;
         spheres::Discriminant {
             a: a,
@@ -26,7 +25,7 @@ impl Ray {
     }
 
     pub fn position(self, t: f64) -> tuples::Tuple {
-        tuples::tuple_add(&self.origin, &tuples::tuple_multiply(&self.direction, &t))
+        self.origin.add(&self.direction.multiply(&t))
     }
 
     pub fn transform(&self, m: matrices::Matrix4) -> Ray {
@@ -58,11 +57,8 @@ mod tests {
         let origin = tuples::point(1.0, 2.0, 3.0);
         let direction = tuples::vector(4.0, 5.0, 6.0);
         let r = ray(*&origin, *&direction);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&r.origin, &origin), true);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r.direction, &direction),
-            true
-        );
+        assert_eq!(r.origin.equals(&origin), true);
+        assert_eq!(r.direction.equals(&direction), true);
     }
 
     #[test]
@@ -71,22 +67,10 @@ mod tests {
         let o = tuples::point(2.0, 3.0, 4.0);
         let d = tuples::vector(1.0, 0.0, 0.0);
         let r = ray(o, d);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r.position(0.0), &tuples::point(2.0, 3.0, 4.0)),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r.position(1.0), &tuples::point(3.0, 3.0, 4.0)),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r.position(-1.0), &tuples::point(1.0, 3.0, 4.0)),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r.position(2.5), &tuples::point(4.5, 3.0, 4.0)),
-            true
-        );
+        assert_eq!(r.position(0.0).equals(&tuples::point(2.0, 3.0, 4.0)), true);
+        assert_eq!(r.position(1.0).equals(&tuples::point(3.0, 3.0, 4.0)), true);
+        assert_eq!(r.position(-1.0).equals(&tuples::point(1.0, 3.0, 4.0)), true);
+        assert_eq!(r.position(2.5).equals(&tuples::point(4.5, 3.0, 4.0)), true);
     }
 
     #[test]
@@ -97,14 +81,8 @@ mod tests {
         let r = ray(o, d);
         let m = transformations::matrix4_translation(3.0, 4.0, 5.0);
         let r2 = r.transform(m);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r2.origin, &tuples::point(4.0, 6.0, 8.0)),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r2.direction, &tuples::vector(0.0, 1.0, 0.0)),
-            true
-        );
+        assert_eq!(r2.origin.equals(&tuples::point(4.0, 6.0, 8.0)), true);
+        assert_eq!(r2.direction.equals(&tuples::vector(0.0, 1.0, 0.0)), true);
     }
 
     #[test]
@@ -115,13 +93,7 @@ mod tests {
         let r = ray(o, d);
         let m = transformations::matrix4_scaling(2.0, 3.0, 4.0);
         let r2 = r.transform(m);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r2.origin, &tuples::point(2.0, 6.0, 12.0)),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&r2.direction, &tuples::vector(0.0, 3.0, 0.0)),
-            true
-        );
+        assert_eq!(r2.origin.equals(&tuples::point(2.0, 6.0, 12.0)), true);
+        assert_eq!(r2.direction.equals(&tuples::vector(0.0, 3.0, 0.0)), true);
     }
 }

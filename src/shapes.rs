@@ -77,11 +77,11 @@ pub fn normal_at(s: &Shape, world_point: &tuples::Point) -> tuples::Vector {
         &local_normal,
     );
     world_normal.w = 0;
-    tuples::vector_normalize(&world_normal)
+    world_normal.normalize()
 }
 
 fn test_local_normal_at(local_point: &tuples::Point) -> tuples::Vector {
-    tuples::tuple_subtract(&local_point, &tuples::POINT_ORIGIN)
+    local_point.subtract(&tuples::POINT_ORIGIN)
 }
 
 #[cfg(test)]
@@ -166,10 +166,7 @@ mod tests {
         let mut s = shape(ShapeType::ShapeTest);
         s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
         let n = normal_at(&s, &tuples::point(0.0, 1.70711, -0.70711));
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&n, &tuples::vector(0.0, 0.70711, -0.70711)),
-            true
-        )
+        assert_eq!(n.equals(&tuples::vector(0.0, 0.70711, -0.70711)), true)
     }
 
     #[test]
@@ -182,9 +179,6 @@ mod tests {
         s.transform = m;
         let n = normal_at(&s, &tuples::point(0.0, 2.0_f64.sqrt(), -2.0_f64.sqrt()));
         println!("v({},{},{},{})", n.x, n.y, n.z, n.w,);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&n, &tuples::vector(0.0, 0.97014, -0.24254)),
-            true
-        )
+        assert_eq!(n.equals(&tuples::vector(0.0, 0.97014, -0.24254)), true)
     }
 }

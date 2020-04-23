@@ -198,7 +198,7 @@ mod tests {
         assert_eq!(pc.width, 10);
         assert_eq!(pc.height, 20);
         assert_eq!(pc.length, 200);
-        assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[11], &c), true)
+        assert_eq!(pc.data[11].equals(&c), true)
     }
 
     #[test]
@@ -206,14 +206,11 @@ mod tests {
         //Writing a pixel to pixelCanvas
         let black = tuples::color(0.0, 0.0, 0.0);
         let mut pc = pixel_canvas(10, 20, black);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&pc.data[32], &black),
-            true
-        );
+        assert_eq!(pc.data[32].equals(&black), true);
 
         let red = tuples::color(1.0, 0.0, 0.0);
         pc = pixel_write(pc, &2, &3, red);
-        assert_eq!(tuples::get_bool_colors_are_equal(&pc.data[32], &red), true)
+        assert_eq!(pc.data[32].equals(&red), true)
     }
 
     #[test]

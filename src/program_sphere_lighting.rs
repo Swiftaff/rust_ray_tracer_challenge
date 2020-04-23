@@ -47,10 +47,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
         for x in 0..w {
             let world_x = half - pixel_size * x as f64;
             let position = tuples::point(world_x, world_y, wall_z);
-            let r = rays::ray(
-                ray_origin,
-                tuples::vector_normalize(&tuples::tuple_subtract(&position, &ray_origin)),
-            );
+            let r = rays::ray(ray_origin, position.subtract(&ray_origin).normalize());
             let xs_result = shapes::intersect(&shape, &r);
             match xs_result {
                 Err(_) => {} //println!("Error: {}", e),
@@ -61,7 +58,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
                         Ok(h) => {
                             let pnt = r.position(h.t);
                             let nrm = shapes::normal_at(&shape, &pnt);
-                            let eye = tuples::tuple_multiply(&r.direction, &-1.0);
+                            let eye = r.direction.multiply(&-1.0);
                             let col = lights::lighting(
                                 &shape.material,
                                 &shape,

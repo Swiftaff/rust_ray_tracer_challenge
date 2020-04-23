@@ -80,10 +80,10 @@ pub fn view_transform(
     to: &tuples::Point,
     up: &tuples::Vector,
 ) -> matrices::Matrix4 {
-    let forward = tuples::vector_normalize(&tuples::tuple_subtract(&to, &from));
-    let upn = tuples::vector_normalize(&up);
-    let left = tuples::vector_cross_product(&forward, &upn);
-    let true_up = tuples::vector_cross_product(&left, &forward);
+    let forward = to.subtract(&from).normalize();
+    let upn = up.normalize();
+    let left = forward.cross_product(&upn);
+    let true_up = left.cross_product(&forward);
     let orientation = [
         [left.x, left.y, left.z, 0.0],
         [true_up.x, true_up.y, true_up.z, 0.0],
@@ -107,10 +107,7 @@ mod tests {
         let p = tuples::point(-3.0, 4.0, 5.0);
         let t = matrix4_translation(5.0, -3.0, 2.0);
         let r = tuples::point(2.0, 1.0, 7.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -120,10 +117,7 @@ mod tests {
         let t = matrix4_translation(5.0, -3.0, 2.0);
         let i = matrices::matrix4_inverse(&t);
         let r = tuples::point(-8.0, 7.0, 3.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&i, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&i, &p).equals(&r), true);
     }
 
     #[test]
@@ -131,10 +125,7 @@ mod tests {
         //Translation does not affect vectors
         let v = tuples::vector(-3.0, 4.0, 5.0);
         let t = matrix4_translation(5.0, -3.0, 2.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &v), &v),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &v).equals(&v), true);
     }
 
     #[test]
@@ -143,10 +134,7 @@ mod tests {
         let p = tuples::point(-4.0, 6.0, 8.0);
         let t = matrix4_scaling(2.0, 3.0, 4.0);
         let r = tuples::point(-8.0, 18.0, 32.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -155,10 +143,7 @@ mod tests {
         let v = tuples::vector(-4.0, 6.0, 8.0);
         let t = matrix4_scaling(2.0, 3.0, 4.0);
         let r = tuples::vector(-8.0, 18.0, 32.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &v), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &v).equals(&r), true);
     }
 
     #[test]
@@ -169,7 +154,7 @@ mod tests {
         let i = matrices::matrix4_inverse(&t);
         let iv = matrices::matrix4_tuple_multiply(&i, &v);
         let r = tuples::vector(-2.0, 2.0, 2.0);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&iv, &r), true);
+        assert_eq!(iv.equals(&r), true);
     }
 
     #[test]
@@ -179,7 +164,7 @@ mod tests {
         let t = matrix4_scaling(-1.0, 1.0, 1.0);
         let r = tuples::point(-2.0, 3.0, 4.0);
         let iv = matrices::matrix4_tuple_multiply(&t, &p);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&iv, &r), true);
+        assert_eq!(iv.equals(&r), true);
     }
 
     #[test]
@@ -191,17 +176,11 @@ mod tests {
         let result1 = tuples::point(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0);
         let result2 = tuples::point(0.0, 0.0, 1.0);
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(
-                &matrices::matrix4_tuple_multiply(&half_quarter, &p),
-                &result1
-            ),
+            matrices::matrix4_tuple_multiply(&half_quarter, &p).equals(&result1),
             true
         );
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(
-                &matrices::matrix4_tuple_multiply(&full_quarter, &p),
-                &result2
-            ),
+            matrices::matrix4_tuple_multiply(&full_quarter, &p).equals(&result2),
             true
         );
     }
@@ -214,7 +193,7 @@ mod tests {
         let inv = matrices::matrix4_inverse(&half_quarter);
         let result = tuples::point(0.0, 2.0_f64.sqrt() / 2.0, -1.0 * 2.0_f64.sqrt() / 2.0);
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&inv, &p), &result),
+            matrices::matrix4_tuple_multiply(&inv, &p).equals(&result),
             true
         );
     }
@@ -228,17 +207,11 @@ mod tests {
         let result1 = tuples::point(2.0_f64.sqrt() / 2.0, 0.0, 2.0_f64.sqrt() / 2.0);
         let result2 = tuples::point(1.0, 0.0, 0.0);
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(
-                &matrices::matrix4_tuple_multiply(&half_quarter, &p),
-                &result1
-            ),
+            matrices::matrix4_tuple_multiply(&half_quarter, &p).equals(&result1),
             true
         );
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(
-                &matrices::matrix4_tuple_multiply(&full_quarter, &p),
-                &result2
-            ),
+            matrices::matrix4_tuple_multiply(&full_quarter, &p).equals(&result2),
             true
         );
     }
@@ -252,17 +225,11 @@ mod tests {
         let result1 = tuples::point(-1.0 * 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
         let result2 = tuples::point(-1.0, 0.0, 0.0);
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(
-                &matrices::matrix4_tuple_multiply(&half_quarter, &p),
-                &result1
-            ),
+            matrices::matrix4_tuple_multiply(&half_quarter, &p).equals(&result1),
             true
         );
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(
-                &matrices::matrix4_tuple_multiply(&full_quarter, &p),
-                &result2
-            ),
+            matrices::matrix4_tuple_multiply(&full_quarter, &p).equals(&result2),
             true
         );
     }
@@ -273,10 +240,7 @@ mod tests {
         let p = tuples::point(2.0, 3.0, 4.0);
         let t = matrix4_shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         let r = tuples::point(5.0, 3.0, 4.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -285,10 +249,7 @@ mod tests {
         let p = tuples::point(2.0, 3.0, 4.0);
         let t = matrix4_shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
         let r = tuples::point(6.0, 3.0, 4.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -297,10 +258,7 @@ mod tests {
         let p = tuples::point(2.0, 3.0, 4.0);
         let t = matrix4_shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
         let r = tuples::point(2.0, 5.0, 4.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -309,10 +267,7 @@ mod tests {
         let p = tuples::point(2.0, 3.0, 4.0);
         let t = matrix4_shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
         let r = tuples::point(2.0, 7.0, 4.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -321,10 +276,7 @@ mod tests {
         let p = tuples::point(2.0, 3.0, 4.0);
         let t = matrix4_shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
         let r = tuples::point(2.0, 3.0, 6.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -333,10 +285,7 @@ mod tests {
         let p = tuples::point(2.0, 3.0, 4.0);
         let t = matrix4_shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
         let r = tuples::point(2.0, 3.0, 7.0);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrices::matrix4_tuple_multiply(&t, &p), &r),
-            true
-        );
+        assert_eq!(matrices::matrix4_tuple_multiply(&t, &p).equals(&r), true);
     }
 
     #[test]
@@ -350,19 +299,10 @@ mod tests {
         let p3 = matrices::matrix4_tuple_multiply(&b, &p2);
         let p4 = matrices::matrix4_tuple_multiply(&c, &p3);
         let p5 = transform_tuple_with_chain(&[a, b, c].to_vec(), &p);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&p2, &tuples::point(1.0, -1.0, 0.0)),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&p3, &tuples::point(5.0, -5.0, 0.0)),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&p4, &tuples::point(15.0, 0.0, 7.0)),
-            true
-        );
-        assert_eq!(tuples::get_bool_tuples_are_equal(&p4, &p5), true);
+        assert_eq!(p2.equals(&tuples::point(1.0, -1.0, 0.0)), true);
+        assert_eq!(p3.equals(&tuples::point(5.0, -5.0, 0.0)), true);
+        assert_eq!(p4.equals(&tuples::point(15.0, 0.0, 7.0)), true);
+        assert_eq!(p4.equals(&p5), true);
     }
 
     #[test]

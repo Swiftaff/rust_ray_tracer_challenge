@@ -50,7 +50,7 @@ pub fn local_intersect(
 }
 
 pub fn local_normal_at(local_point: &tuples::Point) -> tuples::Vector {
-    tuples::tuple_subtract(&local_point, &tuples::POINT_ORIGIN)
+    local_point.subtract(&tuples::POINT_ORIGIN)
 }
 
 #[cfg(test)]
@@ -216,7 +216,7 @@ mod tests {
         let s = sphere();
         let n = shapes::normal_at(&s, &tuples::point(1.0, 0.0, 0.0));
         let r = tuples::vector(1.0, 0.0, 0.0);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n, &r), true);
+        assert_eq!(n.equals(&r), true);
     }
 
     #[test]
@@ -225,7 +225,7 @@ mod tests {
         let s = sphere();
         let n = shapes::normal_at(&s, &tuples::point(0.0, 1.0, 0.0));
         let r = tuples::vector(0.0, 1.0, 0.0);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n, &r), true);
+        assert_eq!(n.equals(&r), true);
     }
 
     #[test]
@@ -234,7 +234,7 @@ mod tests {
         let s = sphere();
         let n = shapes::normal_at(&s, &tuples::point(0.0, 0.0, 1.0));
         let r = tuples::vector(0.0, 0.0, 1.0);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n, &r), true);
+        assert_eq!(n.equals(&r), true);
     }
 
     #[test]
@@ -254,7 +254,7 @@ mod tests {
             3.0_f64.sqrt() / 3.0,
             3.0_f64.sqrt() / 3.0,
         );
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n, &r), true);
+        assert_eq!(n.equals(&r), true);
     }
 
     #[test]
@@ -274,10 +274,7 @@ mod tests {
             3.0_f64.sqrt() / 3.0,
             3.0_f64.sqrt() / 3.0,
         );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&n, &tuples::vector_normalize(&r)),
-            true
-        );
+        assert_eq!(n.equals(&r.normalize()), true);
     }
 
     #[test]
@@ -287,7 +284,7 @@ mod tests {
         s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
         let n = shapes::normal_at(&s, &tuples::point(0.0, 1.70711, -0.70711));
         let r = tuples::vector(0.0, 0.70711, -0.70711);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&r, &n), true);
+        assert_eq!(r.equals(&n), true);
     }
 
     #[test]
@@ -303,7 +300,7 @@ mod tests {
             &tuples::point(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0),
         );
         let r = tuples::vector(0.0, 0.97014, -0.24254);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&r, &n), true);
+        assert_eq!(r.equals(&n), true);
     }
 
     #[test]

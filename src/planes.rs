@@ -37,9 +37,9 @@ mod tests {
         let n2 = shapes::normal_at(&s, &tuples::point(10.0, 0.0, -10.0));
         let n3 = shapes::normal_at(&s, &tuples::point(-5.0, 0.0, 150.0));
         let result = tuples::vector(0.0, 1.0, 0.0);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n1, &result), true);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n2, &result), true);
-        assert_eq!(tuples::get_bool_tuples_are_equal(&n3, &result), true);
+        assert_eq!(n1.equals(&result), true);
+        assert_eq!(n2.equals(&result), true);
+        assert_eq!(n3.equals(&result), true);
     }
 
     #[test]

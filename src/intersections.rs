@@ -81,21 +81,16 @@ pub fn prepare_computations(
     comps.t = i.t;
     comps.object = i.clone().object;
     comps.point = r.position(comps.t);
-    comps.eyev = tuples::tuple_multiply(&r.direction, &-1.0);
+    comps.eyev = r.direction.multiply(&-1.0);
     comps.normalv = shapes::normal_at(&comps.object, &comps.point);
-    comps.reflectv =
-        tuples::tuple_reflect(&tuples::tuple_multiply(&comps.eyev, &-1.0), &comps.normalv);
-    comps.over_point = tuples::tuple_add(
-        &comps.point,
-        &(tuples::tuple_multiply(&comps.normalv, &tuples::EPSILON)),
-    );
-    comps.under_point = tuples::tuple_subtract(
-        &comps.point,
-        &(tuples::tuple_multiply(&comps.normalv, &tuples::EPSILON)),
-    );
-    if tuples::vector_dot_product(&comps.normalv, &comps.eyev) < 0.0 {
+    comps.reflectv = comps.eyev.multiply(&-1.0).reflect(&comps.normalv);
+    comps.over_point = comps.point.add(&comps.normalv.multiply(&tuples::EPSILON));
+    comps.under_point = comps
+        .point
+        .subtract(&comps.normalv.multiply(&tuples::EPSILON));
+    if comps.normalv.dot_product(&comps.eyev) < 0.0 {
         comps.inside = true;
-        comps.normalv = tuples::tuple_multiply(&comps.normalv, &-1.0);
+        comps.normalv = comps.normalv.multiply(&-1.0);
     }
     let mut containers: Vec<shapes::Shape> = Vec::new();
 
@@ -154,7 +149,7 @@ pub fn prepare_computations(
 }
 
 pub fn schlick(c: &Comps) -> f64 {
-    let mut cos = tuples::vector_dot_product(&c.eyev, &c.normalv);
+    let mut cos = c.eyev.dot_product(&c.normalv);
     if c.n1 > c.n2 {
         let n = c.n1 / c.n2;
         let sin2_t = n.powi(2) * (1.0 - cos.powi(2));
@@ -186,10 +181,7 @@ mod tests {
             matrices::get_bool_equal_m4(&i.object.transform, &matrices::IDENTITY_MATRIX),
             true
         );
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&i.object.material.color, &tuples::COLOR_WHITE),
-            true
-        );
+        assert_eq!(i.object.material.color.equals(&tuples::COLOR_WHITE), true);
     }
 
     #[test]
@@ -279,24 +271,12 @@ mod tests {
         let comps = prepare_computations(&i, &r, &None);
         assert_eq!(comps.t == i.t, true);
         assert_eq!(
-            tuples::get_bool_colors_are_equal(
-                &comps.object.material.color,
-                &i.object.material.color
-            ),
+            comps.object.material.color.equals(&i.object.material.color),
             true
         );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&comps.point, &testp),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&comps.eyev, &testv.clone()),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&comps.normalv, &testv),
-            true
-        );
+        assert_eq!(comps.point.equals(&testp), true);
+        assert_eq!(comps.eyev.equals(&testv.clone()), true);
+        assert_eq!(comps.normalv.equals(&testv), true);
     }
 
     #[test]
@@ -322,18 +302,9 @@ mod tests {
         let testp = tuples::point(0.0, 0.0, 1.0);
         let testv = tuples::vector(0.0, 0.0, -1.0);
         let comps = prepare_computations(&i, &r, &None);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&comps.point, &testp),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&comps.eyev, &testv.clone()),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&comps.normalv, &testv),
-            true
-        );
+        assert_eq!(comps.point.equals(&testp), true);
+        assert_eq!(comps.eyev.equals(&testv.clone()), true);
+        assert_eq!(comps.normalv.equals(&testv), true);
         assert_eq!(comps.inside, true);
     }
 
@@ -362,10 +333,11 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = prepare_computations(&i, &r, &None);
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(
-                &comps.reflectv,
-                &tuples::vector(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0)
-            ),
+            comps.reflectv.equals(&tuples::vector(
+                0.0,
+                2.0_f64.sqrt() / 2.0,
+                2.0_f64.sqrt() / 2.0
+            )),
             true
         );
     }

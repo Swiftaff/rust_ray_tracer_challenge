@@ -40,7 +40,7 @@ pub fn fire_canon_main(w: u32, h: u32) {
         if orange.green > 0.01 {
             orange.green = orange.green - 0.01;
         }
-        proj = tuples::tick(&env, &proj);
+        proj = env.tick(&proj);
     }
 
     let duration1 = start1.elapsed();

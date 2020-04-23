@@ -38,30 +38,28 @@ pub fn lighting(
         None => _col = material.color,
     }
 
-    let effective_color: tuples::Color = tuples::colors_multiply(&_col, &light.intensity);
-    let lightv: tuples::Vector =
-        tuples::vector_normalize(&tuples::tuple_subtract(&light.position, &point));
-    let ambient: tuples::Color =
-        tuples::colors_scalar_multiply(&effective_color, &material.ambient);
-    let light_dot_normal: f64 = tuples::vector_dot_product(&lightv, &normalv);
+    let effective_color: tuples::Color = _col.multiply(&light.intensity);
+    let lightv: tuples::Vector = light.position.subtract(&point).normalize();
+    let ambient: tuples::Color = effective_color.scalar_multiply(&material.ambient);
+    let light_dot_normal: f64 = lightv.dot_product(&normalv);
 
     if light_dot_normal >= 0.0 {
-        diffuse = tuples::colors_scalar_multiply(
-            &tuples::colors_scalar_multiply(&effective_color, &material.diffuse),
-            &light_dot_normal,
-        );
-        reflectv = tuples::tuple_reflect(&tuples::tuple_multiply(&lightv, &-1.0), &normalv);
-        reflect_dot_eye = tuples::vector_dot_product(&reflectv, &eyev);
+        diffuse = effective_color
+            .scalar_multiply(&material.diffuse)
+            .scalar_multiply(&light_dot_normal);
+        reflectv = lightv.multiply(&-1.0).reflect(&normalv);
+        reflect_dot_eye = reflectv.dot_product(&eyev);
         if reflect_dot_eye > 0.0 {
             let factor: f64 = reflect_dot_eye.powf(material.shininess);
-            specular =
-                tuples::colors_scalar_multiply(&light.intensity, &(material.specular * factor));
+            specular = light
+                .intensity
+                .scalar_multiply(&(material.specular * factor));
         }
     }
     if in_shadow == &true {
         ambient
     } else {
-        tuples::colors_add(&tuples::colors_add(&ambient, &diffuse), &specular)
+        ambient.add(&diffuse).add(&specular)
     }
 }
 
@@ -76,14 +74,8 @@ mod tests {
         let intensity = tuples::COLOR_WHITE;
         let position = tuples::POINT_ORIGIN;
         let light = light_point(position, intensity);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&light.intensity, &intensity),
-            true
-        );
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&light.position, &position),
-            true
-        );
+        assert_eq!(light.intensity.equals(&intensity), true);
+        assert_eq!(light.position.equals(&position), true);
     }
 
     #[test]
@@ -106,9 +98,6 @@ mod tests {
             &normalv,
             &in_shadow,
         );
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.1, 0.1, 0.1)),
-            true
-        );
+        assert_eq!(col.equals(&tuples::color(0.1, 0.1, 0.1)), true);
     }
 }

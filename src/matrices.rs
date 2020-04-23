@@ -392,10 +392,7 @@ mod tests {
         ];
         let t = tuples::tuple(1.0, 2.0, 3.0, 1);
         let r = tuples::tuple(18.0, 24.0, 33.0, 1);
-        assert_eq!(
-            tuples::get_bool_tuples_are_equal(&matrix4_tuple_multiply(&m1, &t), &r),
-            true
-        );
+        assert_eq!(matrix4_tuple_multiply(&m1, &t).equals(&r), true);
     }
 
     #[test]

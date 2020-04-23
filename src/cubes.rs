@@ -48,7 +48,7 @@ fn check_axis(o: &f64, d: &f64) -> (f64, f64) {
 }
 
 pub fn local_normal_at(local_point: &tuples::Point) -> tuples::Vector {
-    tuples::tuple_subtract(&local_point, &tuples::POINT_ORIGIN)
+    local_point.subtract(&tuples::POINT_ORIGIN)
 }
 
 /*

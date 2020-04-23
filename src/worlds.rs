@@ -80,21 +80,18 @@ pub fn shade_hit(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples
             &c.normalv,
             &is_shadowed(&w, &c.over_point), //TODO maybe try ternary for under_point?
         );
-        col = tuples::colors_add(&col, &this_lights_effect);
+        col = col.add(&this_lights_effect);
     }
     let reflected = reflected_color(&w, &c, &remaining);
     let refracted = refracted_color(&w, &c, &remaining);
     let material = c.object.material.clone();
     if material.reflective > 0.0 && material.transparency > 0.0 {
         let reflectance = intersections::schlick(&c);
-        let c1 = tuples::colors_add(
-            &col,
-            &(tuples::colors_scalar_multiply(&reflected, &reflectance)),
-        );
-        let c2 = tuples::colors_scalar_multiply(&refracted, &(1.0 - reflectance));
-        tuples::colors_add(&c1, &c2)
+        let c1 = col.add(&reflected.scalar_multiply(&reflectance));
+        let c2 = refracted.scalar_multiply(&(1.0 - reflectance));
+        c1.add(&c2)
     } else {
-        tuples::colors_add(&tuples::colors_add(&col, &reflected), &refracted)
+        col.add(&reflected).add(&refracted)
     }
 }
 
@@ -112,9 +109,9 @@ pub fn color_at(w: &World, r: &rays::Ray, remaining: &i32) -> tuples::Color {
 
 pub fn is_shadowed(w: &World, p: &tuples::Point) -> bool {
     //TODO make work for multiple lights??
-    let v = tuples::tuple_subtract(&w.light[0].position, &p);
-    let distance = tuples::vector_magnitude(&v);
-    let direction = tuples::vector_normalize(&v);
+    let v = w.light[0].position.subtract(&p);
+    let distance = v.magnitude();
+    let direction = v.normalize();
     let r = rays::ray(*p, direction);
     let xs = world_intersect(&w, &r);
     let hit_temp = intersections::hit(&xs);
@@ -136,13 +133,13 @@ pub fn reflected_color(w: &World, c: &intersections::Comps, remaining: &i32) -> 
     } else {
         let reflect_ray = rays::ray(c.over_point, c.reflectv);
         let col = color_at(&w, &reflect_ray, &(remaining - 1));
-        tuples::colors_scalar_multiply(&col, &c.object.material.reflective)
+        col.scalar_multiply(&c.object.material.reflective)
     }
 }
 
 pub fn refracted_color(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples::Color {
     let n_ratio: f64 = c.n1 / c.n2;
-    let cos_i: f64 = tuples::vector_dot_product(&c.eyev, &c.normalv);
+    let cos_i: f64 = c.eyev.dot_product(&c.normalv);
     let sin2_t: f64 = n_ratio * n_ratio * (1.0 - (cos_i * cos_i));
 
     if c.object.material.transparency == 0.0 || remaining < &1 || sin2_t > 1.0 {
@@ -151,10 +148,10 @@ pub fn refracted_color(w: &World, c: &intersections::Comps, remaining: &i32) -> 
     } else {
         //println!("not black");
         let cos_t: f64 = (1.0 - sin2_t).sqrt();
-        let direction: tuples::Vector = tuples::tuple_subtract(
-            &tuples::tuple_multiply(&c.normalv, &((n_ratio * cos_i) - cos_t)),
-            &tuples::tuple_multiply(&c.eyev, &n_ratio),
-        );
+        let direction: tuples::Vector = c
+            .normalv
+            .multiply(&((n_ratio * cos_i) - cos_t))
+            .subtract(&c.eyev.multiply(&n_ratio));
         let start_point = if c.inside {
             c.over_point
         } else {
@@ -162,7 +159,7 @@ pub fn refracted_color(w: &World, c: &intersections::Comps, remaining: &i32) -> 
         };
         let refract_ray = rays::ray(start_point, direction);
         let col = color_at(&w, &refract_ray, &(remaining - 1));
-        tuples::colors_scalar_multiply(&col, &c.object.material.transparency)
+        col.scalar_multiply(&c.object.material.transparency)
     }
 }
 
@@ -210,10 +207,10 @@ mod tests {
             true
         );
         assert_eq!(
-            tuples::get_bool_colors_are_equal(
-                &w.objects[0].material.color,
-                &tuples::color(0.8, 1.0, 0.6)
-            ),
+            w.objects[0]
+                .material
+                .color
+                .equals(&tuples::color(0.8, 1.0, 0.6)),
             true
         );
 
@@ -223,7 +220,7 @@ mod tests {
             false
         );
         assert_eq!(
-            tuples::get_bool_colors_are_equal(&w.objects[1].material.color, &tuples::COLOR_WHITE),
+            w.objects[1].material.color.equals(&tuples::COLOR_WHITE),
             true
         );
     }
@@ -250,10 +247,7 @@ mod tests {
         let i = intersections::intersection(4.0, s);
         let comps = intersections::prepare_computations(&i, &r, &None);
         let c = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.38066, 0.47583, 0.2855)),
-            true
-        );
+        assert_eq!(c.equals(&tuples::color(0.38066, 0.47583, 0.2855)), true);
     }
 
     #[test]
@@ -270,7 +264,7 @@ mod tests {
         let comps = intersections::prepare_computations(&i, &r, &None);
         let c = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
         assert_eq!(
-            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.1, 0.1, 0.1)), //&tuples::color(0.90498, 0.90498, 0.90498)),
+            c.equals(&tuples::color(0.1, 0.1, 0.1)), //&tuples::color(0.90498, 0.90498, 0.90498)),
             //TODO check if this is an error, or if it should actually be this non 0.1 value
             true
         );
@@ -293,10 +287,7 @@ mod tests {
         let i = intersections::intersection(4.0, s2);
         let comps = intersections::prepare_computations(&i, &r, &None);
         let c = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.1, 0.1, 0.1)),
-            true
-        );
+        assert_eq!(c.equals(&tuples::color(0.1, 0.1, 0.1)), true);
     }
 
     #[test]
@@ -305,10 +296,7 @@ mod tests {
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 1.0, 0.0));
         let c = color_at(&w, &r, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&c, &tuples::COLOR_BLACK),
-            true
-        );
+        assert_eq!(c.equals(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -317,10 +305,7 @@ mod tests {
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let c = color_at(&w, &r, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&c, &tuples::color(0.38066, 0.47583, 0.2855)),
-            true
-        );
+        assert_eq!(c.equals(&tuples::color(0.38066, 0.47583, 0.2855)), true);
     }
 
     #[test]
@@ -335,10 +320,7 @@ mod tests {
             tuples::vector(0.0, 0.0, -1.0),
         );
         let c = color_at(&w, &r, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&c, &w.objects[1].material.color),
-            true
-        );
+        assert_eq!(c.equals(&w.objects[1].material.color), true);
     }
 
     #[test]
@@ -383,10 +365,7 @@ mod tests {
         let i = intersections::intersection(1.0, s);
         let comps = intersections::prepare_computations(&i, &r, &None);
         let col = reflected_color(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
-            true
-        );
+        assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -404,10 +383,7 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(&i, &r, &None);
         let col = reflected_color(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.19033, 0.23791, 0.14275)),
-            true
-        );
+        assert_eq!(col.equals(&tuples::color(0.19033, 0.23791, 0.14275)), true);
     }
 
     #[test]
@@ -425,10 +401,7 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(&i, &r, &None);
         let col = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.87676, 0.92434, 0.82917)),
-            true
-        );
+        assert_eq!(col.equals(&tuples::color(0.87676, 0.92434, 0.82917)), true);
     }
 
     #[test]
@@ -452,10 +425,7 @@ mod tests {
 
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
         let col = color_at(&w, &r, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.2, 0.2, 0.2)),
-            true
-        );
+        assert_eq!(col.equals(&tuples::color(0.2, 0.2, 0.2)), true);
     }
 
     #[test]
@@ -474,10 +444,7 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(&i, &r, &None);
         let col = reflected_color(&w, &comps, &0);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
-            true
-        );
+        assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -491,10 +458,7 @@ mod tests {
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
         let col = refracted_color(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
-            true
-        );
+        assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -510,10 +474,7 @@ mod tests {
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
         let col = refracted_color(&w, &comps, &0);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
-            true
-        );
+        assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -532,10 +493,7 @@ mod tests {
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(&xs[1], &r, &Some(xs.clone()));
         let col = refracted_color(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::COLOR_BLACK),
-            true
-        );
+        assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -558,10 +516,7 @@ mod tests {
         let comps = intersections::prepare_computations(&xs[2], &r, &Some(xs.clone()));
         let col = refracted_color(&w, &comps, &RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.0, 0.99889, 0.04722)),
-            true
-        );
+        assert_eq!(col.equals(&tuples::color(0.0, 0.99889, 0.04722)), true);
     }
 
     #[test]
@@ -589,10 +544,7 @@ mod tests {
         let xs = intersections::intersection_list(vec![i]);
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
         let col = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.93642, 0.68642, 0.68642)),
-            true
-        );
+        assert_eq!(col.equals(&tuples::color(0.93642, 0.68642, 0.68642)), true);
     }
 
     #[test]
@@ -622,9 +574,6 @@ mod tests {
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
         let col = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
-        assert_eq!(
-            tuples::get_bool_colors_are_equal(&col, &tuples::color(0.93391, 0.69643, 0.69243)),
-            true
-        );
+        assert_eq!(col.equals(&tuples::color(0.93391, 0.69643, 0.69243)), true);
     }
 }
