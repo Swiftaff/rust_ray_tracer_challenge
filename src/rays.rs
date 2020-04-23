@@ -1,4 +1,5 @@
 use crate::matrices;
+use crate::spheres;
 use crate::transformations;
 use crate::tuples;
 
@@ -6,6 +7,23 @@ use crate::tuples;
 pub struct Ray {
     pub origin: tuples::Point,
     pub direction: tuples::Vector,
+}
+
+impl Ray {
+    pub fn discriminant(&self) -> spheres::Discriminant {
+        let v_sphere_to_ray: tuples::Vector =
+            tuples::tuple_subtract(&self.origin, &tuples::POINT_ORIGIN);
+        let a: f64 = tuples::vector_dot_product(&self.direction, &self.direction);
+        let b: f64 = tuples::vector_dot_product(&self.direction, &v_sphere_to_ray) * 2.0;
+        let c: f64 = tuples::vector_dot_product(&v_sphere_to_ray, &v_sphere_to_ray) - 1.0;
+        let d: f64 = b * b - 4.0 * a * c;
+        spheres::Discriminant {
+            a: a,
+            b: b,
+            c: c,
+            d: d,
+        }
+    }
 }
 
 pub const RAY_NULL: Ray = Ray {

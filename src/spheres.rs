@@ -23,26 +23,11 @@ pub fn sphere_glass() -> shapes::Shape {
     s
 }
 
-pub fn discriminant(ray: &rays::Ray) -> Discriminant {
-    let v_sphere_to_ray: tuples::Vector =
-        tuples::tuple_subtract(&ray.origin, &tuples::POINT_ORIGIN);
-    let a: f64 = tuples::vector_dot_product(&ray.direction, &ray.direction);
-    let b: f64 = tuples::vector_dot_product(&ray.direction, &v_sphere_to_ray) * 2.0;
-    let c: f64 = tuples::vector_dot_product(&v_sphere_to_ray, &v_sphere_to_ray) - 1.0;
-    let d: f64 = b * b - 4.0 * a * c;
-    Discriminant {
-        a: a,
-        b: b,
-        c: c,
-        d: d,
-    }
-}
-
 pub fn local_intersect(
     s: &shapes::Shape,
     local_r: &rays::Ray,
 ) -> Result<Vec<intersections::Intersection>, String> {
-    let disc: Discriminant = discriminant(&local_r);
+    let disc: Discriminant = local_r.discriminant();
     if disc.d < 0.0 {
         Err("No intersections".to_string())
     } else {
