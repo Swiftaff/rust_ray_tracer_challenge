@@ -59,7 +59,7 @@ pub fn sphere_lighting_main(w: u32, h: u32) {
                     match h_result {
                         Err(_) => {} //println!("Error: {}", e),
                         Ok(h) => {
-                            let pnt = rays::position(r, h.t);
+                            let pnt = r.position(h.t);
                             let nrm = shapes::normal_at(&shape, &pnt);
                             let eye = tuples::tuple_multiply(&r.direction, &-1.0);
                             let col = lights::lighting(

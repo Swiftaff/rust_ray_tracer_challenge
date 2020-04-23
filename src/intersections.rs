@@ -80,7 +80,7 @@ pub fn prepare_computations(
     let mut comps: Comps = comp_default(&i.object.shape_type);
     comps.t = i.t;
     comps.object = i.clone().object;
-    comps.point = rays::position(*r, comps.t);
+    comps.point = r.position(comps.t);
     comps.eyev = tuples::tuple_multiply(&r.direction, &-1.0);
     comps.normalv = shapes::normal_at(&comps.object, &comps.point);
     comps.reflectv =

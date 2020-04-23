@@ -24,6 +24,16 @@ impl Ray {
             d: d,
         }
     }
+
+    pub fn position(self, t: f64) -> tuples::Tuple {
+        tuples::tuple_add(&self.origin, &tuples::tuple_multiply(&self.direction, &t))
+    }
+
+    pub fn transform(&self, m: matrices::Matrix4) -> Ray {
+        let origin = transformations::transform_tuple_with_chain(&[m].to_vec(), &self.origin);
+        let direction = transformations::transform_tuple_with_chain(&[m].to_vec(), &self.direction);
+        ray(origin, direction)
+    }
 }
 
 pub const RAY_NULL: Ray = Ray {
@@ -36,18 +46,6 @@ pub fn ray(o: tuples::Point, d: tuples::Vector) -> Ray {
         origin: o,
         direction: d,
     }
-}
-
-pub fn position(ray: Ray, t: f64) -> tuples::Tuple {
-    tuples::tuple_add(&ray.origin, &tuples::tuple_multiply(&ray.direction, &t))
-}
-
-pub fn ray_transform(r: &Ray, m: matrices::Matrix4) -> Ray {
-    let o = r.origin;
-    let d = r.direction;
-    let origin = transformations::transform_tuple_with_chain(&[m].to_vec(), &o);
-    let direction = transformations::transform_tuple_with_chain(&[m].to_vec(), &d);
-    ray(origin, direction)
 }
 
 #[cfg(test)]
@@ -74,19 +72,19 @@ mod tests {
         let d = tuples::vector(1.0, 0.0, 0.0);
         let r = ray(o, d);
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(&position(*&r, 0.0), &tuples::point(2.0, 3.0, 4.0)),
+            tuples::get_bool_tuples_are_equal(&r.position(0.0), &tuples::point(2.0, 3.0, 4.0)),
             true
         );
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(&position(*&r, 1.0), &tuples::point(3.0, 3.0, 4.0)),
+            tuples::get_bool_tuples_are_equal(&r.position(1.0), &tuples::point(3.0, 3.0, 4.0)),
             true
         );
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(&position(*&r, -1.0), &tuples::point(1.0, 3.0, 4.0)),
+            tuples::get_bool_tuples_are_equal(&r.position(-1.0), &tuples::point(1.0, 3.0, 4.0)),
             true
         );
         assert_eq!(
-            tuples::get_bool_tuples_are_equal(&position(*&r, 2.5), &tuples::point(4.5, 3.0, 4.0)),
+            tuples::get_bool_tuples_are_equal(&r.position(2.5), &tuples::point(4.5, 3.0, 4.0)),
             true
         );
     }
@@ -98,7 +96,7 @@ mod tests {
         let d = tuples::vector(0.0, 1.0, 0.0);
         let r = ray(o, d);
         let m = transformations::matrix4_translation(3.0, 4.0, 5.0);
-        let r2 = ray_transform(&r, m);
+        let r2 = r.transform(m);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r2.origin, &tuples::point(4.0, 6.0, 8.0)),
             true
@@ -116,7 +114,7 @@ mod tests {
         let d = tuples::vector(0.0, 1.0, 0.0);
         let r = ray(o, d);
         let m = transformations::matrix4_scaling(2.0, 3.0, 4.0);
-        let r2 = ray_transform(&r, m);
+        let r2 = r.transform(m);
         assert_eq!(
             tuples::get_bool_tuples_are_equal(&r2.origin, &tuples::point(2.0, 6.0, 12.0)),
             true
