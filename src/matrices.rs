@@ -7,8 +7,8 @@ pub const IDENTITY_MATRIX: Matrix4 = [
     [0.0, 0.0, 0.0, 1.0],
 ];
 
-pub type Matrix2 = [[f64; 2]; 2];
-pub type Matrix3 = [[f64; 3]; 3];
+pub struct Matrix2([[f64; 2]; 2]);
+pub struct Matrix3([[f64; 3]; 3]);
 pub type Matrix4 = [[f64; 4]; 4];
 
 pub fn create_matrix4() -> Matrix4 {
@@ -20,21 +20,21 @@ pub fn create_matrix4() -> Matrix4 {
 pub fn create_matrix3() -> Matrix3 {
     let row: [f64; 3] = [0.0; 3];
     let arr: [[f64; 3]; 3] = [row; 3];
-    arr
+    Matrix3(arr)
 }
 
 pub fn create_matrix2() -> Matrix2 {
     let row: [f64; 2] = [0.0; 2];
     let arr: [[f64; 2]; 2] = [row; 2];
-    arr
+    Matrix2(arr)
 }
 
-pub fn get_m2(m: Matrix2, y: usize, x: usize) -> f64 {
-    m[y][x]
+pub fn get_m2(m: &Matrix2, y: usize, x: usize) -> f64 {
+    m.0[y][x]
 }
 
-pub fn get_m3(m: Matrix3, y: usize, x: usize) -> f64 {
-    m[y][x]
+pub fn get_m3(m: &Matrix3, y: usize, x: usize) -> f64 {
+    m.0[y][x]
 }
 pub fn get_m4(m: Matrix4, y: usize, x: usize) -> f64 {
     m[y][x]
@@ -56,11 +56,11 @@ pub fn get_bool_equal_m4(m1: &Matrix4, m2: &Matrix4) -> bool {
 
 pub fn get_bool_equal_m3(m1: &Matrix3, m2: &Matrix3) -> bool {
     let mut are_equal = true;
-    let rows = m1.len();
-    let cols = m1[0].len();
+    let rows = m1.0.len();
+    let cols = m1.0[0].len();
     for y in 0..rows {
         for x in 0..cols {
-            if tuples::get_bool_numbers_are_equal(&m1[y][x], &m2[y][x]) == false {
+            if tuples::get_bool_numbers_are_equal(&m1.0[y][x], &m2.0[y][x]) == false {
                 are_equal = false;
             }
         }
@@ -70,11 +70,11 @@ pub fn get_bool_equal_m3(m1: &Matrix3, m2: &Matrix3) -> bool {
 
 pub fn get_bool_equal_m2(m1: &Matrix2, m2: &Matrix2) -> bool {
     let mut are_equal = true;
-    let rows = m1.len();
-    let cols = m1[0].len();
+    let rows = m1.0.len();
+    let cols = m1.0[0].len();
     for y in 0..rows {
         for x in 0..cols {
-            if tuples::get_bool_numbers_are_equal(&m1[y][x], &m2[y][x]) == false {
+            if tuples::get_bool_numbers_are_equal(&m1.0[y][x], &m2.0[y][x]) == false {
                 are_equal = false;
             }
         }
@@ -119,13 +119,13 @@ pub fn matrix4_transpose(m: &Matrix4) -> Matrix4 {
 }
 
 pub fn matrix2_determinant(m: &Matrix2) -> f64 {
-    m[0][0] * m[1][1] - m[0][1] * m[1][0]
+    m.0[0][0] * m.0[1][1] - m.0[0][1] * m.0[1][0]
 }
 
 pub fn matrix3_determinant(m: &Matrix3) -> f64 {
     let mut det = 0.0;
     for col in 0..3 {
-        det = det + m[0][col] * matrix3_cofactor(m, &0, &col);
+        det = det + m.0[0][col] * matrix3_cofactor(m, &0, &col);
     }
     det
 }
@@ -172,7 +172,7 @@ pub fn matrix3_submatrix2(m: &Matrix3, row_to_delete: &usize, col_to_delete: &us
                 if &x != col_to_delete {
                     let xx = if &x > col_to_delete { x - 1 } else { x };
                     let yy = if &y > row_to_delete { y - 1 } else { y };
-                    result[yy][xx] = m[y][x];
+                    result.0[yy][xx] = m.0[y][x];
                 }
             }
         }
@@ -188,7 +188,7 @@ pub fn matrix4_submatrix3(m: &Matrix4, row_to_delete: &usize, col_to_delete: &us
                 if &x != col_to_delete {
                     let xx = if &x > col_to_delete { x - 1 } else { x };
                     let yy = if &y > row_to_delete { y - 1 } else { y };
-                    result[yy][xx] = m[y][x];
+                    result.0[yy][xx] = m[y][x];
                 }
             }
         }
@@ -222,9 +222,9 @@ pub fn matrix3_multiply(m1: &Matrix3, m2: &Matrix3) -> Matrix3 {
         for x in 0..3 {
             let mut this_result = 0.0;
             for xx in 0..3 {
-                this_result = this_result + m1[y][xx] * m2[xx][x];
+                this_result = this_result + m1.0[y][xx] * m2.0[xx][x];
             }
-            result[y][x] = this_result;
+            result.0[y][x] = this_result;
         }
     }
     result
@@ -270,23 +270,23 @@ mod tests {
     #[test]
     fn test_matrix3() {
         //A 3x3 matrix ought to be representable
-        let m = [[1.0, 2.0, 3.0], [5.5, 6.5, 7.5], [9.0, 10.0, 11.0]];
-        assert_eq!(get_m3(m, 0, 0), 1.0);
-        assert_eq!(get_m3(m, 0, 2), 3.0);
-        assert_eq!(get_m3(m, 1, 0), 5.5);
-        assert_eq!(get_m3(m, 1, 2), 7.5);
-        assert_eq!(get_m3(m, 2, 2), 11.0);
-        assert_eq!(get_m3(m, 2, 0), 9.0);
+        let m = Matrix3([[1.0, 2.0, 3.0], [5.5, 6.5, 7.5], [9.0, 10.0, 11.0]]);
+        assert_eq!(get_m3(&m, 0, 0), 1.0);
+        assert_eq!(get_m3(&m, 0, 2), 3.0);
+        assert_eq!(get_m3(&m, 1, 0), 5.5);
+        assert_eq!(get_m3(&m, 1, 2), 7.5);
+        assert_eq!(get_m3(&m, 2, 2), 11.0);
+        assert_eq!(get_m3(&m, 2, 0), 9.0);
     }
 
     #[test]
     fn test_matrix2() {
         //A 2x2 matrix ought to be representable
-        let m = [[-3.0, 5.0], [1.0, -2.0]];
-        assert_eq!(get_m2(m, 0, 0), -3.0);
-        assert_eq!(get_m2(m, 0, 1), 5.0);
-        assert_eq!(get_m2(m, 1, 0), 1.0);
-        assert_eq!(get_m2(m, 1, 1), -2.0);
+        let m = Matrix2([[-3.0, 5.0], [1.0, -2.0]]);
+        assert_eq!(get_m2(&m, 0, 0), -3.0);
+        assert_eq!(get_m2(&m, 0, 1), 5.0);
+        assert_eq!(get_m2(&m, 1, 0), 1.0);
+        assert_eq!(get_m2(&m, 1, 1), -2.0);
     }
 
     #[test]
@@ -310,16 +310,16 @@ mod tests {
     #[test]
     fn test_matrices_are_equal_m3() {
         //Matrix equality with identical matrices3
-        let m1 = [[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]];
-        let m2 = [[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]];
+        let m1 = Matrix3([[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]]);
+        let m2 = Matrix3([[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]]);
         assert_eq!(get_bool_equal_m3(&m1, &m2), true);
     }
 
     #[test]
     fn test_matrices_are_equal_m2() {
         //Matrix equality with identical matrices2
-        let m1 = [[1.0, 2.0], [5.0, 6.0]];
-        let m2 = [[1.0, 2.0], [5.0, 6.0]];
+        let m1 = Matrix2([[1.0, 2.0], [5.0, 6.0]]);
+        let m2 = Matrix2([[1.0, 2.0], [5.0, 6.0]]);
         assert_eq!(get_bool_equal_m2(&m1, &m2), true);
     }
 
@@ -344,16 +344,16 @@ mod tests {
     #[test]
     fn test_matrices_are_not_equal_m3() {
         //Matrix equality with different matrices3
-        let m1 = [[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]];
-        let m2 = [[5.0, 6.0, 7.0], [9.0, 8.0, 7.0], [1.0, 2.0, 3.0]];
+        let m1 = Matrix3([[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]]);
+        let m2 = Matrix3([[5.0, 6.0, 7.0], [9.0, 8.0, 7.0], [1.0, 2.0, 3.0]]);
         assert_eq!(get_bool_equal_m3(&m1, &m2), false);
     }
 
     #[test]
     fn test_matrices_are_not_equal_m2() {
         //Matrix equality with different matrices2
-        let m1 = [[1.0, 2.0], [5.0, 6.0]];
-        let m2 = [[5.0, 6.0], [1.0, 2.0]];
+        let m1 = Matrix2([[1.0, 2.0], [5.0, 6.0]]);
+        let m2 = Matrix2([[5.0, 6.0], [1.0, 2.0]]);
         assert_eq!(get_bool_equal_m2(&m1, &m2), false);
     }
 
@@ -440,7 +440,7 @@ mod tests {
     #[test]
     fn test_matrix2_determinant() {
         //Calculating the determinant of a 2x2 matrix
-        let m1 = [[1.0, 5.0], [-3.0, 2.0]];
+        let m1 = Matrix2([[1.0, 5.0], [-3.0, 2.0]]);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&matrix2_determinant(&m1), &17.0),
             true
@@ -450,8 +450,8 @@ mod tests {
     #[test]
     fn test_matrix3_submatrix2() {
         //A submatrix of 3x3 matrix is a 2x2 matrix
-        let m1 = [[1.0, 5.0, 0.0], [-3.0, 2.0, 7.0], [0.0, 6.0, -3.0]];
-        let r = [[-3.0, 2.0], [0.0, 6.0]];
+        let m1 = Matrix3([[1.0, 5.0, 0.0], [-3.0, 2.0, 7.0], [0.0, 6.0, -3.0]]);
+        let r = Matrix2([[-3.0, 2.0], [0.0, 6.0]]);
         assert_eq!(
             get_bool_equal_m2(&matrix3_submatrix2(&m1, &0, &2), &r),
             true
@@ -467,7 +467,7 @@ mod tests {
             [-1.0, 0.0, 8.0, 2.0],
             [-7.0, 1.0, -1.0, 1.0],
         ];
-        let r = [[-6.0, 1.0, 6.0], [-8.0, 8.0, 6.0], [-7.0, -1.0, 1.0]];
+        let r = Matrix3([[-6.0, 1.0, 6.0], [-8.0, 8.0, 6.0], [-7.0, -1.0, 1.0]]);
         assert_eq!(
             get_bool_equal_m3(&matrix4_submatrix3(&m1, &2, &1), &r),
             true
@@ -477,7 +477,7 @@ mod tests {
     #[test]
     fn test_matrix3_minor() {
         //Calculating a minor of a 3 x 3 matrix
-        let m = [[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]];
+        let m = Matrix3([[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]]);
         let s = matrix3_submatrix2(&m, &1, &0);
         let d = matrix2_determinant(&s);
         assert_eq!(
@@ -490,7 +490,7 @@ mod tests {
     #[test]
     fn test_matrix3_cofactor() {
         //Calculating a cofactor of a 3 x 3 matrix
-        let m = [[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]];
+        let m = Matrix3([[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]]);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&matrix3_minor(&m, &0, &0), &-12.0),
             true
@@ -512,7 +512,7 @@ mod tests {
     #[test]
     fn test_matrix3_determinant() {
         //Calculating the determinant of a 3 x 3 matrix
-        let m1 = [[1.0, 2.0, 6.0], [-5.0, 8.0, -4.0], [2.0, 6.0, 4.0]];
+        let m1 = Matrix3([[1.0, 2.0, 6.0], [-5.0, 8.0, -4.0], [2.0, 6.0, 4.0]]);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&matrix3_cofactor(&m1, &0, &0), &56.0),
             true
