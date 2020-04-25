@@ -71,7 +71,7 @@ pub fn render(c: &Camera, w: &worlds::World) -> canvas::PixelCanvas {
         for x in 0..c.hsize {
             let r = ray_for_pixel(&c, x, y);
             let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
-            image = canvas::pixel_write(image, &x, &y, col);
+            image = image.pixel_write(&x, &y, col);
         }
     }
     image
@@ -113,7 +113,7 @@ pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas:
         for x in 0..c.hsize {
             let r = ray_for_pixel(&c, x, y);
             let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
-            image = canvas::pixel_write(image, &x, &y, col);
+            image = image.pixel_write(&x, &y, col);
         }
     }
     image
@@ -215,7 +215,7 @@ mod tests {
         let mut c = camera(11, 11, PI / 2.0);
         c.transform = transformations::view_transform(&from, &to, &up);
         let image = render(&c, &w);
-        let pa = canvas::pixel_get(&image, &5, &5);
+        let pa = image.get_at(&5, &5);
         let col = tuples::color(0.38066, 0.47583, 0.2855);
         assert_eq!(pa.is_equal_to(&col), true);
     }

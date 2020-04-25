@@ -9,7 +9,6 @@ use std::io::Write;
 use std::time::Instant;
 
 use crate::camera;
-use crate::canvas;
 use crate::lights;
 use crate::materials;
 use crate::patterns;
@@ -55,7 +54,7 @@ pub fn world_main(index: usize, program: u32, w: u32, h: u32) {
 
     let start2 = Instant::now();
     //let data_ppm = canvas::ppm_get(image.clone());
-    let data_png = canvas::png_get(&image);
+    let data_png = image.png_get();
     let duration2 = start2.elapsed();
     println!("Time to generate file data: {:?}", duration2);
 

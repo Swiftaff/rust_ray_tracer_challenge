@@ -12,6 +12,131 @@ pub struct PixelCanvas {
     pub data: Vec<tuples::Color>,
 }
 
+impl PixelCanvas {
+    pub fn pixel_write(self, x: &u32, y: &u32, col: tuples::Color) -> PixelCanvas {
+        let index = (self.width * y + x) as u32;
+        let mut new_canvas = self;
+        if index < new_canvas.length {
+            new_canvas.data[index as usize] = col;
+            new_canvas
+        } else {
+            new_canvas
+        }
+    }
+
+    pub fn get_at(&self, x: &u32, y: &u32) -> tuples::Color {
+        let index = self.width * y + x;
+        let mut col = tuples::color(1.0, 0.8, 0.8); //default bright pink?
+        if index < self.length {
+            col = self.data[index as usize];
+        }
+        col
+    }
+
+    pub fn ppm_get(&self) -> String {
+        let header = String::from("P3\n");
+        let w = self.width.to_string();
+        let h = self.height.to_string();
+        let limit = format!("\n{}\n", CLAMP_LIMIT);
+        let data = self.get_canvas_data_as_string();
+        format!("{}{} {}{}{}", header, w, h, limit, data)
+    }
+
+    pub fn png_get(&self) -> image::RgbImage {
+        let w = self.width;
+        let h = self.height;
+        let mut imgbuf = image::ImageBuffer::new(w, h);
+        for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
+            let col = self.data[y as usize * w as usize + x as usize];
+            let r64: f64 = if col.red > 1.0 {
+                1.0
+            } else {
+                if col.red < 0.0 {
+                    0.0
+                } else {
+                    col.red
+                }
+            };
+            let g64: f64 = if col.green > 1.0 {
+                1.0
+            } else {
+                if col.green < 0.0 {
+                    0.0
+                } else {
+                    col.green
+                }
+            };
+            let b64: f64 = if col.blue > 1.0 {
+                1.0
+            } else {
+                if col.blue < 0.0 {
+                    0.0
+                } else {
+                    col.blue
+                }
+            };
+            *pixel = image::Rgb([
+                (r64 * 255.0).floor() as u8,
+                (g64 * 255.0).floor() as u8,
+                (b64 * 255.0).floor() as u8,
+            ]);
+        }
+        imgbuf
+    }
+
+    fn get_row_as_string(&self, row: &u32) -> String {
+        let mut this_row: String = String::from("");
+        for col in 0..self.width {
+            let color = self.data[((row * self.width) + col) as usize];
+            let color_str = str_from_color_get(color);
+            this_row = format!("{}{}", this_row, color_str);
+        }
+        this_row
+    }
+
+    fn get_canvas_data_as_string(&self) -> String {
+        let max_cols: u32 = 70;
+        let h = self.height;
+        let mut data_string: String = String::from("");
+
+        for row in 0..h {
+            let mut this_row = self.get_row_as_string(&row);
+
+            // split row if too long (multiple times if needed)
+            let mut last_space_index: usize;
+            let end: u32 = max_cols;
+            let mut this_row_truncated: String;
+            while this_row.len() > max_cols as usize {
+                this_row_truncated = this_row.chars().take(*&end as usize).collect();
+
+                //get actual_end
+                if this_row_truncated.chars().last().unwrap() != ' ' {
+                    last_space_index = match this_row_truncated.rfind(' ') {
+                        None => *&end as usize,
+                        Some(x) => x,
+                    };
+                    this_row_truncated = this_row.chars().take(last_space_index).collect();
+                } else {
+                    last_space_index = (max_cols - 1) as usize;
+                    this_row_truncated = this_row.chars().take(last_space_index).collect();
+                }
+
+                //add to main string
+                data_string = format!("{}{}\n", data_string, this_row_truncated);
+
+                //reduce to the remainder of the row
+                this_row = this_row
+                    .chars()
+                    .skip(last_space_index + 1)
+                    .take(this_row.len())
+                    .collect();
+            }
+            data_string = format!("{}{}\n", data_string, str_remove_trailing_space(this_row));
+        }
+        data_string
+    }
+}
+
 pub fn pixel_canvas(width: u32, height: u32, default_color: tuples::Color) -> PixelCanvas {
     let length = width * height;
     let mut data = Vec::with_capacity(length as usize);
@@ -24,129 +149,6 @@ pub fn pixel_canvas(width: u32, height: u32, default_color: tuples::Color) -> Pi
         height: height,
         length: length,
     }
-}
-
-pub fn pixel_write(canvas: PixelCanvas, x: &u32, y: &u32, col: tuples::Color) -> PixelCanvas {
-    let index = (canvas.width * y + x) as u32;
-    let mut new_canvas = canvas;
-    if index < new_canvas.length {
-        new_canvas.data[index as usize] = col;
-        new_canvas
-    } else {
-        new_canvas
-    }
-}
-
-pub fn pixel_get(canvas: &PixelCanvas, x: &u32, y: &u32) -> tuples::Color {
-    let index = canvas.width * y + x;
-    let mut col = tuples::color(1.0, 0.8, 0.8); //default bright pink?
-    if index < canvas.length {
-        col = canvas.data[index as usize];
-    }
-    col
-}
-
-pub fn ppm_get(c: &PixelCanvas) -> String {
-    let header = String::from("P3\n");
-    let w = c.width.to_string();
-    let h = c.height.to_string();
-    let limit = format!("\n{}\n", CLAMP_LIMIT);
-    let data = str_from_canvas_data_get(c);
-    format!("{}{} {}{}{}", header, w, h, limit, data)
-}
-
-pub fn png_get(c: &PixelCanvas) -> image::RgbImage {
-    let w = c.width;
-    let h = c.height;
-    let mut imgbuf = image::ImageBuffer::new(w, h);
-    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-        let col = c.data[y as usize * w as usize + x as usize];
-        let r64: f64 = if col.red > 1.0 {
-            1.0
-        } else {
-            if col.red < 0.0 {
-                0.0
-            } else {
-                col.red
-            }
-        };
-        let g64: f64 = if col.green > 1.0 {
-            1.0
-        } else {
-            if col.green < 0.0 {
-                0.0
-            } else {
-                col.green
-            }
-        };
-        let b64: f64 = if col.blue > 1.0 {
-            1.0
-        } else {
-            if col.blue < 0.0 {
-                0.0
-            } else {
-                col.blue
-            }
-        };
-        *pixel = image::Rgb([
-            (r64 * 255.0).floor() as u8,
-            (g64 * 255.0).floor() as u8,
-            (b64 * 255.0).floor() as u8,
-        ]);
-    }
-    imgbuf
-}
-
-fn str_row_get(row: u32, c: &PixelCanvas) -> String {
-    let mut this_row: String = String::from("");
-    for col in 0..c.width {
-        let color = c.data[((row * c.width) + col) as usize];
-        let color_str = str_from_color_get(color);
-        this_row = format!("{}{}", this_row, color_str);
-    }
-    this_row
-}
-
-fn str_from_canvas_data_get(c: &PixelCanvas) -> String {
-    let max_cols: u32 = 70;
-    let h = c.height;
-    let mut data_string: String = String::from("");
-
-    for row in 0..h {
-        let mut this_row = str_row_get(row, &c);
-
-        // split row if too long (multiple times if needed)
-        let mut last_space_index: usize;
-        let end: u32 = max_cols;
-        let mut this_row_truncated: String;
-        while this_row.len() > max_cols as usize {
-            this_row_truncated = this_row.chars().take(*&end as usize).collect();
-
-            //get actual_end
-            if this_row_truncated.chars().last().unwrap() != ' ' {
-                last_space_index = match this_row_truncated.rfind(' ') {
-                    None => *&end as usize,
-                    Some(x) => x,
-                };
-                this_row_truncated = this_row.chars().take(last_space_index).collect();
-            } else {
-                last_space_index = (max_cols - 1) as usize;
-                this_row_truncated = this_row.chars().take(last_space_index).collect();
-            }
-
-            //add to main string
-            data_string = format!("{}{}\n", data_string, this_row_truncated);
-
-            //reduce to the remainder of the row
-            this_row = this_row
-                .chars()
-                .skip(last_space_index + 1)
-                .take(this_row.len())
-                .collect();
-        }
-        data_string = format!("{}{}\n", data_string, str_remove_trailing_space(this_row));
-    }
-    data_string
 }
 
 pub fn str_from_color_get(col: tuples::Color) -> String {
@@ -209,7 +211,7 @@ mod tests {
         assert_eq!(pc.data[32].is_equal_to(&black), true);
 
         let red = tuples::color(1.0, 0.0, 0.0);
-        pc = pixel_write(pc, &2, &3, red);
+        pc = pc.pixel_write(&2, &3, red);
         assert_eq!(pc.data[32].is_equal_to(&red), true)
     }
 
@@ -245,7 +247,7 @@ mod tests {
         //Constructing the PPM header
         let black = tuples::color(0.0, 0.0, 0.0);
         let c = pixel_canvas(5, 3, black);
-        let mut ppm = ppm_get(&c);
+        let mut ppm = c.ppm_get();
         ppm.truncate(11);
         assert_eq!(ppm, "P3\n5 3\n255\n")
     }
@@ -255,7 +257,7 @@ mod tests {
         //Constructing the PPM header
         let black = tuples::color(0.0, 0.0, 0.0);
         let c = pixel_canvas(5, 3, black);
-        let ppm = ppm_get(&c);
+        let ppm = c.ppm_get();
         assert_eq!(ppm.chars().last().unwrap(), '\n')
     }
 
@@ -267,10 +269,10 @@ mod tests {
         let c1 = tuples::color(1.5, 0.0, 0.0);
         let c2 = tuples::color(0.0, 0.5, 0.0);
         let c3 = tuples::color(-0.5, 0.0, 1.0);
-        pc = pixel_write(pc, &0, &0, c1);
-        pc = pixel_write(pc, &2, &1, c2);
-        pc = pixel_write(pc, &4, &2, c3);
-        let ppm = ppm_get(&pc);
+        pc = pc.pixel_write(&0, &0, c1);
+        pc = pc.pixel_write(&2, &1, c2);
+        pc = pc.pixel_write(&4, &2, c3);
+        let ppm = pc.ppm_get();
         let header_size = 11;
         let just_data: String = ppm
             .chars()
@@ -285,7 +287,7 @@ mod tests {
         //Splitting long lines in PPM files
         let black = tuples::color(1.0, 0.8, 0.6);
         let pc = pixel_canvas(10, 2, black);
-        let ppm = ppm_get(&pc);
+        let ppm = pc.ppm_get();
         let header_size = 12;
         let just_data: String = ppm
             .chars()

@@ -4,7 +4,6 @@ use std::fs;
 use std::time::Instant;
 
 use crate::camera;
-use crate::canvas;
 use crate::materials;
 use crate::shapes;
 use crate::spheres;
@@ -36,7 +35,7 @@ pub fn world_main(w: u32, h: u32) {
     println!("Time to calculate data: {:?}", duration1);
 
     let start2 = Instant::now();
-    let data = canvas::ppm_get(&image);
+    let data = image.ppm_get();
     let duration2 = start2.elapsed();
     println!("Time to generate file data: {:?}", duration2);
 
