@@ -70,7 +70,7 @@ pub fn render(c: &Camera, w: &worlds::World) -> canvas::PixelCanvas {
     for y in 0..c.vsize {
         for x in 0..c.hsize {
             let r = ray_for_pixel(&c, x, y);
-            let col = worlds::color_at(&w, &r, &worlds::RECURSIVE_DEPTH);
+            let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
             image = canvas::pixel_write(image, &x, &y, col);
         }
     }
@@ -112,7 +112,7 @@ pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas:
         pc = percent_message(y as f64, c.vsize as f64, pc, incr, timer.elapsed());
         for x in 0..c.hsize {
             let r = ray_for_pixel(&c, x, y);
-            let col = worlds::color_at(&w, &r, &worlds::RECURSIVE_DEPTH);
+            let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
             image = canvas::pixel_write(image, &x, &y, col);
         }
     }

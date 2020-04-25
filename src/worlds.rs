@@ -52,114 +52,116 @@ pub fn world_two_lights() -> World {
     w
 }
 
-pub fn world_intersect(w: &World, r: &rays::Ray) -> Vec<intersections::Intersection> {
-    let mut xs_list_unsorted: Vec<intersections::Intersection> = vec![];
-    for index in 0..w.objects.len() {
-        let this_sphere = w.objects[index].clone();
-        let xs_for_this_sphere = shapes::intersect(&this_sphere, r);
-        match xs_for_this_sphere {
-            Err(_) => (), //println!("XS Error: {}", e),
-            Ok(mut xs) => {
-                xs_list_unsorted.append(&mut xs);
+impl World {
+    pub fn intersect(&self, r: &rays::Ray) -> Vec<intersections::Intersection> {
+        let mut xs_list_unsorted: Vec<intersections::Intersection> = vec![];
+        for index in 0..self.objects.len() {
+            let this_sphere = self.objects[index].clone();
+            let xs_for_this_sphere = shapes::intersect(&this_sphere, r);
+            match xs_for_this_sphere {
+                Err(_) => (), //println!("XS Error: {}", e),
+                Ok(mut xs) => {
+                    xs_list_unsorted.append(&mut xs);
+                }
             }
         }
+        intersections::intersection_list(xs_list_unsorted)
     }
-    intersections::intersection_list(xs_list_unsorted)
-}
 
-pub fn shade_hit(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples::Color {
-    let mut col = tuples::COLOR_BLACK;
-    for index in 0..w.light.len() {
-        let this_light = w.clone().light[index];
-        let this_lights_effect = lights::lighting(
-            &c.object.material,
-            &c.object,
-            &this_light,
-            &c.over_point,
-            &c.eyev,
-            &c.normalv,
-            &is_shadowed(&w, &c.over_point), //TODO maybe try ternary for under_point?
-        );
-        col = col.add(&this_lights_effect);
-    }
-    let reflected = reflected_color(&w, &c, &remaining);
-    let refracted = refracted_color(&w, &c, &remaining);
-    let material = c.object.material.clone();
-    if material.reflective > 0.0 && material.transparency > 0.0 {
-        let reflectance = intersections::schlick(&c);
-        let c1 = col.add(&reflected.scalar_multiply(&reflectance));
-        let c2 = refracted.scalar_multiply(&(1.0 - reflectance));
-        c1.add(&c2)
-    } else {
-        col.add(&reflected).add(&refracted)
-    }
-}
-
-pub fn color_at(w: &World, r: &rays::Ray, remaining: &i32) -> tuples::Color {
-    let xs = world_intersect(&w.clone(), &r);
-    let hit_temp = intersections::hit(&xs);
-    match hit_temp {
-        Err(_) => tuples::COLOR_BLACK,
-        Ok(hit) => {
-            let comp = intersections::prepare_computations(&hit, &r, &Some(xs));
-            shade_hit(&w, &comp, &remaining)
+    pub fn shade_hit(&self, c: &intersections::Comps, remaining: &i32) -> tuples::Color {
+        let mut col = tuples::COLOR_BLACK;
+        for index in 0..self.light.len() {
+            let this_light = self.clone().light[index];
+            let this_lights_effect = lights::lighting(
+                &c.object.material,
+                &c.object,
+                &this_light,
+                &c.over_point,
+                &c.eyev,
+                &c.normalv,
+                &self.is_shadowed(&c.over_point), //TODO maybe try ternary for under_point?
+            );
+            col = col.add(&this_lights_effect);
         }
-    }
-}
-
-pub fn is_shadowed(w: &World, p: &tuples::Point) -> bool {
-    //TODO make work for multiple lights??
-    let v = w.light[0].position.subtract(&p);
-    let distance = v.magnitude();
-    let direction = v.normalize();
-    let r = rays::ray(*p, direction);
-    let xs = world_intersect(&w, &r);
-    let hit_temp = intersections::hit(&xs);
-    match hit_temp {
-        Err(_) => false,
-        Ok(h) => {
-            if h.t < distance {
-                true
-            } else {
-                false
-            }
-        }
-    }
-}
-
-pub fn reflected_color(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples::Color {
-    if c.object.material.reflective == 0.0 || remaining < &1 {
-        tuples::COLOR_BLACK
-    } else {
-        let reflect_ray = rays::ray(c.over_point, c.reflectv);
-        let col = color_at(&w, &reflect_ray, &(remaining - 1));
-        col.scalar_multiply(&c.object.material.reflective)
-    }
-}
-
-pub fn refracted_color(w: &World, c: &intersections::Comps, remaining: &i32) -> tuples::Color {
-    let n_ratio: f64 = c.n1 / c.n2;
-    let cos_i: f64 = c.eyev.dot_product(&c.normalv);
-    let sin2_t: f64 = n_ratio * n_ratio * (1.0 - (cos_i * cos_i));
-
-    if c.object.material.transparency == 0.0 || remaining < &1 || sin2_t > 1.0 {
-        //println!("black");
-        tuples::COLOR_BLACK
-    } else {
-        //println!("not black");
-        let cos_t: f64 = (1.0 - sin2_t).sqrt();
-        let direction: tuples::Vector = c
-            .normalv
-            .multiply(&((n_ratio * cos_i) - cos_t))
-            .subtract(&c.eyev.multiply(&n_ratio));
-        let start_point = if c.inside {
-            c.over_point
+        let reflected = self.reflected_color(&c, &remaining);
+        let refracted = self.refracted_color(&c, &remaining);
+        let material = c.object.material.clone();
+        if material.reflective > 0.0 && material.transparency > 0.0 {
+            let reflectance = intersections::schlick(&c);
+            let c1 = col.add(&reflected.scalar_multiply(&reflectance));
+            let c2 = refracted.scalar_multiply(&(1.0 - reflectance));
+            c1.add(&c2)
         } else {
-            c.under_point
-        };
-        let refract_ray = rays::ray(start_point, direction);
-        let col = color_at(&w, &refract_ray, &(remaining - 1));
-        col.scalar_multiply(&c.object.material.transparency)
+            col.add(&reflected).add(&refracted)
+        }
+    }
+
+    pub fn color_at(&self, r: &rays::Ray, remaining: &i32) -> tuples::Color {
+        let xs = self.intersect(&r);
+        let hit_temp = intersections::hit(&xs);
+        match hit_temp {
+            Err(_) => tuples::COLOR_BLACK,
+            Ok(hit) => {
+                let comp = intersections::prepare_computations(&hit, &r, &Some(xs));
+                self.shade_hit(&comp, &remaining)
+            }
+        }
+    }
+
+    pub fn is_shadowed(&self, p: &tuples::Point) -> bool {
+        //TODO make work for multiple lights??
+        let v = self.light[0].position.subtract(&p);
+        let distance = v.magnitude();
+        let direction = v.normalize();
+        let r = rays::ray(*p, direction);
+        let xs = self.intersect(&r);
+        let hit_temp = intersections::hit(&xs);
+        match hit_temp {
+            Err(_) => false,
+            Ok(h) => {
+                if h.t < distance {
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    }
+
+    pub fn reflected_color(&self, c: &intersections::Comps, remaining: &i32) -> tuples::Color {
+        if c.object.material.reflective == 0.0 || remaining < &1 {
+            tuples::COLOR_BLACK
+        } else {
+            let reflect_ray = rays::ray(c.over_point, c.reflectv);
+            let col = self.color_at(&reflect_ray, &(remaining - 1));
+            col.scalar_multiply(&c.object.material.reflective)
+        }
+    }
+
+    pub fn refracted_color(&self, c: &intersections::Comps, remaining: &i32) -> tuples::Color {
+        let n_ratio: f64 = c.n1 / c.n2;
+        let cos_i: f64 = c.eyev.dot_product(&c.normalv);
+        let sin2_t: f64 = n_ratio * n_ratio * (1.0 - (cos_i * cos_i));
+
+        if c.object.material.transparency == 0.0 || remaining < &1 || sin2_t > 1.0 {
+            //println!("black");
+            tuples::COLOR_BLACK
+        } else {
+            //println!("not black");
+            let cos_t: f64 = (1.0 - sin2_t).sqrt();
+            let direction: tuples::Vector = c
+                .normalv
+                .multiply(&((n_ratio * cos_i) - cos_t))
+                .subtract(&c.eyev.multiply(&n_ratio));
+            let start_point = if c.inside {
+                c.over_point
+            } else {
+                c.under_point
+            };
+            let refract_ray = rays::ray(start_point, direction);
+            let col = self.color_at(&refract_ray, &(remaining - 1));
+            col.scalar_multiply(&c.object.material.transparency)
+        }
     }
 }
 
@@ -230,7 +232,7 @@ mod tests {
         //Intersect a world with a ray
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
-        let xs = world_intersect(&w, &r);
+        let xs = w.intersect(&r);
         assert_eq!(xs.len() == 4, true);
         assert_eq!(xs[0].t == 4.0, true);
         assert_eq!(xs[1].t == 4.5, true);
@@ -246,7 +248,7 @@ mod tests {
         let s = w.objects[0].clone();
         let i = intersections::intersection(4.0, s);
         let comps = intersections::prepare_computations(&i, &r, &None);
-        let c = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
+        let c = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(c.equals(&tuples::color(0.38066, 0.47583, 0.2855)), true);
     }
 
@@ -262,7 +264,7 @@ mod tests {
         let s = w.objects[1].clone();
         let i = intersections::intersection(0.5, s);
         let comps = intersections::prepare_computations(&i, &r, &None);
-        let c = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
+        let c = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(
             c.equals(&tuples::color(0.1, 0.1, 0.1)), //&tuples::color(0.90498, 0.90498, 0.90498)),
             //TODO check if this is an error, or if it should actually be this non 0.1 value
@@ -286,7 +288,7 @@ mod tests {
         let r = rays::ray(tuples::point(0.0, 0.0, 5.0), tuples::vector(0.0, 0.0, 1.0));
         let i = intersections::intersection(4.0, s2);
         let comps = intersections::prepare_computations(&i, &r, &None);
-        let c = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
+        let c = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(c.equals(&tuples::color(0.1, 0.1, 0.1)), true);
     }
 
@@ -295,7 +297,7 @@ mod tests {
         //The color when a ray misses
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 1.0, 0.0));
-        let c = color_at(&w, &r, &RECURSIVE_DEPTH);
+        let c = w.color_at(&r, &RECURSIVE_DEPTH);
         assert_eq!(c.equals(&tuples::COLOR_BLACK), true);
     }
 
@@ -304,7 +306,7 @@ mod tests {
         //The color when a ray hits
         let w = world_default();
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
-        let c = color_at(&w, &r, &RECURSIVE_DEPTH);
+        let c = w.color_at(&r, &RECURSIVE_DEPTH);
         assert_eq!(c.equals(&tuples::color(0.38066, 0.47583, 0.2855)), true);
     }
 
@@ -319,7 +321,7 @@ mod tests {
             tuples::point(0.0, 0.0, 0.75),
             tuples::vector(0.0, 0.0, -1.0),
         );
-        let c = color_at(&w, &r, &RECURSIVE_DEPTH);
+        let c = w.color_at(&r, &RECURSIVE_DEPTH);
         assert_eq!(c.equals(&w.objects[1].material.color), true);
     }
 
@@ -328,7 +330,7 @@ mod tests {
         //There is no shadow when nothing is collinear with point and light
         let w = world_default();
         let p = tuples::point(0.0, 10.0, 0.0);
-        assert_eq!(is_shadowed(&w, &p), false);
+        assert_eq!(w.is_shadowed(&p), false);
     }
 
     #[test]
@@ -336,7 +338,7 @@ mod tests {
         //The shadow when an object is between the point and the light
         let w = world_default();
         let p = tuples::point(10.0, -10.0, 10.0);
-        assert_eq!(is_shadowed(&w, &p), true);
+        assert_eq!(w.is_shadowed(&p), true);
     }
 
     #[test]
@@ -344,7 +346,7 @@ mod tests {
         //There is no shadow when an object is behind the light
         let w = world_default();
         let p = tuples::point(-20.0, 20.0, -20.0);
-        assert_eq!(is_shadowed(&w, &p), false);
+        assert_eq!(w.is_shadowed(&p), false);
     }
 
     #[test]
@@ -352,7 +354,7 @@ mod tests {
         //There is no shadow when an object is behind the point
         let w = world_default();
         let p = tuples::point(-2.0, 2.0, -2.0);
-        assert_eq!(is_shadowed(&w, &p), false);
+        assert_eq!(w.is_shadowed(&p), false);
     }
 
     #[test]
@@ -364,7 +366,7 @@ mod tests {
         s.material.ambient = 1.0;
         let i = intersections::intersection(1.0, s);
         let comps = intersections::prepare_computations(&i, &r, &None);
-        let col = reflected_color(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.reflected_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
@@ -382,7 +384,7 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(&i, &r, &None);
-        let col = reflected_color(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.reflected_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.equals(&tuples::color(0.19033, 0.23791, 0.14275)), true);
     }
 
@@ -400,7 +402,7 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(&i, &r, &None);
-        let col = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.equals(&tuples::color(0.87676, 0.92434, 0.82917)), true);
     }
 
@@ -424,7 +426,7 @@ mod tests {
         w.objects.push(upper);
 
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
-        let col = color_at(&w, &r, &RECURSIVE_DEPTH);
+        let col = w.color_at(&r, &RECURSIVE_DEPTH);
         assert_eq!(col.equals(&tuples::color(0.2, 0.2, 0.2)), true);
     }
 
@@ -443,7 +445,7 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = intersections::prepare_computations(&i, &r, &None);
-        let col = reflected_color(&w, &comps, &0);
+        let col = w.reflected_color(&comps, &0);
         assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
@@ -457,7 +459,7 @@ mod tests {
         let i2 = intersections::intersection(6.0, s.clone());
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
-        let col = refracted_color(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.refracted_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
@@ -473,7 +475,7 @@ mod tests {
         let i2 = intersections::intersection(6.0, s.clone());
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
-        let col = refracted_color(&w, &comps, &0);
+        let col = w.refracted_color(&comps, &0);
         assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
@@ -492,7 +494,7 @@ mod tests {
         let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s.clone());
         let xs = intersections::intersection_list(vec![i1, i2]);
         let comps = intersections::prepare_computations(&xs[1], &r, &Some(xs.clone()));
-        let col = refracted_color(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.refracted_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.equals(&tuples::COLOR_BLACK), true);
     }
 
@@ -514,7 +516,7 @@ mod tests {
 
         let xs = intersections::intersection_list(vec![i1, i2, i3, i4]);
         let comps = intersections::prepare_computations(&xs[2], &r, &Some(xs.clone()));
-        let col = refracted_color(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.refracted_color(&comps, &RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
         assert_eq!(col.equals(&tuples::color(0.0, 0.99889, 0.04722)), true);
     }
@@ -543,7 +545,7 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), floor);
         let xs = intersections::intersection_list(vec![i]);
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
-        let col = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.equals(&tuples::color(0.93642, 0.68642, 0.68642)), true);
     }
 
@@ -572,7 +574,7 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), floor);
         let xs = intersections::intersection_list(vec![i]);
         let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
-        let col = shade_hit(&w, &comps, &RECURSIVE_DEPTH);
+        let col = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
         assert_eq!(col.equals(&tuples::color(0.93391, 0.69643, 0.69243)), true);
     }
