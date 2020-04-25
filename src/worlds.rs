@@ -205,7 +205,7 @@ mod tests {
 
         //object1
         assert_eq!(
-            matrices::get_bool_equal_m4(&w.objects[0].transform, &matrices::IDENTITY_MATRIX),
+            w.objects[0].transform.equals(&matrices::IDENTITY_MATRIX),
             true
         );
         assert_eq!(
@@ -218,7 +218,7 @@ mod tests {
 
         //object2
         assert_eq!(
-            matrices::get_bool_equal_m4(&w.objects[1].transform, &matrices::IDENTITY_MATRIX),
+            w.objects[1].transform.equals(&matrices::IDENTITY_MATRIX),
             false
         );
         assert_eq!(

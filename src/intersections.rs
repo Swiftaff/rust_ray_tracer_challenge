@@ -177,10 +177,7 @@ mod tests {
         let s = spheres::sphere();
         let i = intersection(3.5, s);
         assert_eq!(tuples::get_bool_numbers_are_equal(&i.t, &3.5), true);
-        assert_eq!(
-            matrices::get_bool_equal_m4(&i.object.transform, &matrices::IDENTITY_MATRIX),
-            true
-        );
+        assert_eq!(i.object.transform.equals(&matrices::IDENTITY_MATRIX), true);
         assert_eq!(i.object.material.color.equals(&tuples::COLOR_WHITE), true);
     }
 

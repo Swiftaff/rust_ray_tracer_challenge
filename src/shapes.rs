@@ -99,10 +99,7 @@ mod tests {
     fn test_shapes_default_transformation() {
         //A shape's default transformation
         let s = shape(ShapeType::ShapeTest);
-        assert_eq!(
-            matrices::get_bool_equal_m4(&s.transform, &matrices::IDENTITY_MATRIX),
-            true
-        );
+        assert_eq!(s.transform.equals(&matrices::IDENTITY_MATRIX), true);
     }
 
     #[test]

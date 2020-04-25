@@ -229,10 +229,7 @@ mod tests {
     fn test_the_default_pattern_transformation() {
         //The default Pattern trasnformation
         let p = test_pattern();
-        assert_eq!(
-            matrices::get_bool_equal_m4(&p.transform, &matrices::IDENTITY_MATRIX),
-            true
-        );
+        assert_eq!(p.transform.equals(&matrices::IDENTITY_MATRIX), true);
     }
 
     #[test]
@@ -241,7 +238,7 @@ mod tests {
         let mut p = test_pattern();
         let t = transformations::matrix4_translation(1.0, 2.0, 3.0);
         p.transform = t;
-        assert_eq!(matrices::get_bool_equal_m4(&p.transform, &t), true);
+        assert_eq!(p.transform.equals(&t), true);
     }
 
     #[test]

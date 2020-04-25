@@ -138,10 +138,7 @@ mod tests {
             tuples::get_bool_numbers_are_equal(&(c.field_of_view as f64), &(PI / 2.0)),
             true
         );
-        assert_eq!(
-            matrices::get_bool_equal_m4(&matrices::IDENTITY_MATRIX, &c.transform),
-            true
-        );
+        assert_eq!(matrices::IDENTITY_MATRIX.equals(&c.transform), true);
     }
 
     #[test]

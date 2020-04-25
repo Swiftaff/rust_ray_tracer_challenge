@@ -310,10 +310,7 @@ mod tests {
     fn test_a_helper_for_producing_a_sphere_with_a_glassy_material() {
         //A helper for producing a sphere with a glassy material
         let s = sphere_glass();
-        assert_eq!(
-            matrices::get_bool_equal_m4(&s.transform, &matrices::IDENTITY_MATRIX),
-            true
-        );
+        assert_eq!(s.transform.equals(&matrices::IDENTITY_MATRIX), true);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&s.material.transparency, &1.0),
             true

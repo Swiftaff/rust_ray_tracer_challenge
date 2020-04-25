@@ -313,10 +313,7 @@ mod tests {
         let to = tuples::point(0.0, 0.0, -1.0);
         let up = tuples::vector(0.0, 1.0, 0.0);
         let t = view_transform(&from, &to, &up);
-        assert_eq!(
-            matrices::get_bool_equal_m4(&t, &matrices::IDENTITY_MATRIX),
-            true
-        );
+        assert_eq!(t.equals(&matrices::IDENTITY_MATRIX), true);
     }
 
     #[test]
@@ -327,7 +324,7 @@ mod tests {
         let up = tuples::vector(0.0, 1.0, 0.0);
         let t = view_transform(&from, &to, &up);
         let s = matrix4_scaling(-1.0, 1.0, -1.0);
-        assert_eq!(matrices::get_bool_equal_m4(&t, &s), true);
+        assert_eq!(t.equals(&s), true);
     }
 
     #[test]
@@ -338,7 +335,7 @@ mod tests {
         let up = tuples::vector(0.0, 1.0, 0.0);
         let t = view_transform(&from, &to, &up);
         let tran = matrix4_translation(0.0, 0.0, -8.0);
-        assert_eq!(matrices::get_bool_equal_m4(&t, &tran), true);
+        assert_eq!(t.equals(&tran), true);
     }
 
     #[test]
@@ -354,6 +351,6 @@ mod tests {
             [-0.35857, 0.59761, -0.71714, 0.0],
             [0.0, 0.0, 0.0, 1.0],
         ]);
-        assert_eq!(matrices::get_bool_equal_m4(&t, &r), true);
+        assert_eq!(t.equals(&r), true);
     }
 }
