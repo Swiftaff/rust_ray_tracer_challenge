@@ -1,7 +1,6 @@
 use std::f64;
 
 use crate::materials;
-use crate::patterns;
 use crate::shapes;
 use crate::tuples;
 
@@ -34,7 +33,7 @@ pub fn lighting(
 
     let mut _col = tuples::COLOR_WHITE;
     match material.pattern {
-        Some(p) => _col = patterns::pattern_at_shape(p, shape.clone(), point.clone()),
+        Some(p) => _col = p.pattern_at_shape(&shape, &point),
         None => _col = material.color,
     }
 

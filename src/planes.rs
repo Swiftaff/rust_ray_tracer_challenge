@@ -22,13 +22,13 @@ pub fn local_normal_at() -> tuples::Vector {
     tuples::vector(0.0, 1.0, 0.0)
 }
 
-fn print_type_of<T>(_: &T) -> String {
-    format!("{}", std::any::type_name::<T>())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn print_type_of<T>(_: &T) -> String {
+        format!("{}", std::any::type_name::<T>())
+    }
 
     fn test_normal_of_plane_is_constant_everywhere() {
         //The normal of a plane is constant everywhere
