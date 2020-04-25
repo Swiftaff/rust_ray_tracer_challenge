@@ -1,19 +1,20 @@
 use crate::matrices;
+use crate::matrices::Matrix4;
 use crate::tuples;
 
 pub fn matrix4_translation(x: f64, y: f64, z: f64) -> matrices::Matrix4 {
     let mut t = matrices::IDENTITY_MATRIX;
-    t[0][3] = x;
-    t[1][3] = y;
-    t[2][3] = z;
+    t.0[0][3] = x;
+    t.0[1][3] = y;
+    t.0[2][3] = z;
     t
 }
 
 pub fn matrix4_scaling(x: f64, y: f64, z: f64) -> matrices::Matrix4 {
     let mut t = matrices::IDENTITY_MATRIX;
-    t[0][0] = x;
-    t[1][1] = y;
-    t[2][2] = z;
+    t.0[0][0] = x;
+    t.0[1][1] = y;
+    t.0[2][2] = z;
     t
 }
 
@@ -39,39 +40,39 @@ pub fn matrix4_transform_chain(arr: &Vec<matrices::Matrix4>) -> matrices::Matrix
 
 pub fn matrix4_rotation_x_rad(r: f64) -> matrices::Matrix4 {
     let mut t = matrices::IDENTITY_MATRIX;
-    t[1][1] = r.cos();
-    t[1][2] = -1.0 * r.sin();
-    t[2][1] = r.sin();
-    t[2][2] = r.cos();
+    t.0[1][1] = r.cos();
+    t.0[1][2] = -1.0 * r.sin();
+    t.0[2][1] = r.sin();
+    t.0[2][2] = r.cos();
     t
 }
 
 pub fn matrix4_rotation_y_rad(r: f64) -> matrices::Matrix4 {
     let mut t = matrices::IDENTITY_MATRIX;
-    t[0][0] = r.cos();
-    t[0][2] = r.sin();
-    t[2][0] = -1.0 * r.sin();
-    t[2][2] = r.cos();
+    t.0[0][0] = r.cos();
+    t.0[0][2] = r.sin();
+    t.0[2][0] = -1.0 * r.sin();
+    t.0[2][2] = r.cos();
     t
 }
 
 pub fn matrix4_rotation_z_rad(r: f64) -> matrices::Matrix4 {
     let mut t = matrices::IDENTITY_MATRIX;
-    t[0][0] = r.cos();
-    t[0][1] = -1.0 * r.sin();
-    t[1][0] = r.sin();
-    t[1][1] = r.cos();
+    t.0[0][0] = r.cos();
+    t.0[0][1] = -1.0 * r.sin();
+    t.0[1][0] = r.sin();
+    t.0[1][1] = r.cos();
     t
 }
 
 pub fn matrix4_shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> matrices::Matrix4 {
     let mut t = matrices::IDENTITY_MATRIX;
-    t[0][1] = xy;
-    t[0][2] = xz;
-    t[1][0] = yx;
-    t[1][2] = yz;
-    t[2][0] = zx;
-    t[2][1] = zy;
+    t.0[0][1] = xy;
+    t.0[0][2] = xz;
+    t.0[1][0] = yx;
+    t.0[1][2] = yz;
+    t.0[2][0] = zx;
+    t.0[2][1] = zy;
     t
 }
 
@@ -84,12 +85,12 @@ pub fn view_transform(
     let upn = up.normalize();
     let left = forward.cross_product(&upn);
     let true_up = left.cross_product(&forward);
-    let orientation = [
+    let orientation = Matrix4([
         [left.x, left.y, left.z, 0.0],
         [true_up.x, true_up.y, true_up.z, 0.0],
         [-forward.x, -forward.y, -forward.z, 0.0],
         [0.0, 0.0, 0.0, 1.0],
-    ];
+    ]);
     matrices::matrix4_multiply(
         &orientation,
         &matrix4_translation(-from.x, -from.y, -from.z),
@@ -347,12 +348,12 @@ mod tests {
         let to = tuples::point(4.0, -2.0, 8.0);
         let up = tuples::vector(1.0, 1.0, 0.0);
         let t = view_transform(&from, &to, &up);
-        let r = [
+        let r = Matrix4([
             [-0.50709, 0.50709, 0.67612, -2.36643],
             [0.76772, 0.60609, 0.12122, -2.82843],
             [-0.35857, 0.59761, -0.71714, 0.0],
             [0.0, 0.0, 0.0, 1.0],
-        ];
+        ]);
         assert_eq!(matrices::get_bool_equal_m4(&t, &r), true);
     }
 }
