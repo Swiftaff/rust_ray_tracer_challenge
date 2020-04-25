@@ -31,15 +31,22 @@ pub fn create_matrix2() -> Matrix2 {
     Matrix2(arr)
 }
 
-pub fn get_m2(m: &Matrix2, y: usize, x: usize) -> f64 {
-    m.0[y][x]
+impl Matrix2 {
+    pub fn get_at(&self, y: usize, x: usize) -> f64 {
+        self.0[y][x]
+    }
 }
 
-pub fn get_m3(m: &Matrix3, y: usize, x: usize) -> f64 {
-    m.0[y][x]
+impl Matrix3 {
+    pub fn get_at(&self, y: usize, x: usize) -> f64 {
+        self.0[y][x]
+    }
 }
-pub fn get_m4(m: &Matrix4, y: usize, x: usize) -> f64 {
-    m.0[y][x]
+
+impl Matrix4 {
+    pub fn get_at(&self, y: usize, x: usize) -> f64 {
+        self.0[y][x]
+    }
 }
 
 pub fn get_bool_equal_m4(m1: &Matrix4, m2: &Matrix4) -> bool {
@@ -260,35 +267,35 @@ mod tests {
             [9.0, 10.0, 11.0, 12.0],
             [13.5, 14.5, 15.5, 16.5],
         ]);
-        assert_eq!(get_m4(&m, 0, 0), 1.0);
-        assert_eq!(get_m4(&m, 0, 3), 4.0);
-        assert_eq!(get_m4(&m, 1, 0), 5.5);
-        assert_eq!(get_m4(&m, 1, 2), 7.5);
-        assert_eq!(get_m4(&m, 2, 2), 11.0);
-        assert_eq!(get_m4(&m, 3, 0), 13.5);
-        assert_eq!(get_m4(&m, 3, 2), 15.5);
+        assert_eq!(m.get_at(0, 0), 1.0);
+        assert_eq!(m.get_at(0, 3), 4.0);
+        assert_eq!(m.get_at(1, 0), 5.5);
+        assert_eq!(m.get_at(1, 2), 7.5);
+        assert_eq!(m.get_at(2, 2), 11.0);
+        assert_eq!(m.get_at(3, 0), 13.5);
+        assert_eq!(m.get_at(3, 2), 15.5);
     }
 
     #[test]
     fn test_matrix3() {
         //A 3x3 matrix ought to be representable
         let m = Matrix3([[1.0, 2.0, 3.0], [5.5, 6.5, 7.5], [9.0, 10.0, 11.0]]);
-        assert_eq!(get_m3(&m, 0, 0), 1.0);
-        assert_eq!(get_m3(&m, 0, 2), 3.0);
-        assert_eq!(get_m3(&m, 1, 0), 5.5);
-        assert_eq!(get_m3(&m, 1, 2), 7.5);
-        assert_eq!(get_m3(&m, 2, 2), 11.0);
-        assert_eq!(get_m3(&m, 2, 0), 9.0);
+        assert_eq!(m.get_at(0, 0), 1.0);
+        assert_eq!(m.get_at(0, 2), 3.0);
+        assert_eq!(m.get_at(1, 0), 5.5);
+        assert_eq!(m.get_at(1, 2), 7.5);
+        assert_eq!(m.get_at(2, 2), 11.0);
+        assert_eq!(m.get_at(2, 0), 9.0);
     }
 
     #[test]
     fn test_matrix2() {
         //A 2x2 matrix ought to be representable
         let m = Matrix2([[-3.0, 5.0], [1.0, -2.0]]);
-        assert_eq!(get_m2(&m, 0, 0), -3.0);
-        assert_eq!(get_m2(&m, 0, 1), 5.0);
-        assert_eq!(get_m2(&m, 1, 0), 1.0);
-        assert_eq!(get_m2(&m, 1, 1), -2.0);
+        assert_eq!(m.get_at(0, 0), -3.0);
+        assert_eq!(m.get_at(0, 1), 5.0);
+        assert_eq!(m.get_at(1, 0), 1.0);
+        assert_eq!(m.get_at(1, 1), -2.0);
     }
 
     #[test]
