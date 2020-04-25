@@ -87,7 +87,7 @@ impl World {
         let refracted = self.refracted_color(&c, &remaining);
         let material = c.object.material.clone();
         if material.reflective > 0.0 && material.transparency > 0.0 {
-            let reflectance = intersections::schlick(&c);
+            let reflectance = c.schlick();
             let c1 = col.add(&reflected.scalar_multiply(&reflectance));
             let c2 = refracted.scalar_multiply(&(1.0 - reflectance));
             c1.add(&c2)
@@ -102,7 +102,7 @@ impl World {
         match hit_temp {
             Err(_) => tuples::COLOR_BLACK,
             Ok(hit) => {
-                let comp = intersections::prepare_computations(&hit, &r, &Some(xs));
+                let comp = hit.prepare_computations(&r, &Some(xs));
                 self.shade_hit(&comp, &remaining)
             }
         }
@@ -254,7 +254,7 @@ mod tests {
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let s = w.objects[0].clone();
         let i = intersections::intersection(4.0, s);
-        let comps = intersections::prepare_computations(&i, &r, &None);
+        let comps = i.prepare_computations(&r, &None);
         let c = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(
             c.is_equal_to(&tuples::color(0.38066, 0.47583, 0.2855)),
@@ -273,7 +273,7 @@ mod tests {
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
         let s = w.objects[1].clone();
         let i = intersections::intersection(0.5, s);
-        let comps = intersections::prepare_computations(&i, &r, &None);
+        let comps = i.prepare_computations(&r, &None);
         let c = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(
             c.is_equal_to(&tuples::color(0.1, 0.1, 0.1)), //&tuples::color(0.90498, 0.90498, 0.90498)),
@@ -297,7 +297,7 @@ mod tests {
         w.objects.push(s2.clone());
         let r = rays::ray(tuples::point(0.0, 0.0, 5.0), tuples::vector(0.0, 0.0, 1.0));
         let i = intersections::intersection(4.0, s2);
-        let comps = intersections::prepare_computations(&i, &r, &None);
+        let comps = i.prepare_computations(&r, &None);
         let c = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(c.is_equal_to(&tuples::color(0.1, 0.1, 0.1)), true);
     }
@@ -378,7 +378,7 @@ mod tests {
         let mut s = w.objects[1].clone();
         s.material.ambient = 1.0;
         let i = intersections::intersection(1.0, s);
-        let comps = intersections::prepare_computations(&i, &r, &None);
+        let comps = i.prepare_computations(&r, &None);
         let col = w.reflected_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.is_equal_to(&tuples::COLOR_BLACK), true);
     }
@@ -396,7 +396,7 @@ mod tests {
             tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
-        let comps = intersections::prepare_computations(&i, &r, &None);
+        let comps = i.prepare_computations(&r, &None);
         let col = w.reflected_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(
             col.is_equal_to(&tuples::color(0.19033, 0.23791, 0.14275)),
@@ -417,7 +417,7 @@ mod tests {
             tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
-        let comps = intersections::prepare_computations(&i, &r, &None);
+        let comps = i.prepare_computations(&r, &None);
         let col = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(
             col.is_equal_to(&tuples::color(0.87676, 0.92434, 0.82917)),
@@ -463,7 +463,7 @@ mod tests {
             tuples::vector(0.0, 2.0_f64.sqrt() / -2.0, 2.0_f64.sqrt() / 2.0),
         );
         let i = intersections::intersection(2.0_f64.sqrt(), s);
-        let comps = intersections::prepare_computations(&i, &r, &None);
+        let comps = i.prepare_computations(&r, &None);
         let col = w.reflected_color(&comps, &0);
         assert_eq!(col.is_equal_to(&tuples::COLOR_BLACK), true);
     }
@@ -477,7 +477,7 @@ mod tests {
         let i1 = intersections::intersection(4.0, s.clone());
         let i2 = intersections::intersection(6.0, s.clone());
         let xs = intersections::intersection_list(vec![i1, i2]);
-        let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
+        let comps = xs[0].prepare_computations(&r, &Some(xs.clone()));
         let col = w.refracted_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.is_equal_to(&tuples::COLOR_BLACK), true);
     }
@@ -493,7 +493,7 @@ mod tests {
         let i1 = intersections::intersection(4.0, s.clone());
         let i2 = intersections::intersection(6.0, s.clone());
         let xs = intersections::intersection_list(vec![i1, i2]);
-        let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
+        let comps = xs[0].prepare_computations(&r, &Some(xs.clone()));
         let col = w.refracted_color(&comps, &0);
         assert_eq!(col.is_equal_to(&tuples::COLOR_BLACK), true);
     }
@@ -512,7 +512,7 @@ mod tests {
         let i1 = intersections::intersection(2.0_f64.sqrt() / -2.0, s.clone());
         let i2 = intersections::intersection(2.0_f64.sqrt() / 2.0, s.clone());
         let xs = intersections::intersection_list(vec![i1, i2]);
-        let comps = intersections::prepare_computations(&xs[1], &r, &Some(xs.clone()));
+        let comps = xs[1].prepare_computations(&r, &Some(xs.clone()));
         let col = w.refracted_color(&comps, &RECURSIVE_DEPTH);
         assert_eq!(col.is_equal_to(&tuples::COLOR_BLACK), true);
     }
@@ -534,7 +534,7 @@ mod tests {
         let i4 = intersections::intersection(0.9899, w.objects[0].clone());
 
         let xs = intersections::intersection_list(vec![i1, i2, i3, i4]);
-        let comps = intersections::prepare_computations(&xs[2], &r, &Some(xs.clone()));
+        let comps = xs[2].prepare_computations(&r, &Some(xs.clone()));
         let col = w.refracted_color(&comps, &RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
         assert_eq!(col.is_equal_to(&tuples::color(0.0, 0.99889, 0.04722)), true);
@@ -563,7 +563,7 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), floor);
         let xs = intersections::intersection_list(vec![i]);
-        let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
+        let comps = xs[0].prepare_computations(&r, &Some(xs.clone()));
         let col = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         assert_eq!(
             col.is_equal_to(&tuples::color(0.93642, 0.68642, 0.68642)),
@@ -595,7 +595,7 @@ mod tests {
         );
         let i = intersections::intersection(2.0_f64.sqrt(), floor);
         let xs = intersections::intersection_list(vec![i]);
-        let comps = intersections::prepare_computations(&xs[0], &r, &Some(xs.clone()));
+        let comps = xs[0].prepare_computations(&r, &Some(xs.clone()));
         let col = w.shade_hit(&comps, &RECURSIVE_DEPTH);
         println!("{} {} {}", col.red, col.green, col.blue);
         assert_eq!(
