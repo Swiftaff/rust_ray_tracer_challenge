@@ -52,14 +52,14 @@ pub fn ray_for_pixel(camera: &Camera, px: u32, py: u32) -> rays::Ray {
     //using the camera matrix, transform the canvas point and the origin,
     //and then compute the ray's direction vector.
     //(remember that the canvas is at z=-1)
-    let pixel: tuples::Point = matrices::matrix4_tuple_multiply(
-        &matrices::matrix4_inverse(&camera.transform),
-        &tuples::point(world_x, world_y, -1.0),
-    );
-    let origin: tuples::Point = matrices::matrix4_tuple_multiply(
-        &matrices::matrix4_inverse(&camera.transform),
-        &tuples::point(0.0, 0.0, 0.0),
-    );
+    let pixel: tuples::Point = camera
+        .transform
+        .inverse()
+        .tuple_multiply(&tuples::point(world_x, world_y, -1.0));
+    let origin: tuples::Point = camera
+        .transform
+        .inverse()
+        .tuple_multiply(&tuples::point(0.0, 0.0, 0.0));
     let direction: tuples::Vector = pixel.subtract(&origin).normalize();
 
     rays::ray(origin, direction)

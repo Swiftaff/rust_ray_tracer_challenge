@@ -49,6 +49,10 @@ impl Matrix2 {
         }
         are_equal
     }
+
+    pub fn determinant(&self) -> f64 {
+        self.0[0][0] * self.0[1][1] - self.0[0][1] * self.0[1][0]
+    }
 }
 
 impl Matrix3 {
@@ -68,6 +72,43 @@ impl Matrix3 {
             }
         }
         are_equal
+    }
+
+    pub fn determinant(&self) -> f64 {
+        let mut det = 0.0;
+        for col in 0..3 {
+            det = det + self.0[0][col] * self.cofactor(&0, &col);
+        }
+        det
+    }
+
+    pub fn minor(&self, row_to_delete: &usize, col_to_delete: &usize) -> f64 {
+        self.submatrix2(row_to_delete, col_to_delete).determinant()
+    }
+
+    pub fn cofactor(&self, row: &usize, col: &usize) -> f64 {
+        let m1 = self.minor(row, col);
+        if (row + col) % 2 == 1 {
+            -1.0 * m1
+        } else {
+            m1
+        }
+    }
+
+    pub fn submatrix2(&self, row_to_delete: &usize, col_to_delete: &usize) -> Matrix2 {
+        let mut result = create_matrix2();
+        for y in 0..3 {
+            for x in 0..3 {
+                if &y != row_to_delete {
+                    if &x != col_to_delete {
+                        let xx = if &x > col_to_delete { x - 1 } else { x };
+                        let yy = if &y > row_to_delete { y - 1 } else { y };
+                        result.0[yy][xx] = self.0[y][x];
+                    }
+                }
+            }
+        }
+        result
     }
 }
 
@@ -91,7 +132,7 @@ impl Matrix4 {
     }
 
     pub fn is_invertible(&self) -> bool {
-        !tuples::get_bool_numbers_are_equal(&matrix4_determinant(&self), &0.0)
+        !tuples::get_bool_numbers_are_equal(&self.determinant(), &0.0)
     }
 
     pub fn multiply(&self, m2: &Matrix4) -> Matrix4 {
@@ -117,132 +158,77 @@ impl Matrix4 {
         }
         result
     }
-}
 
-pub fn matrix2_determinant(m: &Matrix2) -> f64 {
-    m.0[0][0] * m.0[1][1] - m.0[0][1] * m.0[1][0]
-}
-
-pub fn matrix3_determinant(m: &Matrix3) -> f64 {
-    let mut det = 0.0;
-    for col in 0..3 {
-        det = det + m.0[0][col] * matrix3_cofactor(m, &0, &col);
+    pub fn determinant(&self) -> f64 {
+        let mut det = 0.0;
+        for col in 0..4 {
+            det = det + self.0[0][col] * self.cofactor(&0, &col);
+        }
+        det
     }
-    det
-}
 
-pub fn matrix4_determinant(m: &Matrix4) -> f64 {
-    let mut det = 0.0;
-    for col in 0..4 {
-        det = det + m.0[0][col] * matrix4_cofactor(m, &0, &col);
+    pub fn minor(&self, row_to_delete: &usize, col_to_delete: &usize) -> f64 {
+        self.submatrix3(row_to_delete, col_to_delete).determinant()
     }
-    det
-}
 
-pub fn matrix3_minor(m: &Matrix3, row_to_delete: &usize, col_to_delete: &usize) -> f64 {
-    matrix2_determinant(&matrix3_submatrix2(m, row_to_delete, col_to_delete))
-}
-
-pub fn matrix4_minor(m: &Matrix4, row_to_delete: &usize, col_to_delete: &usize) -> f64 {
-    matrix3_determinant(&matrix4_submatrix3(m, row_to_delete, col_to_delete))
-}
-
-pub fn matrix3_cofactor(m: &Matrix3, row: &usize, col: &usize) -> f64 {
-    let m1 = matrix3_minor(m, row, col);
-    if (row + col) % 2 == 1 {
-        -1.0 * m1
-    } else {
-        m1
-    }
-}
-
-pub fn matrix4_cofactor(m: &Matrix4, row: &usize, col: &usize) -> f64 {
-    let m1 = matrix4_minor(m, row, col);
-    if (row + col) % 2 == 1 {
-        -1.0 * m1
-    } else {
-        m1
-    }
-}
-
-pub fn matrix3_submatrix2(m: &Matrix3, row_to_delete: &usize, col_to_delete: &usize) -> Matrix2 {
-    let mut result = create_matrix2();
-    for y in 0..3 {
-        for x in 0..3 {
-            if &y != row_to_delete {
-                if &x != col_to_delete {
-                    let xx = if &x > col_to_delete { x - 1 } else { x };
-                    let yy = if &y > row_to_delete { y - 1 } else { y };
-                    result.0[yy][xx] = m.0[y][x];
-                }
-            }
+    pub fn cofactor(&self, row: &usize, col: &usize) -> f64 {
+        let m1 = self.minor(row, col);
+        if (row + col) % 2 == 1 {
+            -1.0 * m1
+        } else {
+            m1
         }
     }
-    result
-}
 
-pub fn matrix4_submatrix3(m: &Matrix4, row_to_delete: &usize, col_to_delete: &usize) -> Matrix3 {
-    let mut result = create_matrix3();
-    for y in 0..4 {
-        for x in 0..4 {
-            if &y != row_to_delete {
-                if &x != col_to_delete {
-                    let xx = if &x > col_to_delete { x - 1 } else { x };
-                    let yy = if &y > row_to_delete { y - 1 } else { y };
-                    result.0[yy][xx] = m.0[y][x];
-                }
-            }
-        }
-    }
-    result
-}
-
-pub fn matrix4_tuple_multiply(m1: &Matrix4, t: &tuples::Tuple) -> tuples::Tuple {
-    let mut result = [[0.0], [0.0], [0.0], [0.0]];
-    let m2 = [[t.x], [t.y], [t.z], [t.w as f64]];
-    for y in 0..4 {
-        for x in 0..1 {
-            let mut this_result = 0.0;
-            for xx in 0..4 {
-                this_result = this_result + m1.0[y][xx] * m2[xx][x];
-            }
-            result[y][x] = this_result;
-        }
-    }
-    tuples::Tuple {
-        x: result[0][0],
-        y: result[1][0],
-        z: result[2][0],
-        w: result[3][0] as u32,
-    }
-}
-
-pub fn matrix3_multiply(m1: &Matrix3, m2: &Matrix3) -> Matrix3 {
-    let mut result = create_matrix3();
-    for y in 0..3 {
-        for x in 0..3 {
-            let mut this_result = 0.0;
-            for xx in 0..3 {
-                this_result = this_result + m1.0[y][xx] * m2.0[xx][x];
-            }
-            result.0[y][x] = this_result;
-        }
-    }
-    result
-}
-
-pub fn matrix4_inverse(m: &Matrix4) -> Matrix4 {
-    if m.is_invertible() {
-        let mut result = create_matrix4();
+    pub fn submatrix3(&self, row_to_delete: &usize, col_to_delete: &usize) -> Matrix3 {
+        let mut result = create_matrix3();
         for y in 0..4 {
             for x in 0..4 {
-                let c = matrix4_cofactor(m, &y, &x);
-                result.0[x][y] = c / matrix4_determinant(&m);
+                if &y != row_to_delete {
+                    if &x != col_to_delete {
+                        let xx = if &x > col_to_delete { x - 1 } else { x };
+                        let yy = if &y > row_to_delete { y - 1 } else { y };
+                        result.0[yy][xx] = self.0[y][x];
+                    }
+                }
             }
         }
         result
-    } else {
-        *m
+    }
+
+    pub fn tuple_multiply(&self, t: &tuples::Tuple) -> tuples::Tuple {
+        let mut result = [[0.0], [0.0], [0.0], [0.0]];
+        let m2 = [[t.x], [t.y], [t.z], [t.w as f64]];
+        for y in 0..4 {
+            for x in 0..1 {
+                let mut this_result = 0.0;
+                for xx in 0..4 {
+                    this_result = this_result + self.0[y][xx] * m2[xx][x];
+                }
+                result[y][x] = this_result;
+            }
+        }
+        tuples::Tuple {
+            x: result[0][0],
+            y: result[1][0],
+            z: result[2][0],
+            w: result[3][0] as u32,
+        }
+    }
+
+    pub fn inverse(&self) -> Matrix4 {
+        if self.is_invertible() {
+            let mut result = create_matrix4();
+            for y in 0..4 {
+                for x in 0..4 {
+                    let c = self.cofactor(&y, &x);
+                    result.0[x][y] = c / self.determinant();
+                }
+            }
+            result
+        } else {
+            *self
+        }
     }
 }
 
@@ -393,7 +379,7 @@ mod tests {
         ]);
         let t = tuples::tuple(1.0, 2.0, 3.0, 1);
         let r = tuples::tuple(18.0, 24.0, 33.0, 1);
-        assert_eq!(matrix4_tuple_multiply(&m1, &t).is_equal_to(&r), true);
+        assert_eq!(m1.tuple_multiply(&t).is_equal_to(&r), true);
     }
 
     #[test]
@@ -440,7 +426,7 @@ mod tests {
         //Calculating the determinant of a 2x2 matrix
         let m1 = Matrix2([[1.0, 5.0], [-3.0, 2.0]]);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix2_determinant(&m1), &17.0),
+            tuples::get_bool_numbers_are_equal(&m1.determinant(), &17.0),
             true
         );
     }
@@ -450,7 +436,7 @@ mod tests {
         //A submatrix of 3x3 matrix is a 2x2 matrix
         let m1 = Matrix3([[1.0, 5.0, 0.0], [-3.0, 2.0, 7.0], [0.0, 6.0, -3.0]]);
         let r = Matrix2([[-3.0, 2.0], [0.0, 6.0]]);
-        assert_eq!(matrix3_submatrix2(&m1, &0, &2).is_equal_to(&r), true);
+        assert_eq!(m1.submatrix2(&0, &2).is_equal_to(&r), true);
     }
 
     #[test]
@@ -463,17 +449,17 @@ mod tests {
             [-7.0, 1.0, -1.0, 1.0],
         ]);
         let r = Matrix3([[-6.0, 1.0, 6.0], [-8.0, 8.0, 6.0], [-7.0, -1.0, 1.0]]);
-        assert_eq!(matrix4_submatrix3(&m1, &2, &1).is_equal_to(&r), true);
+        assert_eq!(m1.submatrix3(&2, &1).is_equal_to(&r), true);
     }
 
     #[test]
     fn test_matrix3_minor() {
         //Calculating a minor of a 3 x 3 matrix
         let m = Matrix3([[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]]);
-        let s = matrix3_submatrix2(&m, &1, &0);
-        let d = matrix2_determinant(&s);
+        let s = m.submatrix2(&1, &0);
+        let d = s.determinant();
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_minor(&m, &1, &0), &d),
+            tuples::get_bool_numbers_are_equal(&m.minor(&1, &0), &d),
             true
         );
         assert_eq!(tuples::get_bool_numbers_are_equal(&d, &25.0), true);
@@ -484,19 +470,19 @@ mod tests {
         //Calculating a cofactor of a 3 x 3 matrix
         let m = Matrix3([[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]]);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_minor(&m, &0, &0), &-12.0),
+            tuples::get_bool_numbers_are_equal(&m.minor(&0, &0), &-12.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(&m, &0, &0), &-12.0),
+            tuples::get_bool_numbers_are_equal(&m.cofactor(&0, &0), &-12.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_minor(&m, &1, &0), &25.0),
+            tuples::get_bool_numbers_are_equal(&m.minor(&1, &0), &25.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(&m, &1, &0), &-25.0),
+            tuples::get_bool_numbers_are_equal(&m.cofactor(&1, &0), &-25.0),
             true
         );
     }
@@ -506,19 +492,19 @@ mod tests {
         //Calculating the determinant of a 3 x 3 matrix
         let m1 = Matrix3([[1.0, 2.0, 6.0], [-5.0, 8.0, -4.0], [2.0, 6.0, 4.0]]);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(&m1, &0, &0), &56.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&0, &0), &56.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(&m1, &0, &1), &12.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&0, &1), &12.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_cofactor(&m1, &0, &2), &-46.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&0, &2), &-46.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix3_determinant(&m1), &-196.0),
+            tuples::get_bool_numbers_are_equal(&m1.determinant(), &-196.0),
             true
         );
     }
@@ -533,23 +519,23 @@ mod tests {
             [-6.0, 7.0, 7.0, -9.0],
         ]);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(&m1, &0, &0), &690.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&0, &0), &690.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(&m1, &0, &1), &447.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&0, &1), &447.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(&m1, &0, &2), &210.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&0, &2), &210.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(&m1, &0, &3), &51.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&0, &3), &51.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_determinant(&m1), &-4071.0),
+            tuples::get_bool_numbers_are_equal(&m1.determinant(), &-4071.0),
             true
         );
     }
@@ -564,7 +550,7 @@ mod tests {
             [9.0, 1.0, 7.0, -6.0],
         ]);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_determinant(&m1), &-2120.0),
+            tuples::get_bool_numbers_are_equal(&m1.determinant(), &-2120.0),
             true
         );
         assert_eq!(m1.is_invertible(), true)
@@ -580,7 +566,7 @@ mod tests {
             [0.0, 0.0, 0.0, 0.0],
         ]);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_determinant(&m1), &0.0),
+            tuples::get_bool_numbers_are_equal(&m1.determinant(), &0.0),
             true
         );
         assert_eq!(m1.is_invertible(), false)
@@ -595,7 +581,7 @@ mod tests {
             [7.0, 7.0, -6.0, -7.0],
             [1.0, -3.0, 7.0, 4.0],
         ]);
-        let m2 = matrix4_inverse(&m1);
+        let m2 = m1.inverse();
         let result = Matrix4([
             [0.21805, 0.45113, 0.2406, -0.04511],
             [-0.80827, -1.45677, -0.44361, 0.52068],
@@ -603,11 +589,11 @@ mod tests {
             [-0.52256, -0.81391, -0.30075, 0.30639],
         ]);
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_determinant(&m1), &532.0),
+            tuples::get_bool_numbers_are_equal(&m1.determinant(), &532.0),
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(&m1, &2, &3), &-160.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&2, &3), &-160.0),
             true
         );
         assert_eq!(
@@ -615,7 +601,7 @@ mod tests {
             true
         );
         assert_eq!(
-            tuples::get_bool_numbers_are_equal(&matrix4_cofactor(&m1, &3, &2), &105.0),
+            tuples::get_bool_numbers_are_equal(&m1.cofactor(&3, &2), &105.0),
             true
         );
         assert_eq!(
@@ -634,7 +620,7 @@ mod tests {
             [-6.0, 0.0, 9.0, 6.0],
             [-3.0, 0.0, -9.0, -4.0],
         ]);
-        let m2 = matrix4_inverse(&m1);
+        let m2 = m1.inverse();
         let result = Matrix4([
             [-0.15385, -0.15385, -0.28205, -0.53846],
             [-0.07692, 0.12308, 0.02564, 0.03077],
@@ -653,7 +639,7 @@ mod tests {
             [-4.0, 9.0, 6.0, 4.0],
             [-7.0, 6.0, 6.0, 2.0],
         ]);
-        let m2 = matrix4_inverse(&m1);
+        let m2 = m1.inverse();
         let result = Matrix4([
             [-0.04074, -0.07778, 0.14444, -0.22222],
             [-0.07778, 0.03333, 0.36667, -0.33333],
@@ -679,6 +665,6 @@ mod tests {
             [6.0, -2.0, 0.0, 5.0],
         ]);
         let m3 = m1.multiply(&m2);
-        assert_eq!(m3.multiply(&matrix4_inverse(&m2)).is_equal_to(&m1), true);
+        assert_eq!(m3.multiply(&m2.inverse()).is_equal_to(&m1), true);
     }
 }

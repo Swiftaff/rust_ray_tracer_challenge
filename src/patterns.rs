@@ -67,12 +67,8 @@ impl Pattern {
     }
 
     pub fn pattern_at_shape(&self, s: &shapes::Shape, p: &tuples::Point) -> tuples::Color {
-        let local_point: tuples::Point =
-            matrices::matrix4_tuple_multiply(&matrices::matrix4_inverse(&s.transform), &p);
-        let pattern_point: tuples::Point = matrices::matrix4_tuple_multiply(
-            &matrices::matrix4_inverse(&self.transform),
-            &local_point,
-        );
+        let local_point: tuples::Point = s.transform.inverse().tuple_multiply(&p);
+        let pattern_point: tuples::Point = self.transform.inverse().tuple_multiply(&local_point);
         match self.pattern_type {
             PatternType::Stripe => self.stripe_at(&pattern_point),
             PatternType::PatternTest => self.test_pattern_at(&pattern_point),

@@ -36,7 +36,7 @@ pub fn shape(shape_type: ShapeType) -> Shape {
 
 impl Shape {
     pub fn intersect(&self, r: &rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
-        let local_r: rays::Ray = r.transform(matrices::matrix4_inverse(&self.transform));
+        let local_r: rays::Ray = r.transform(self.transform.inverse());
         match self.shape_type {
             ShapeType::Cube => cubes::local_intersect(&self, &local_r),
             ShapeType::Plane => planes::local_intersect(&self, &local_r),
@@ -46,20 +46,18 @@ impl Shape {
     }
 
     pub fn normal_at(&self, world_point: &tuples::Point) -> tuples::Vector {
-        let local_point: tuples::Point = matrices::matrix4_tuple_multiply(
-            &matrices::matrix4_inverse(&self.transform),
-            &world_point,
-        );
+        let local_point: tuples::Point = self.transform.inverse().tuple_multiply(&world_point);
         let local_normal = match self.shape_type {
             ShapeType::Cube => cubes::local_normal_at(&local_point),
             ShapeType::Plane => planes::local_normal_at(),
             ShapeType::ShapeTest => test_local_normal_at(&local_point),
             ShapeType::Sphere => spheres::local_normal_at(&local_point),
         };
-        let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
-            &matrices::matrix4_inverse(&self.transform).transpose(),
-            &local_normal,
-        );
+        let mut world_normal: tuples::Vector = self
+            .transform
+            .inverse()
+            .transpose()
+            .tuple_multiply(&local_normal);
         world_normal.w = 0;
         world_normal.normalize()
     }
