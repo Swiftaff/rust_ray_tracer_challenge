@@ -39,7 +39,7 @@ pub fn world_main(w: u32, h: u32) {
     let to = tuples::point(0.0, 1.0, 0.0);
     let up = tuples::vector(0.0, 1.0, 0.0);
     c.transform = transformations::view_transform(&from, &to, &up);
-    let image = camera::render_percent_message(c, world, 0.01);
+    let image = c.render_percent_message(world, 0.01);
     let duration1 = start1.elapsed();
     println!("Time to calculate data: {:?}", duration1);
 

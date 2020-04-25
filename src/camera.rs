@@ -18,6 +18,61 @@ pub struct Camera {
     pub pixel_size: f64,
 }
 
+impl Camera {
+    pub fn ray_for_pixel(&self, px: u32, py: u32) -> rays::Ray {
+        //the offset from the edge of the canvas to the pixel's center
+        let xoffset: f64 = (px as f64 + 0.5) * self.pixel_size;
+        let yoffset: f64 = (py as f64 + 0.5) * self.pixel_size;
+
+        //the untransformed coordinates of the pixel in world space.
+        //(remember that the camera looks toward -z, so +x is to the *left*.)
+        let world_x: f64 = self.half_width - xoffset;
+        let world_y: f64 = self.half_height - yoffset;
+
+        //using the camera matrix, transform the canvas point and the origin,
+        //and then compute the ray's direction vector.
+        //(remember that the canvas is at z=-1)
+        let pixel: tuples::Point = self
+            .transform
+            .inverse()
+            .tuple_multiply(&tuples::point(world_x, world_y, -1.0));
+        let origin: tuples::Point = self
+            .transform
+            .inverse()
+            .tuple_multiply(&tuples::point(0.0, 0.0, 0.0));
+        let direction: tuples::Vector = pixel.subtract(&origin).normalize();
+
+        rays::ray(origin, direction)
+    }
+
+    pub fn render(&self, w: &worlds::World) -> canvas::PixelCanvas {
+        let mut image = canvas::pixel_canvas(self.hsize, self.vsize, tuples::COLOR_BLACK);
+        for y in 0..self.vsize {
+            for x in 0..self.hsize {
+                let r = self.ray_for_pixel(x, y);
+                let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
+                image = image.pixel_write(&x, &y, col);
+            }
+        }
+        image
+    }
+
+    pub fn render_percent_message(&self, w: worlds::World, incr: f64) -> canvas::PixelCanvas {
+        let mut image = canvas::pixel_canvas(self.hsize, self.vsize, tuples::COLOR_BLACK);
+        let mut pc = 0.0;
+        let timer = Instant::now();
+        for y in 0..self.vsize {
+            pc = percent_message(y as f64, self.vsize as f64, pc, incr, timer.elapsed());
+            for x in 0..self.hsize {
+                let r = self.ray_for_pixel(x, y);
+                let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
+                image = image.pixel_write(&x, &y, col);
+            }
+        }
+        image
+    }
+}
+
 pub fn camera(hsize: u32, vsize: u32, field_of_view: f64) -> Camera {
     let half_view: f64 = (field_of_view / 2.0).tan();
     let aspect: f64 = (hsize as f64) / vsize as f64;
@@ -37,44 +92,6 @@ pub fn camera(hsize: u32, vsize: u32, field_of_view: f64) -> Camera {
         transform: matrices::IDENTITY_MATRIX,
         pixel_size: pixel_size,
     }
-}
-
-pub fn ray_for_pixel(camera: &Camera, px: u32, py: u32) -> rays::Ray {
-    //the offset from the edge of the canvas to the pixel's center
-    let xoffset: f64 = (px as f64 + 0.5) * camera.pixel_size;
-    let yoffset: f64 = (py as f64 + 0.5) * camera.pixel_size;
-
-    //the untransformed coordinates of the pixel in world space.
-    //(remember that the camera looks toward -z, so +x is to the *left*.)
-    let world_x: f64 = camera.half_width - xoffset;
-    let world_y: f64 = camera.half_height - yoffset;
-
-    //using the camera matrix, transform the canvas point and the origin,
-    //and then compute the ray's direction vector.
-    //(remember that the canvas is at z=-1)
-    let pixel: tuples::Point = camera
-        .transform
-        .inverse()
-        .tuple_multiply(&tuples::point(world_x, world_y, -1.0));
-    let origin: tuples::Point = camera
-        .transform
-        .inverse()
-        .tuple_multiply(&tuples::point(0.0, 0.0, 0.0));
-    let direction: tuples::Vector = pixel.subtract(&origin).normalize();
-
-    rays::ray(origin, direction)
-}
-
-pub fn render(c: &Camera, w: &worlds::World) -> canvas::PixelCanvas {
-    let mut image = canvas::pixel_canvas(c.hsize, c.vsize, tuples::COLOR_BLACK);
-    for y in 0..c.vsize {
-        for x in 0..c.hsize {
-            let r = ray_for_pixel(&c, x, y);
-            let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
-            image = image.pixel_write(&x, &y, col);
-        }
-    }
-    image
 }
 
 pub fn percent_message(
@@ -102,21 +119,6 @@ pub fn percent_message(
         pc = progress + incr;
     }
     pc
-}
-
-pub fn render_percent_message(c: Camera, w: worlds::World, incr: f64) -> canvas::PixelCanvas {
-    let mut image = canvas::pixel_canvas(c.hsize, c.vsize, tuples::COLOR_BLACK);
-    let mut pc = 0.0;
-    let timer = Instant::now();
-    for y in 0..c.vsize {
-        pc = percent_message(y as f64, c.vsize as f64, pc, incr, timer.elapsed());
-        for x in 0..c.hsize {
-            let r = ray_for_pixel(&c, x, y);
-            let col = w.color_at(&r, &worlds::RECURSIVE_DEPTH);
-            image = image.pixel_write(&x, &y, col);
-        }
-    }
-    image
 }
 
 #[cfg(test)]
@@ -165,7 +167,7 @@ mod tests {
     fn test_constructing_ray_through_center_of_canvas() {
         //Constructing a ray through the center of the canvas
         let c = camera(201, 101, PI / 2.0);
-        let r = ray_for_pixel(&c, 100, 50);
+        let r = c.ray_for_pixel(100, 50);
         assert_eq!(r.origin.is_equal_to(&tuples::point(0.0, 0.0, 0.0)), true);
         assert_eq!(
             r.direction.is_equal_to(&tuples::vector(0.0, 0.0, -1.0)),
@@ -177,7 +179,7 @@ mod tests {
     fn test_constructing_ray_through_corner_of_canvas() {
         //Constructing a ray through a corner of the canvas
         let c = camera(201, 101, PI / 2.0);
-        let r = ray_for_pixel(&c, 0, 0);
+        let r = c.ray_for_pixel(0, 0);
         assert_eq!(r.origin.is_equal_to(&tuples::point(0.0, 0.0, 0.0)), true);
         assert_eq!(
             r.direction
@@ -193,7 +195,7 @@ mod tests {
         let rot = transformations::matrix4_rotation_y_rad(PI / 4.0);
         let tran = transformations::matrix4_translation(0.0, -2.0, 5.0);
         c.transform = rot.multiply(&tran);
-        let r = ray_for_pixel(&c, 100, 50);
+        let r = c.ray_for_pixel(100, 50);
         assert_eq!(r.origin.is_equal_to(&tuples::point(0.0, 2.0, -5.0)), true);
         assert_eq!(
             r.direction.is_equal_to(&tuples::vector(
@@ -214,7 +216,7 @@ mod tests {
         let up = tuples::vector(0.0, 1.0, 0.0);
         let mut c = camera(11, 11, PI / 2.0);
         c.transform = transformations::view_transform(&from, &to, &up);
-        let image = render(&c, &w);
+        let image = c.render(&w);
         let pa = image.get_at(&5, &5);
         let col = tuples::color(0.38066, 0.47583, 0.2855);
         assert_eq!(pa.is_equal_to(&col), true);
