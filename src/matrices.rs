@@ -35,20 +35,8 @@ impl Matrix2 {
     pub fn get_at(&self, y: usize, x: usize) -> f64 {
         self.0[y][x]
     }
-}
 
-impl Matrix3 {
-    pub fn get_at(&self, y: usize, x: usize) -> f64 {
-        self.0[y][x]
-    }
-}
-
-impl Matrix4 {
-    pub fn get_at(&self, y: usize, x: usize) -> f64 {
-        self.0[y][x]
-    }
-
-    pub fn equals(&self, m2: &Matrix4) -> bool {
+    pub fn is_equal_to(&self, m2: &Matrix2) -> bool {
         let mut are_equal = true;
         let rows = self.0.len();
         let cols = self.0[0].len();
@@ -63,68 +51,72 @@ impl Matrix4 {
     }
 }
 
-pub fn get_bool_equal_m3(m1: &Matrix3, m2: &Matrix3) -> bool {
-    let mut are_equal = true;
-    let rows = m1.0.len();
-    let cols = m1.0[0].len();
-    for y in 0..rows {
-        for x in 0..cols {
-            if tuples::get_bool_numbers_are_equal(&m1.0[y][x], &m2.0[y][x]) == false {
-                are_equal = false;
+impl Matrix3 {
+    pub fn get_at(&self, y: usize, x: usize) -> f64 {
+        self.0[y][x]
+    }
+
+    pub fn is_equal_to(&self, m2: &Matrix3) -> bool {
+        let mut are_equal = true;
+        let rows = self.0.len();
+        let cols = self.0[0].len();
+        for y in 0..rows {
+            for x in 0..cols {
+                if tuples::get_bool_numbers_are_equal(&self.0[y][x], &m2.0[y][x]) == false {
+                    are_equal = false;
+                }
             }
         }
+        are_equal
     }
-    are_equal
 }
 
-pub fn get_bool_equal_m2(m1: &Matrix2, m2: &Matrix2) -> bool {
-    let mut are_equal = true;
-    let rows = m1.0.len();
-    let cols = m1.0[0].len();
-    for y in 0..rows {
-        for x in 0..cols {
-            if tuples::get_bool_numbers_are_equal(&m1.0[y][x], &m2.0[y][x]) == false {
-                are_equal = false;
+impl Matrix4 {
+    pub fn get_at(&self, y: usize, x: usize) -> f64 {
+        self.0[y][x]
+    }
+
+    pub fn is_equal_to(&self, m2: &Matrix4) -> bool {
+        let mut are_equal = true;
+        let rows = self.0.len();
+        let cols = self.0[0].len();
+        for y in 0..rows {
+            for x in 0..cols {
+                if tuples::get_bool_numbers_are_equal(&self.0[y][x], &m2.0[y][x]) == false {
+                    are_equal = false;
+                }
             }
         }
+        are_equal
     }
-    are_equal
-}
 
-fn get_bool_matrix4_is_invertible(m: &Matrix4) -> bool {
-    !tuples::get_bool_numbers_are_equal(&matrix4_determinant(m), &0.0)
-}
+    pub fn is_invertible(&self) -> bool {
+        !tuples::get_bool_numbers_are_equal(&matrix4_determinant(&self), &0.0)
+    }
 
-fn get_bool_matrix3_is_invertible(m: &Matrix3) -> bool {
-    !tuples::get_bool_numbers_are_equal(&matrix3_determinant(m), &0.0)
-}
-
-fn get_bool_matrix2_is_invertible(m: &Matrix2) -> bool {
-    !tuples::get_bool_numbers_are_equal(&matrix2_determinant(m), &0.0)
-}
-
-pub fn matrix4_multiply(m1: &Matrix4, m2: &Matrix4) -> Matrix4 {
-    let mut result = create_matrix4();
-    for y in 0..4 {
-        for x in 0..4 {
-            let mut this_result = 0.0;
-            for xx in 0..4 {
-                this_result = this_result + m1.0[y][xx] * m2.0[xx][x];
+    pub fn multiply(&self, m2: &Matrix4) -> Matrix4 {
+        let mut result = create_matrix4();
+        for y in 0..4 {
+            for x in 0..4 {
+                let mut this_result = 0.0;
+                for xx in 0..4 {
+                    this_result = this_result + self.0[y][xx] * m2.0[xx][x];
+                }
+                result.0[y][x] = this_result;
             }
-            result.0[y][x] = this_result;
         }
+        result
     }
-    result
-}
 
-pub fn matrix4_transpose(m: &Matrix4) -> Matrix4 {
-    let mut result = create_matrix4();
-    for y in 0..4 {
-        for x in 0..4 {
-            result.0[y][x] = m.0[x][y];
+    pub fn transpose(&self) -> Matrix4 {
+        let mut result = create_matrix4();
+        for y in 0..4 {
+            for x in 0..4 {
+                result.0[y][x] = self.0[x][y];
+            }
         }
+        result
     }
-    result
 }
 
 pub fn matrix2_determinant(m: &Matrix2) -> f64 {
@@ -240,7 +232,7 @@ pub fn matrix3_multiply(m1: &Matrix3, m2: &Matrix3) -> Matrix3 {
 }
 
 pub fn matrix4_inverse(m: &Matrix4) -> Matrix4 {
-    if get_bool_matrix4_is_invertible(&m) {
+    if m.is_invertible() {
         let mut result = create_matrix4();
         for y in 0..4 {
             for x in 0..4 {
@@ -313,7 +305,7 @@ mod tests {
             [9.0, 8.0, 7.0, 6.0],
             [5.0, 4.0, 3.0, 2.0],
         ]);
-        assert_eq!(m1.equals(&m2), true);
+        assert_eq!(m1.is_equal_to(&m2), true);
     }
 
     #[test]
@@ -321,7 +313,7 @@ mod tests {
         //Matrix equality with identical matrices3
         let m1 = Matrix3([[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]]);
         let m2 = Matrix3([[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]]);
-        assert_eq!(get_bool_equal_m3(&m1, &m2), true);
+        assert_eq!(m1.is_equal_to(&m2), true);
     }
 
     #[test]
@@ -329,7 +321,7 @@ mod tests {
         //Matrix equality with identical matrices2
         let m1 = Matrix2([[1.0, 2.0], [5.0, 6.0]]);
         let m2 = Matrix2([[1.0, 2.0], [5.0, 6.0]]);
-        assert_eq!(get_bool_equal_m2(&m1, &m2), true);
+        assert_eq!(m1.is_equal_to(&m2), true);
     }
 
     #[test]
@@ -347,7 +339,7 @@ mod tests {
             [5.0, 4.0, 3.0, 2.0],
             [1.0, 2.0, 3.0, 4.0],
         ]);
-        assert_eq!(m1.equals(&m2), false);
+        assert_eq!(m1.is_equal_to(&m2), false);
     }
 
     #[test]
@@ -355,7 +347,7 @@ mod tests {
         //Matrix equality with different matrices3
         let m1 = Matrix3([[1.0, 2.0, 3.0], [5.0, 6.0, 7.0], [9.0, 8.0, 7.0]]);
         let m2 = Matrix3([[5.0, 6.0, 7.0], [9.0, 8.0, 7.0], [1.0, 2.0, 3.0]]);
-        assert_eq!(get_bool_equal_m3(&m1, &m2), false);
+        assert_eq!(m1.is_equal_to(&m2), false);
     }
 
     #[test]
@@ -363,7 +355,7 @@ mod tests {
         //Matrix equality with different matrices2
         let m1 = Matrix2([[1.0, 2.0], [5.0, 6.0]]);
         let m2 = Matrix2([[5.0, 6.0], [1.0, 2.0]]);
-        assert_eq!(get_bool_equal_m2(&m1, &m2), false);
+        assert_eq!(m1.is_equal_to(&m2), false);
     }
 
     #[test]
@@ -387,7 +379,7 @@ mod tests {
             [40.0, 58.0, 110.0, 102.0],
             [16.0, 26.0, 46.0, 42.0],
         ]);
-        assert_eq!(matrix4_multiply(&m1, &m2).equals(&m3), true);
+        assert_eq!(m1.multiply(&m2).is_equal_to(&m3), true);
     }
 
     #[test]
@@ -401,7 +393,7 @@ mod tests {
         ]);
         let t = tuples::tuple(1.0, 2.0, 3.0, 1);
         let r = tuples::tuple(18.0, 24.0, 33.0, 1);
-        assert_eq!(matrix4_tuple_multiply(&m1, &t).equals(&r), true);
+        assert_eq!(matrix4_tuple_multiply(&m1, &t).is_equal_to(&r), true);
     }
 
     #[test]
@@ -413,7 +405,7 @@ mod tests {
             [2.0, 4.0, 8.0, 16.0],
             [4.0, 8.0, 16.0, 32.0],
         ]);
-        assert_eq!(matrix4_multiply(&m1, &IDENTITY_MATRIX).equals(&m1), true);
+        assert_eq!(m1.multiply(&IDENTITY_MATRIX).is_equal_to(&m1), true);
     }
 
     #[test]
@@ -431,14 +423,14 @@ mod tests {
             [3.0, 0.0, 5.0, 5.0],
             [0.0, 8.0, 3.0, 8.0],
         ]);
-        assert_eq!(matrix4_transpose(&m1).equals(&m2), true);
+        assert_eq!(m1.transpose().is_equal_to(&m2), true);
     }
 
     #[test]
     fn test_matrix4_transpose_identity() {
         //Transposing the Identity Matrix
         assert_eq!(
-            matrix4_transpose(&IDENTITY_MATRIX).equals(&IDENTITY_MATRIX),
+            IDENTITY_MATRIX.transpose().is_equal_to(&IDENTITY_MATRIX),
             true
         );
     }
@@ -458,10 +450,7 @@ mod tests {
         //A submatrix of 3x3 matrix is a 2x2 matrix
         let m1 = Matrix3([[1.0, 5.0, 0.0], [-3.0, 2.0, 7.0], [0.0, 6.0, -3.0]]);
         let r = Matrix2([[-3.0, 2.0], [0.0, 6.0]]);
-        assert_eq!(
-            get_bool_equal_m2(&matrix3_submatrix2(&m1, &0, &2), &r),
-            true
-        );
+        assert_eq!(matrix3_submatrix2(&m1, &0, &2).is_equal_to(&r), true);
     }
 
     #[test]
@@ -474,10 +463,7 @@ mod tests {
             [-7.0, 1.0, -1.0, 1.0],
         ]);
         let r = Matrix3([[-6.0, 1.0, 6.0], [-8.0, 8.0, 6.0], [-7.0, -1.0, 1.0]]);
-        assert_eq!(
-            get_bool_equal_m3(&matrix4_submatrix3(&m1, &2, &1), &r),
-            true
-        );
+        assert_eq!(matrix4_submatrix3(&m1, &2, &1).is_equal_to(&r), true);
     }
 
     #[test]
@@ -581,7 +567,7 @@ mod tests {
             tuples::get_bool_numbers_are_equal(&matrix4_determinant(&m1), &-2120.0),
             true
         );
-        assert_eq!(get_bool_matrix4_is_invertible(&m1), true)
+        assert_eq!(m1.is_invertible(), true)
     }
 
     #[test]
@@ -597,7 +583,7 @@ mod tests {
             tuples::get_bool_numbers_are_equal(&matrix4_determinant(&m1), &0.0),
             true
         );
-        assert_eq!(get_bool_matrix4_is_invertible(&m1), false)
+        assert_eq!(m1.is_invertible(), false)
     }
 
     #[test]
@@ -636,7 +622,7 @@ mod tests {
             tuples::get_bool_numbers_are_equal(&m2.0[2][3], &(105.0 / 532.0)),
             true
         );
-        assert_eq!(m2.equals(&result), true);
+        assert_eq!(m2.is_equal_to(&result), true);
     }
 
     #[test]
@@ -655,7 +641,7 @@ mod tests {
             [0.35897, 0.35897, 0.4359, 0.92308],
             [-0.69231, -0.69231, -0.76923, -1.92308],
         ]);
-        assert_eq!(m2.equals(&result), true);
+        assert_eq!(m2.is_equal_to(&result), true);
     }
 
     #[test]
@@ -674,7 +660,7 @@ mod tests {
             [-0.02901, -0.1463, -0.10926, 0.12963],
             [0.17778, 0.06667, -0.26667, 0.33333],
         ]);
-        assert_eq!(m2.equals(&result), true);
+        assert_eq!(m2.is_equal_to(&result), true);
     }
 
     #[test]
@@ -692,10 +678,7 @@ mod tests {
             [7.0, 0.0, 5.0, 4.0],
             [6.0, -2.0, 0.0, 5.0],
         ]);
-        let m3 = matrix4_multiply(&m1, &m2);
-        assert_eq!(
-            matrix4_multiply(&m3, &matrix4_inverse(&m2)).equals(&m1),
-            true
-        );
+        let m3 = m1.multiply(&m2);
+        assert_eq!(m3.multiply(&matrix4_inverse(&m2)).is_equal_to(&m1), true);
     }
 }

@@ -57,8 +57,8 @@ mod tests {
         let origin = tuples::point(1.0, 2.0, 3.0);
         let direction = tuples::vector(4.0, 5.0, 6.0);
         let r = ray(*&origin, *&direction);
-        assert_eq!(r.origin.equals(&origin), true);
-        assert_eq!(r.direction.equals(&direction), true);
+        assert_eq!(r.origin.is_equal_to(&origin), true);
+        assert_eq!(r.direction.is_equal_to(&direction), true);
     }
 
     #[test]
@@ -67,10 +67,22 @@ mod tests {
         let o = tuples::point(2.0, 3.0, 4.0);
         let d = tuples::vector(1.0, 0.0, 0.0);
         let r = ray(o, d);
-        assert_eq!(r.position(0.0).equals(&tuples::point(2.0, 3.0, 4.0)), true);
-        assert_eq!(r.position(1.0).equals(&tuples::point(3.0, 3.0, 4.0)), true);
-        assert_eq!(r.position(-1.0).equals(&tuples::point(1.0, 3.0, 4.0)), true);
-        assert_eq!(r.position(2.5).equals(&tuples::point(4.5, 3.0, 4.0)), true);
+        assert_eq!(
+            r.position(0.0).is_equal_to(&tuples::point(2.0, 3.0, 4.0)),
+            true
+        );
+        assert_eq!(
+            r.position(1.0).is_equal_to(&tuples::point(3.0, 3.0, 4.0)),
+            true
+        );
+        assert_eq!(
+            r.position(-1.0).is_equal_to(&tuples::point(1.0, 3.0, 4.0)),
+            true
+        );
+        assert_eq!(
+            r.position(2.5).is_equal_to(&tuples::point(4.5, 3.0, 4.0)),
+            true
+        );
     }
 
     #[test]
@@ -81,8 +93,11 @@ mod tests {
         let r = ray(o, d);
         let m = transformations::matrix4_translation(3.0, 4.0, 5.0);
         let r2 = r.transform(m);
-        assert_eq!(r2.origin.equals(&tuples::point(4.0, 6.0, 8.0)), true);
-        assert_eq!(r2.direction.equals(&tuples::vector(0.0, 1.0, 0.0)), true);
+        assert_eq!(r2.origin.is_equal_to(&tuples::point(4.0, 6.0, 8.0)), true);
+        assert_eq!(
+            r2.direction.is_equal_to(&tuples::vector(0.0, 1.0, 0.0)),
+            true
+        );
     }
 
     #[test]
@@ -93,7 +108,10 @@ mod tests {
         let r = ray(o, d);
         let m = transformations::matrix4_scaling(2.0, 3.0, 4.0);
         let r2 = r.transform(m);
-        assert_eq!(r2.origin.equals(&tuples::point(2.0, 6.0, 12.0)), true);
-        assert_eq!(r2.direction.equals(&tuples::vector(0.0, 3.0, 0.0)), true);
+        assert_eq!(r2.origin.is_equal_to(&tuples::point(2.0, 6.0, 12.0)), true);
+        assert_eq!(
+            r2.direction.is_equal_to(&tuples::vector(0.0, 3.0, 0.0)),
+            true
+        );
     }
 }

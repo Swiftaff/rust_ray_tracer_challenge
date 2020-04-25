@@ -160,7 +160,7 @@ impl Tuple {
         tuple(x, y, z, self.w)
     }
 
-    pub fn equals(&self, t2: &Tuple) -> bool {
+    pub fn is_equal_to(&self, t2: &Tuple) -> bool {
         get_bool_numbers_are_equal(&self.x, &t2.x)
             && get_bool_numbers_are_equal(&self.y, &t2.y)
             && get_bool_numbers_are_equal(&self.z, &t2.z)
@@ -246,7 +246,7 @@ impl Color {
         color(self.red * s, self.green * s, self.blue * s)
     }
 
-    pub fn equals(&self, c2: &Color) -> bool {
+    pub fn is_equal_to(&self, c2: &Color) -> bool {
         get_bool_numbers_are_equal(&self.red, &c2.red)
             && get_bool_numbers_are_equal(&self.green, &c2.green)
             && get_bool_numbers_are_equal(&self.blue, &c2.blue)
@@ -386,8 +386,8 @@ mod tests {
         let p2 = point(4.0, -4.0, 3.0);
         let v1 = vector(4.0, -4.0, 3.0);
         let v2 = vector(4.0, -4.0, 3.0);
-        assert_eq!(p1.equals(&p2), true);
-        assert_eq!(v1.equals(&v2), true);
+        assert_eq!(p1.is_equal_to(&p2), true);
+        assert_eq!(v1.is_equal_to(&v2), true);
     }
 
     #[test]
@@ -397,8 +397,8 @@ mod tests {
         let p2 = point(3.0, -2.0, -1.0);
         let v1 = vector(4.0, -4.0, 3.0);
         let v2 = vector(3.0, -2.0, -1.0);
-        assert_eq!(p1.equals(&p2), false);
-        assert_eq!(v1.equals(&v2), false);
+        assert_eq!(p1.is_equal_to(&p2), false);
+        assert_eq!(v1.is_equal_to(&v2), false);
     }
 
     #[test]
@@ -408,8 +408,8 @@ mod tests {
         let p2 = point(4.000001, -4.000001, 3.000001);
         let v1 = vector(4.0, -4.0, 3.0);
         let v2 = vector(4.000001, -4.000001, 3.000001);
-        assert_eq!(p1.equals(&p2), true);
-        assert_eq!(v1.equals(&v2), true);
+        assert_eq!(p1.is_equal_to(&p2), true);
+        assert_eq!(v1.is_equal_to(&v2), true);
     }
 
     #[test]
@@ -419,109 +419,109 @@ mod tests {
         let p2 = point(4.0001, -4.0001, 3.0001);
         let v1 = vector(4.0, -4.0, 3.0);
         let v2 = vector(4.0001, -4.0001, 3.0001);
-        assert_eq!(p1.equals(&p2), false);
-        assert_eq!(v1.equals(&v2), false);
+        assert_eq!(p1.is_equal_to(&p2), false);
+        assert_eq!(v1.is_equal_to(&v2), false);
     }
 
     //tuple_add
     #[test]
-    fn test_tuple_add_point_vector_equals_point() {
+    fn test_tuple_add_point_vector_is_equal_to_point() {
         //adding two tuples: point + vector = point
         let p = point(3.0, -2.0, 5.0);
         let v = vector(-2.0, 3.0, 1.0);
         let p2 = point(1.0, 1.0, 6.0);
         let a = &p.add(&v);
-        assert_eq!(a.equals(&p2), true);
+        assert_eq!(a.is_equal_to(&p2), true);
     }
 
     #[test]
-    fn test_tuple_add_vector_vector_equals_vector() {
+    fn test_tuple_add_vector_vector_is_equal_to_vector() {
         //adding two tuples: vector + vector = vector
         let v1 = vector(3.0, -2.0, 5.0);
         let v2 = vector(-2.0, 3.0, 1.0);
         let v3 = vector(1.0, 1.0, 6.0);
         let a = &v1.add(&v2);
-        assert_eq!(a.equals(&v3), true);
+        assert_eq!(a.is_equal_to(&v3), true);
     }
 
     #[test]
-    fn test_tuple_add_vector_point_equals_point() {
+    fn test_tuple_add_vector_point_is_equal_to_point() {
         //adding two tuples: vector + point = vector
         let v1 = vector(3.0, -2.0, 5.0);
         let p = point(-2.0, 3.0, 1.0);
         let p2 = point(1.0, 1.0, 6.0);
         let a = &v1.add(&p);
-        assert_eq!(a.equals(&p2), true);
+        assert_eq!(a.is_equal_to(&p2), true);
     }
 
     #[test]
-    fn test_tuple_add_point_point_equals_error() {
+    fn test_tuple_add_point_point_is_equal_to_error() {
         //adding two tuples: point + point = first point (and console error)
         //TODO - create an error?
         let p1 = point(3.0, -2.0, 5.0);
         let p2 = point(-2.0, 3.0, 1.0);
         let a = &p1.add(&p2);
-        assert_eq!(a.equals(&p1), true);
+        assert_eq!(a.is_equal_to(&p1), true);
     }
 
     //tuple_subtract
     #[test]
-    fn test_tuple_subtract_point_point_equals_vector() {
+    fn test_tuple_subtract_point_point_is_equal_to_vector() {
         //subtract two tuples: point - point = vector
         let p1 = point(3.0, 2.0, 1.0);
         let p2 = point(5.0, 6.0, 7.0);
         let v = vector(-2.0, -4.0, -6.0);
         let a = p1.subtract(&p2);
-        assert_eq!(a.equals(&v), true);
+        assert_eq!(a.is_equal_to(&v), true);
     }
 
     #[test]
-    fn test_tuple_subtract_point_vector_equals_point() {
+    fn test_tuple_subtract_point_vector_is_equal_to_point() {
         //subtract two tuples: point - vector = point
         let p = point(3.0, 2.0, 1.0);
         let v = vector(5.0, 6.0, 7.0);
         let p2 = point(-2.0, -4.0, -6.0);
         let a = p.subtract(&v);
-        assert_eq!(a.equals(&p2), true);
+        assert_eq!(a.is_equal_to(&p2), true);
     }
 
     #[test]
-    fn test_tuple_subtract_vector_vector_equals_vector() {
+    fn test_tuple_subtract_vector_vector_is_equal_to_vector() {
         //subtract two tuples: vector - vector = vector
         let v1 = vector(3.0, 2.0, 1.0);
         let v2 = vector(5.0, 6.0, 7.0);
         let v3 = vector(-2.0, -4.0, -6.0);
         let a = v1.subtract(&v2);
-        assert_eq!(a.equals(&v3), true);
+        assert_eq!(a.is_equal_to(&v3), true);
     }
 
     #[test]
-    fn test_tuple_subtract_vector_point_equals_error() {
+    fn test_tuple_subtract_vector_point_is_equal_to_error() {
         //subtract two tuples: vector - point = false (and console error)
         //TODO - create an error?
         let v = vector(3.0, 2.0, 1.0);
         let p = point(5.0, 6.0, 7.0);
         let a = v.subtract(&p);
-        assert_eq!(a.equals(&v), true);
+        assert_eq!(a.is_equal_to(&v), true);
     }
 
     //vector_negate
     #[test]
-    fn test_negate_vector_equals_neg_vector() {
+    fn test_negate_vector_is_equal_to_neg_vector() {
         //negate a vector = -vector
         let v = vector(1.0, -2.0, 3.0);
         let v1 = v.negate();
         let v2 = vector(-1.0, 2.0, -3.0);
-        assert_eq!(v1.equals(&v2), true);
+        assert_eq!(v1.is_equal_to(&v2), true);
     }
 
     #[test]
-    fn test_negate_vector_equals_error() {
+    fn test_negate_vector_is_equal_to_error() {
         //negate a point = orig vector (and console error)
         //TODO - create an error?
         let p = point(1.0, -2.0, 3.0);
         let p1 = p.negate();
-        assert_eq!(p1.equals(&p), true);
+        assert_eq!(p1.is_equal_to(&p), true);
     }
 
     //tuple_multiply
@@ -531,7 +531,7 @@ mod tests {
         let v = vector(1.0, -2.0, 3.0);
         let v1 = v.multiply(&3.5);
         let v2 = vector(3.5, -7.0, 10.5);
-        assert_eq!(v1.equals(&v2), true);
+        assert_eq!(v1.is_equal_to(&v2), true);
     }
 
     #[test]
@@ -540,7 +540,7 @@ mod tests {
         let p = point(1.0, -2.0, 3.0);
         let p1 = p.multiply(&3.5);
         let p2 = point(3.5, -7.0, 10.5);
-        assert_eq!(p1.equals(&p2), true);
+        assert_eq!(p1.is_equal_to(&p2), true);
     }
 
     #[test]
@@ -549,7 +549,7 @@ mod tests {
         let v = vector(1.0, -2.0, 3.0);
         let v1 = v.multiply(&0.5);
         let v2 = vector(0.5, -1.0, 1.5);
-        assert_eq!(v1.equals(&v2), true);
+        assert_eq!(v1.is_equal_to(&v2), true);
     }
 
     #[test]
@@ -558,7 +558,7 @@ mod tests {
         let p = point(1.0, -2.0, 3.0);
         let p1 = p.multiply(&0.5);
         let p2 = point(0.5, -1.0, 1.5);
-        assert_eq!(p1.equals(&p2), true);
+        assert_eq!(p1.is_equal_to(&p2), true);
     }
 
     //tuple_divide
@@ -568,7 +568,7 @@ mod tests {
         let v = vector(1.0, -2.0, 3.0);
         let v1 = v.divide(&2.0);
         let v2 = vector(0.5, -1.0, 1.5);
-        assert_eq!(v1.equals(&v2), true);
+        assert_eq!(v1.is_equal_to(&v2), true);
     }
 
     #[test]
@@ -577,7 +577,7 @@ mod tests {
         let p = point(1.0, -2.0, 3.0);
         let p1 = p.divide(&2.0);
         let p2 = point(0.5, -1.0, 1.5);
-        assert_eq!(p1.equals(&p2), true);
+        assert_eq!(p1.is_equal_to(&p2), true);
     }
 
     //vector_magnitude
@@ -629,7 +629,7 @@ mod tests {
         //vector_normalize(4, 0, 0) gives vector(1, 0, 0)
         let v = vector(4.0, 0.0, 0.0);
         let a = vector(1.0, 0.0, 0.0);
-        assert_eq!(v.normalize().equals(&a), true);
+        assert_eq!(v.normalize().is_equal_to(&a), true);
     }
 
     #[test]
@@ -641,11 +641,11 @@ mod tests {
             2.0 / 14.0_f64.sqrt(),
             3.0 / 14.0_f64.sqrt(),
         );
-        assert_eq!(v.normalize().equals(&a), true);
+        assert_eq!(v.normalize().is_equal_to(&a), true);
     }
 
     #[test]
-    fn test_vector_normalize_vec_mag_equals1() {
+    fn test_vector_normalize_vec_mag_is_equal_to1() {
         //The magnitude of a normalized vector gives 1
         let v = vector(1.0, 2.0, 3.0);
         let n = v.normalize();
@@ -658,7 +658,7 @@ mod tests {
         //vector_normalize a point = false (and console error)
         let p = point(1.0, 2.0, 3.0);
         let n = p.normalize();
-        assert_eq!(n.equals(&p), true);
+        assert_eq!(n.is_equal_to(&p), true);
     }
 
     //vector_dot_product
@@ -706,7 +706,7 @@ mod tests {
         let v2 = vector(2.0, 3.0, 4.0);
         let v3 = v1.cross_product(&v2);
         let a = vector(-1.0, 2.0, -1.0);
-        assert_eq!(v3.equals(&a), true);
+        assert_eq!(v3.is_equal_to(&a), true);
     }
 
     #[test]
@@ -716,7 +716,7 @@ mod tests {
         let v1 = vector(2.0, 3.0, 4.0);
         let v3 = v2.cross_product(&v1);
         let a = vector(-1.0, 2.0, -1.0);
-        assert_eq!(v3.equals(&a), true);
+        assert_eq!(v3.is_equal_to(&a), true);
     }
 
     #[test]
@@ -725,7 +725,7 @@ mod tests {
         let p1 = point(1.0, 2.0, 3.0);
         let v2 = vector(2.0, 3.0, 4.0);
         let v3 = p1.cross_product(&v2);
-        assert_eq!(v3.equals(&p1), true);
+        assert_eq!(v3.is_equal_to(&p1), true);
     }
 
     #[test]
@@ -734,7 +734,7 @@ mod tests {
         let v1 = vector(1.0, 2.0, 3.0);
         let p2 = point(2.0, 3.0, 4.0);
         let v3 = v1.cross_product(&p2);
-        assert_eq!(v3.equals(&v1), true);
+        assert_eq!(v3.is_equal_to(&v1), true);
     }
 
     #[test]
@@ -743,7 +743,7 @@ mod tests {
         let p1 = point(1.0, 2.0, 3.0);
         let p2 = point(2.0, 3.0, 4.0);
         let v3 = p1.cross_product(&p2);
-        assert_eq!(v3.equals(&p1), true);
+        assert_eq!(v3.is_equal_to(&p1), true);
     }
 
     //colors
@@ -754,7 +754,7 @@ mod tests {
         let c2 = color(0.7, 0.1, 0.25);
         let c3 = c1.add(&c2);
         let a = color(1.6, 0.7, 1.0);
-        assert_eq!(c3.equals(&a), true);
+        assert_eq!(c3.is_equal_to(&a), true);
     }
 
     #[test]
@@ -764,7 +764,7 @@ mod tests {
         let c2 = color(0.7, 0.1, 0.25);
         let c3 = c1.subtract(&c2);
         let a = color(0.2, 0.5, 0.5);
-        assert_eq!(c3.equals(&a), true);
+        assert_eq!(c3.is_equal_to(&a), true);
     }
 
     #[test]
@@ -773,7 +773,7 @@ mod tests {
         let c1 = color(0.2, 0.3, 0.4);
         let c2 = c1.scalar_multiply(&2.0);
         let a = color(0.4, 0.6, 0.8);
-        assert_eq!(c2.equals(&a), true);
+        assert_eq!(c2.is_equal_to(&a), true);
     }
 
     #[test]
@@ -783,7 +783,7 @@ mod tests {
         let c2 = color(0.9, 1.0, 0.1);
         let c3 = c1.multiply(&c2);
         let a = color(0.9, 0.2, 0.04);
-        assert_eq!(c3.equals(&a), true);
+        assert_eq!(c3.is_equal_to(&a), true);
     }
 
     #[test]
@@ -793,7 +793,7 @@ mod tests {
         let n = vector(0.0, 1.0, 0.0);
         let r = v.reflect(&n);
         let a = vector(1.0, 1.0, 0.0);
-        assert_eq!(r.equals(&a), true);
+        assert_eq!(r.is_equal_to(&a), true);
     }
 
     #[test]
@@ -804,6 +804,6 @@ mod tests {
         let n = vector(s, s, 0.0);
         let r = v.reflect(&n);
         let a = vector(1.0, 0.0, 0.0);
-        assert_eq!(r.equals(&a), true);
+        assert_eq!(r.is_equal_to(&a), true);
     }
 }

@@ -73,8 +73,8 @@ mod tests {
         let intensity = tuples::COLOR_WHITE;
         let position = tuples::POINT_ORIGIN;
         let light = light_point(position, intensity);
-        assert_eq!(light.intensity.equals(&intensity), true);
-        assert_eq!(light.position.equals(&position), true);
+        assert_eq!(light.intensity.is_equal_to(&intensity), true);
+        assert_eq!(light.position.is_equal_to(&position), true);
     }
 
     #[test]
@@ -97,6 +97,6 @@ mod tests {
             &normalv,
             &in_shadow,
         );
-        assert_eq!(col.equals(&tuples::color(0.1, 0.1, 0.1)), true);
+        assert_eq!(col.is_equal_to(&tuples::color(0.1, 0.1, 0.1)), true);
     }
 }

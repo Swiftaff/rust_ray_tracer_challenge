@@ -138,7 +138,7 @@ mod tests {
             tuples::get_bool_numbers_are_equal(&(c.field_of_view as f64), &(PI / 2.0)),
             true
         );
-        assert_eq!(matrices::IDENTITY_MATRIX.equals(&c.transform), true);
+        assert_eq!(matrices::IDENTITY_MATRIX.is_equal_to(&c.transform), true);
     }
 
     #[test]
@@ -166,8 +166,11 @@ mod tests {
         //Constructing a ray through the center of the canvas
         let c = camera(201, 101, PI / 2.0);
         let r = ray_for_pixel(&c, 100, 50);
-        assert_eq!(r.origin.equals(&tuples::point(0.0, 0.0, 0.0)), true);
-        assert_eq!(r.direction.equals(&tuples::vector(0.0, 0.0, -1.0)), true);
+        assert_eq!(r.origin.is_equal_to(&tuples::point(0.0, 0.0, 0.0)), true);
+        assert_eq!(
+            r.direction.is_equal_to(&tuples::vector(0.0, 0.0, -1.0)),
+            true
+        );
     }
 
     #[test]
@@ -175,10 +178,10 @@ mod tests {
         //Constructing a ray through a corner of the canvas
         let c = camera(201, 101, PI / 2.0);
         let r = ray_for_pixel(&c, 0, 0);
-        assert_eq!(r.origin.equals(&tuples::point(0.0, 0.0, 0.0)), true);
+        assert_eq!(r.origin.is_equal_to(&tuples::point(0.0, 0.0, 0.0)), true);
         assert_eq!(
             r.direction
-                .equals(&tuples::vector(0.66519, 0.33259, -0.66851)),
+                .is_equal_to(&tuples::vector(0.66519, 0.33259, -0.66851)),
             true
         );
     }
@@ -189,11 +192,11 @@ mod tests {
         let mut c = camera(201, 101, PI / 2.0);
         let rot = transformations::matrix4_rotation_y_rad(PI / 4.0);
         let tran = transformations::matrix4_translation(0.0, -2.0, 5.0);
-        c.transform = matrices::matrix4_multiply(&rot, &tran);
+        c.transform = rot.multiply(&tran);
         let r = ray_for_pixel(&c, 100, 50);
-        assert_eq!(r.origin.equals(&tuples::point(0.0, 2.0, -5.0)), true);
+        assert_eq!(r.origin.is_equal_to(&tuples::point(0.0, 2.0, -5.0)), true);
         assert_eq!(
-            r.direction.equals(&tuples::vector(
+            r.direction.is_equal_to(&tuples::vector(
                 2.0_f64.sqrt() / 2.0,
                 0.0,
                 -2.0_f64.sqrt() / 2.0
@@ -214,6 +217,6 @@ mod tests {
         let image = render(&c, &w);
         let pa = canvas::pixel_get(&image, &5, &5);
         let col = tuples::color(0.38066, 0.47583, 0.2855);
-        assert_eq!(pa.equals(&col), true);
+        assert_eq!(pa.is_equal_to(&col), true);
     }
 }

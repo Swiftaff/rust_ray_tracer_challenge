@@ -216,7 +216,7 @@ mod tests {
         let s = sphere();
         let n = s.normal_at(&tuples::point(1.0, 0.0, 0.0));
         let r = tuples::vector(1.0, 0.0, 0.0);
-        assert_eq!(n.equals(&r), true);
+        assert_eq!(n.is_equal_to(&r), true);
     }
 
     #[test]
@@ -225,7 +225,7 @@ mod tests {
         let s = sphere();
         let n = s.normal_at(&tuples::point(0.0, 1.0, 0.0));
         let r = tuples::vector(0.0, 1.0, 0.0);
-        assert_eq!(n.equals(&r), true);
+        assert_eq!(n.is_equal_to(&r), true);
     }
 
     #[test]
@@ -234,7 +234,7 @@ mod tests {
         let s = sphere();
         let n = s.normal_at(&tuples::point(0.0, 0.0, 1.0));
         let r = tuples::vector(0.0, 0.0, 1.0);
-        assert_eq!(n.equals(&r), true);
+        assert_eq!(n.is_equal_to(&r), true);
     }
 
     #[test]
@@ -251,7 +251,7 @@ mod tests {
             3.0_f64.sqrt() / 3.0,
             3.0_f64.sqrt() / 3.0,
         );
-        assert_eq!(n.equals(&r), true);
+        assert_eq!(n.is_equal_to(&r), true);
     }
 
     #[test]
@@ -268,7 +268,7 @@ mod tests {
             3.0_f64.sqrt() / 3.0,
             3.0_f64.sqrt() / 3.0,
         );
-        assert_eq!(n.equals(&r.normalize()), true);
+        assert_eq!(n.is_equal_to(&r.normalize()), true);
     }
 
     #[test]
@@ -278,7 +278,7 @@ mod tests {
         s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
         let n = s.normal_at(&tuples::point(0.0, 1.70711, -0.70711));
         let r = tuples::vector(0.0, 0.70711, -0.70711);
-        assert_eq!(r.equals(&n), true);
+        assert_eq!(r.is_equal_to(&n), true);
     }
 
     #[test]
@@ -287,7 +287,7 @@ mod tests {
         let mut s = sphere();
         let m1 = transformations::matrix4_scaling(1.0, 0.5, 1.0);
         let m2 = transformations::matrix4_rotation_z_rad(PI / 5.0);
-        let m = matrices::matrix4_multiply(&m1, &m2);
+        let m = m1.multiply(&m2);
         s.transform = m;
         let n = s.normal_at(&tuples::point(
             0.0,
@@ -295,7 +295,7 @@ mod tests {
             -2.0_f64.sqrt() / 2.0,
         ));
         let r = tuples::vector(0.0, 0.97014, -0.24254);
-        assert_eq!(r.equals(&n), true);
+        assert_eq!(r.is_equal_to(&n), true);
     }
 
     #[test]
@@ -310,7 +310,7 @@ mod tests {
     fn test_a_helper_for_producing_a_sphere_with_a_glassy_material() {
         //A helper for producing a sphere with a glassy material
         let s = sphere_glass();
-        assert_eq!(s.transform.equals(&matrices::IDENTITY_MATRIX), true);
+        assert_eq!(s.transform.is_equal_to(&matrices::IDENTITY_MATRIX), true);
         assert_eq!(
             tuples::get_bool_numbers_are_equal(&s.material.transparency, &1.0),
             true

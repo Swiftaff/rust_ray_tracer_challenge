@@ -57,7 +57,7 @@ impl Shape {
             ShapeType::Sphere => spheres::local_normal_at(&local_point),
         };
         let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
-            &matrices::matrix4_transpose(&matrices::matrix4_inverse(&self.transform)),
+            &matrices::matrix4_inverse(&self.transform).transpose(),
             &local_normal,
         );
         world_normal.w = 0;
@@ -99,7 +99,7 @@ mod tests {
     fn test_shapes_default_transformation() {
         //A shape's default transformation
         let s = shape(ShapeType::ShapeTest);
-        assert_eq!(s.transform.equals(&matrices::IDENTITY_MATRIX), true);
+        assert_eq!(s.transform.is_equal_to(&matrices::IDENTITY_MATRIX), true);
     }
 
     #[test]
@@ -168,7 +168,7 @@ mod tests {
         let mut s = shape(ShapeType::ShapeTest);
         s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
         let n = s.normal_at(&tuples::point(0.0, 1.70711, -0.70711));
-        assert_eq!(n.equals(&tuples::vector(0.0, 0.70711, -0.70711)), true)
+        assert_eq!(n.is_equal_to(&tuples::vector(0.0, 0.70711, -0.70711)), true)
     }
 
     #[test]
@@ -181,6 +181,6 @@ mod tests {
         s.transform = m;
         let n = s.normal_at(&tuples::point(0.0, 2.0_f64.sqrt(), -2.0_f64.sqrt()));
         println!("v({},{},{},{})", n.x, n.y, n.z, n.w,);
-        assert_eq!(n.equals(&tuples::vector(0.0, 0.97014, -0.24254)), true)
+        assert_eq!(n.is_equal_to(&tuples::vector(0.0, 0.97014, -0.24254)), true)
     }
 }

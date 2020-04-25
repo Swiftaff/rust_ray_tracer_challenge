@@ -37,9 +37,9 @@ mod tests {
         let n2 = s.normal_at(&tuples::point(10.0, 0.0, -10.0));
         let n3 = s.normal_at(&tuples::point(-5.0, 0.0, 150.0));
         let result = tuples::vector(0.0, 1.0, 0.0);
-        assert_eq!(n1.equals(&result), true);
-        assert_eq!(n2.equals(&result), true);
-        assert_eq!(n3.equals(&result), true);
+        assert_eq!(n1.is_equal_to(&result), true);
+        assert_eq!(n2.is_equal_to(&result), true);
+        assert_eq!(n3.is_equal_to(&result), true);
     }
 
     #[test]

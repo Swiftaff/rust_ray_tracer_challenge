@@ -177,8 +177,14 @@ mod tests {
         let s = spheres::sphere();
         let i = intersection(3.5, s);
         assert_eq!(tuples::get_bool_numbers_are_equal(&i.t, &3.5), true);
-        assert_eq!(i.object.transform.equals(&matrices::IDENTITY_MATRIX), true);
-        assert_eq!(i.object.material.color.equals(&tuples::COLOR_WHITE), true);
+        assert_eq!(
+            i.object.transform.is_equal_to(&matrices::IDENTITY_MATRIX),
+            true
+        );
+        assert_eq!(
+            i.object.material.color.is_equal_to(&tuples::COLOR_WHITE),
+            true
+        );
     }
 
     #[test]
@@ -268,12 +274,16 @@ mod tests {
         let comps = prepare_computations(&i, &r, &None);
         assert_eq!(comps.t == i.t, true);
         assert_eq!(
-            comps.object.material.color.equals(&i.object.material.color),
+            comps
+                .object
+                .material
+                .color
+                .is_equal_to(&i.object.material.color),
             true
         );
-        assert_eq!(comps.point.equals(&testp), true);
-        assert_eq!(comps.eyev.equals(&testv.clone()), true);
-        assert_eq!(comps.normalv.equals(&testv), true);
+        assert_eq!(comps.point.is_equal_to(&testp), true);
+        assert_eq!(comps.eyev.is_equal_to(&testv.clone()), true);
+        assert_eq!(comps.normalv.is_equal_to(&testv), true);
     }
 
     #[test]
@@ -299,9 +309,9 @@ mod tests {
         let testp = tuples::point(0.0, 0.0, 1.0);
         let testv = tuples::vector(0.0, 0.0, -1.0);
         let comps = prepare_computations(&i, &r, &None);
-        assert_eq!(comps.point.equals(&testp), true);
-        assert_eq!(comps.eyev.equals(&testv.clone()), true);
-        assert_eq!(comps.normalv.equals(&testv), true);
+        assert_eq!(comps.point.is_equal_to(&testp), true);
+        assert_eq!(comps.eyev.is_equal_to(&testv.clone()), true);
+        assert_eq!(comps.normalv.is_equal_to(&testv), true);
         assert_eq!(comps.inside, true);
     }
 
@@ -330,7 +340,7 @@ mod tests {
         let i = intersections::intersection(2.0_f64.sqrt(), s);
         let comps = prepare_computations(&i, &r, &None);
         assert_eq!(
-            comps.reflectv.equals(&tuples::vector(
+            comps.reflectv.is_equal_to(&tuples::vector(
                 0.0,
                 2.0_f64.sqrt() / 2.0,
                 2.0_f64.sqrt() / 2.0

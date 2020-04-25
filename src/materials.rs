@@ -66,7 +66,7 @@ mod tests {
     fn test_default_material() {
         //The default material
         let a = MATERIAL_DEFAULT;
-        assert_eq!(a.color.equals(&tuples::color(1.0, 1.0, 1.0)), true);
+        assert_eq!(a.color.is_equal_to(&tuples::color(1.0, 1.0, 1.0)), true);
         assert_eq!(a.ambient, 0.1);
         assert_eq!(a.diffuse, 0.9);
         assert_eq!(a.specular, 0.9);
@@ -89,7 +89,7 @@ mod tests {
             &normalv,
             &false,
         );
-        assert_eq!(result.equals(&tuples::color(1.9, 1.9, 1.9)), true);
+        assert_eq!(result.is_equal_to(&tuples::color(1.9, 1.9, 1.9)), true);
     }
 
     #[test]
@@ -108,7 +108,7 @@ mod tests {
             &normalv,
             &false,
         );
-        assert_eq!(result.equals(&tuples::color(1.0, 1.0, 1.0)), true);
+        assert_eq!(result.is_equal_to(&tuples::color(1.0, 1.0, 1.0)), true);
     }
 
     #[test]
@@ -127,7 +127,10 @@ mod tests {
             &normalv,
             &false,
         );
-        assert_eq!(result.equals(&tuples::color(0.7364, 0.7364, 0.7364)), true);
+        assert_eq!(
+            result.is_equal_to(&tuples::color(0.7364, 0.7364, 0.7364)),
+            true
+        );
     }
 
     #[test]
@@ -146,7 +149,10 @@ mod tests {
             &normalv,
             &false,
         );
-        assert_eq!(result.equals(&tuples::color(1.6364, 1.6364, 1.6364)), true);
+        assert_eq!(
+            result.is_equal_to(&tuples::color(1.6364, 1.6364, 1.6364)),
+            true
+        );
     }
 
     #[test]
@@ -166,7 +172,7 @@ mod tests {
             &false,
         );
         println!("result {},{},{}", result.red, result.green, result.blue);
-        assert_eq!(result.equals(&tuples::color(0.1, 0.1, 0.1)), true);
+        assert_eq!(result.is_equal_to(&tuples::color(0.1, 0.1, 0.1)), true);
     }
 
     #[test]
@@ -199,8 +205,8 @@ mod tests {
             &normalv,
             &false,
         );
-        assert_eq!(c1.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(c2.equals(&tuples::COLOR_BLACK), true);
+        assert_eq!(c1.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(c2.is_equal_to(&tuples::COLOR_BLACK), true);
     }
 
     #[test]

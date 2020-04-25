@@ -148,8 +148,8 @@ mod tests {
     #[test]
     fn test_creating_a_stripe_pattern() {
         //Creating a stripe pattern
-        assert_eq!(PATTERN_DEFAULT.a.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(PATTERN_DEFAULT.b.equals(&tuples::COLOR_BLACK), true);
+        assert_eq!(PATTERN_DEFAULT.a.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(PATTERN_DEFAULT.b.is_equal_to(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -158,9 +158,9 @@ mod tests {
         let s1 = PATTERN_DEFAULT.stripe_at(&tuples::point(0.0, 0.0, 0.0));
         let s2 = PATTERN_DEFAULT.stripe_at(&tuples::point(0.0, 1.0, 0.0));
         let s3 = PATTERN_DEFAULT.stripe_at(&tuples::point(0.0, 2.0, 0.0));
-        assert_eq!(s1.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(s2.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(s3.equals(&tuples::COLOR_WHITE), true);
+        assert_eq!(s1.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(s2.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(s3.is_equal_to(&tuples::COLOR_WHITE), true);
     }
 
     #[test]
@@ -169,9 +169,9 @@ mod tests {
         let s1 = PATTERN_DEFAULT.stripe_at(&tuples::point(0.0, 0.0, 0.0));
         let s2 = PATTERN_DEFAULT.stripe_at(&tuples::point(0.0, 0.0, 1.0));
         let s3 = PATTERN_DEFAULT.stripe_at(&tuples::point(0.0, 0.0, 2.0));
-        assert_eq!(s1.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(s2.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(s3.equals(&tuples::COLOR_WHITE), true);
+        assert_eq!(s1.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(s2.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(s3.is_equal_to(&tuples::COLOR_WHITE), true);
     }
 
     #[test]
@@ -191,7 +191,7 @@ mod tests {
             let x = x_values[i];
             let stripe_color = PATTERN_DEFAULT.stripe_at(&tuples::point(x, 0.0, 0.0));
             println!("x:{} mod {} red:{} ", x, x % 2.0, stripe_color.red);
-            assert_eq!(stripe_color.equals(&tuples::COLOR_WHITE), x_bools[i]);
+            assert_eq!(stripe_color.is_equal_to(&tuples::COLOR_WHITE), x_bools[i]);
         }
     }
 
@@ -201,7 +201,7 @@ mod tests {
         let mut s = spheres::sphere();
         s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
         let stripe_color = PATTERN_DEFAULT.pattern_at_shape(&s, &tuples::point(1.5, 0.0, 0.0));
-        assert_eq!(stripe_color.equals(&tuples::COLOR_WHITE), true);
+        assert_eq!(stripe_color.is_equal_to(&tuples::COLOR_WHITE), true);
     }
 
     #[test]
@@ -211,7 +211,7 @@ mod tests {
         let mut p = PATTERN_DEFAULT;
         p.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
         let stripe_color = p.pattern_at_shape(&s, &tuples::point(1.5, 0.0, 0.0));
-        assert_eq!(stripe_color.equals(&tuples::COLOR_WHITE), true);
+        assert_eq!(stripe_color.is_equal_to(&tuples::COLOR_WHITE), true);
     }
 
     #[test]
@@ -222,14 +222,14 @@ mod tests {
         let mut p = PATTERN_DEFAULT;
         p.transform = transformations::matrix4_translation(0.5, 0.0, 0.0);
         let stripe_color = p.pattern_at_shape(&s, &tuples::point(2.5, 0.0, 0.0));
-        assert_eq!(stripe_color.equals(&tuples::COLOR_WHITE), true);
+        assert_eq!(stripe_color.is_equal_to(&tuples::COLOR_WHITE), true);
     }
 
     #[test]
     fn test_the_default_pattern_transformation() {
         //The default Pattern trasnformation
         let p = test_pattern();
-        assert_eq!(p.transform.equals(&matrices::IDENTITY_MATRIX), true);
+        assert_eq!(p.transform.is_equal_to(&matrices::IDENTITY_MATRIX), true);
     }
 
     #[test]
@@ -238,7 +238,7 @@ mod tests {
         let mut p = test_pattern();
         let t = transformations::matrix4_translation(1.0, 2.0, 3.0);
         p.transform = t;
-        assert_eq!(p.transform.equals(&t), true);
+        assert_eq!(p.transform.is_equal_to(&t), true);
     }
 
     #[test]
@@ -248,7 +248,7 @@ mod tests {
         s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
         let p = test_pattern();
         let c = p.pattern_at_shape(&s, &tuples::point(2.0, 3.0, 4.0));
-        assert_eq!(c.equals(&tuples::color(1.0, 1.5, 2.0)), true);
+        assert_eq!(c.is_equal_to(&tuples::color(1.0, 1.5, 2.0)), true);
     }
 
     #[test]
@@ -258,7 +258,7 @@ mod tests {
         let mut p = test_pattern();
         p.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
         let c = p.pattern_at_shape(&s, &tuples::point(2.0, 3.0, 4.0));
-        assert_eq!(c.equals(&tuples::color(1.0, 1.5, 2.0)), true);
+        assert_eq!(c.is_equal_to(&tuples::color(1.0, 1.5, 2.0)), true);
     }
 
     #[test]
@@ -269,7 +269,7 @@ mod tests {
         let mut p = test_pattern();
         p.transform = transformations::matrix4_translation(0.5, 1.0, 1.5);
         let c = p.pattern_at_shape(&s, &tuples::point(2.5, 3.0, 3.5));
-        assert_eq!(c.equals(&tuples::color(0.75, 0.5, 0.25)), true);
+        assert_eq!(c.is_equal_to(&tuples::color(0.75, 0.5, 0.25)), true);
     }
 
     #[test]
@@ -280,10 +280,10 @@ mod tests {
         let c2 = p.gradient_pattern_at(&tuples::point(0.25, 0.0, 0.0));
         let c3 = p.gradient_pattern_at(&tuples::point(0.5, 0.0, 0.0));
         let c4 = p.gradient_pattern_at(&tuples::point(0.75, 0.0, 0.0));
-        assert_eq!(c1.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(c2.equals(&tuples::color(0.75, 0.75, 0.75)), true);
-        assert_eq!(c3.equals(&tuples::color(0.5, 0.5, 0.5)), true);
-        assert_eq!(c4.equals(&tuples::color(0.25, 0.25, 0.25)), true);
+        assert_eq!(c1.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(c2.is_equal_to(&tuples::color(0.75, 0.75, 0.75)), true);
+        assert_eq!(c3.is_equal_to(&tuples::color(0.5, 0.5, 0.5)), true);
+        assert_eq!(c4.is_equal_to(&tuples::color(0.25, 0.25, 0.25)), true);
     }
 
     #[test]
@@ -294,10 +294,10 @@ mod tests {
         let c2 = p.ring_pattern_at(&tuples::point(1.0, 0.0, 0.0));
         let c3 = p.ring_pattern_at(&tuples::point(0.0, 0.0, 1.0));
         let c4 = p.ring_pattern_at(&tuples::point(0.708, 0.0, 0.708));
-        assert_eq!(c1.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(c2.equals(&tuples::COLOR_BLACK), true);
-        assert_eq!(c3.equals(&tuples::COLOR_BLACK), true);
-        assert_eq!(c4.equals(&tuples::COLOR_BLACK), true);
+        assert_eq!(c1.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(c2.is_equal_to(&tuples::COLOR_BLACK), true);
+        assert_eq!(c3.is_equal_to(&tuples::COLOR_BLACK), true);
+        assert_eq!(c4.is_equal_to(&tuples::COLOR_BLACK), true);
     }
 
     #[test]
@@ -307,8 +307,8 @@ mod tests {
         let c1 = p.checkers_pattern_at(&tuples::point(0.0, 0.0, 0.0));
         let c2 = p.checkers_pattern_at(&tuples::point(0.99, 0.0, 0.0));
         let c3 = p.checkers_pattern_at(&tuples::point(1.01, 0.0, 0.0));
-        assert_eq!(c1.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(c2.equals(&tuples::COLOR_WHITE), true);
-        assert_eq!(c3.equals(&tuples::COLOR_BLACK), true);
+        assert_eq!(c1.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(c2.is_equal_to(&tuples::COLOR_WHITE), true);
+        assert_eq!(c3.is_equal_to(&tuples::COLOR_BLACK), true);
     }
 }
