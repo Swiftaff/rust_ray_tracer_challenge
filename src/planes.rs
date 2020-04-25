@@ -33,9 +33,9 @@ mod tests {
     fn test_normal_of_plane_is_constant_everywhere() {
         //The normal of a plane is constant everywhere
         let s = plane();
-        let n1 = shapes::normal_at(&s, &tuples::point(0.0, 0.0, 0.0));
-        let n2 = shapes::normal_at(&s, &tuples::point(10.0, 0.0, -10.0));
-        let n3 = shapes::normal_at(&s, &tuples::point(-5.0, 0.0, 150.0));
+        let n1 = s.normal_at(&tuples::point(0.0, 0.0, 0.0));
+        let n2 = s.normal_at(&tuples::point(10.0, 0.0, -10.0));
+        let n3 = s.normal_at(&tuples::point(-5.0, 0.0, 150.0));
         let result = tuples::vector(0.0, 1.0, 0.0);
         assert_eq!(n1.equals(&result), true);
         assert_eq!(n2.equals(&result), true);
@@ -47,7 +47,7 @@ mod tests {
         //Intersect with a ray parallel to the plane
         let s = plane();
         let r = rays::ray(tuples::point(0.0, 10.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
-        let x = shapes::intersect(&s, &r);
+        let x = s.intersect(&r);
         match x {
             Err(e) => assert_eq!(e, "No intersections"),
             Ok(_xs) => {
@@ -62,7 +62,7 @@ mod tests {
         //Intersect with a coplanar ray
         let s = plane();
         let r = rays::ray(tuples::point(0.0, 0.0, 0.0), tuples::vector(0.0, 0.0, 1.0));
-        let x = shapes::intersect(&s, &r);
+        let x = s.intersect(&r);
         match x {
             Err(e) => assert_eq!(e, "No intersections"),
             Ok(_xs) => {
@@ -77,7 +77,7 @@ mod tests {
         //A ray intersects a plane from above
         let r = rays::ray(tuples::point(0.0, 1.0, 0.0), tuples::vector(0.0, -1.0, 0.0));
         let s = plane();
-        let x = shapes::intersect(&s, &r);
+        let x = s.intersect(&r);
         match x {
             Err(_) => {
                 println!("Not possible in this test");
@@ -95,7 +95,7 @@ mod tests {
         //A ray intersects a plane from below
         let r = rays::ray(tuples::point(0.0, -1.0, 0.0), tuples::vector(0.0, 1.0, 0.0));
         let s = plane();
-        let x = shapes::intersect(&s, &r);
+        let x = s.intersect(&r);
         match x {
             Err(_) => {
                 println!("Not possible in this test");

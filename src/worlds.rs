@@ -57,7 +57,7 @@ impl World {
         let mut xs_list_unsorted: Vec<intersections::Intersection> = vec![];
         for index in 0..self.objects.len() {
             let this_sphere = self.objects[index].clone();
-            let xs_for_this_sphere = shapes::intersect(&this_sphere, r);
+            let xs_for_this_sphere = this_sphere.intersect(r);
             match xs_for_this_sphere {
                 Err(_) => (), //println!("XS Error: {}", e),
                 Ok(mut xs) => {

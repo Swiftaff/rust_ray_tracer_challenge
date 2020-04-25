@@ -34,18 +34,39 @@ pub fn shape(shape_type: ShapeType) -> Shape {
     }
 }
 
-pub fn intersect(s: &Shape, r: &rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
-    let local_r: rays::Ray = r.transform(matrices::matrix4_inverse(&s.transform));
-    match s.shape_type {
-        ShapeType::Cube => cubes::local_intersect(&s, &local_r),
-        ShapeType::Plane => planes::local_intersect(&s, &local_r),
-        ShapeType::ShapeTest => test_local_intersect(&local_r),
-        ShapeType::Sphere => spheres::local_intersect(&s, &local_r),
+impl Shape {
+    pub fn intersect(&self, r: &rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
+        let local_r: rays::Ray = r.transform(matrices::matrix4_inverse(&self.transform));
+        match self.shape_type {
+            ShapeType::Cube => cubes::local_intersect(&self, &local_r),
+            ShapeType::Plane => planes::local_intersect(&self, &local_r),
+            ShapeType::ShapeTest => test_local_intersect(&local_r),
+            ShapeType::Sphere => spheres::local_intersect(&self, &local_r),
+        }
+    }
+
+    pub fn normal_at(&self, world_point: &tuples::Point) -> tuples::Vector {
+        let local_point: tuples::Point = matrices::matrix4_tuple_multiply(
+            &matrices::matrix4_inverse(&self.transform),
+            &world_point,
+        );
+        let local_normal = match self.shape_type {
+            ShapeType::Cube => cubes::local_normal_at(&local_point),
+            ShapeType::Plane => planes::local_normal_at(),
+            ShapeType::ShapeTest => test_local_normal_at(&local_point),
+            ShapeType::Sphere => spheres::local_normal_at(&local_point),
+        };
+        let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
+            &matrices::matrix4_transpose(&matrices::matrix4_inverse(&self.transform)),
+            &local_normal,
+        );
+        world_normal.w = 0;
+        world_normal.normalize()
     }
 }
 
 fn test_local_intersect(local_r: &rays::Ray) -> Result<Vec<intersections::Intersection>, String> {
-    //only used by tests:
+    //only used by tests - via intersect - so can't move to tests area
     //all this function needs to do is return the ray for testing
     //but the calling function outputs a vec[xs] or error string, not a ray
     //so we return a string with the ray values for the assert to compare
@@ -63,24 +84,8 @@ fn test_local_intersect(local_r: &rays::Ray) -> Result<Vec<intersections::Inters
     Err(x)
 }
 
-pub fn normal_at(s: &Shape, world_point: &tuples::Point) -> tuples::Vector {
-    let local_point: tuples::Point =
-        matrices::matrix4_tuple_multiply(&matrices::matrix4_inverse(&s.transform), &world_point);
-    let local_normal = match s.shape_type {
-        ShapeType::Cube => cubes::local_normal_at(&local_point),
-        ShapeType::Plane => planes::local_normal_at(),
-        ShapeType::ShapeTest => test_local_normal_at(&local_point),
-        ShapeType::Sphere => spheres::local_normal_at(&local_point),
-    };
-    let mut world_normal: tuples::Vector = matrices::matrix4_tuple_multiply(
-        &matrices::matrix4_transpose(&matrices::matrix4_inverse(&s.transform)),
-        &local_normal,
-    );
-    world_normal.w = 0;
-    world_normal.normalize()
-}
-
 fn test_local_normal_at(local_point: &tuples::Point) -> tuples::Vector {
+    //only used by tests - via normal_at - so can't move to tests area
     local_point.subtract(&tuples::POINT_ORIGIN)
 }
 
@@ -134,7 +139,7 @@ mod tests {
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let mut s = shape(ShapeType::ShapeTest);
         s.transform = transformations::matrix4_scaling(2.0, 2.0, 2.0);
-        let expected_error = intersect(&s, &r);
+        let expected_error = s.intersect(&r);
         match expected_error {
             Ok(_) => {
                 println!("Not possible in this test");
@@ -150,7 +155,7 @@ mod tests {
         let r = rays::ray(tuples::point(0.0, 0.0, -5.0), tuples::vector(0.0, 0.0, 1.0));
         let mut s = shape(ShapeType::ShapeTest);
         s.transform = transformations::matrix4_translation(5.0, 0.0, 0.0);
-        let expected_error = intersect(&s, &r);
+        let expected_error = s.intersect(&r);
         match expected_error {
             Ok(_) => {
                 println!("Not possible in this test");
@@ -165,7 +170,7 @@ mod tests {
         //Computing the normal on a translated shape
         let mut s = shape(ShapeType::ShapeTest);
         s.transform = transformations::matrix4_translation(0.0, 1.0, 0.0);
-        let n = normal_at(&s, &tuples::point(0.0, 1.70711, -0.70711));
+        let n = s.normal_at(&tuples::point(0.0, 1.70711, -0.70711));
         assert_eq!(n.equals(&tuples::vector(0.0, 0.70711, -0.70711)), true)
     }
 
@@ -177,7 +182,7 @@ mod tests {
         let rot_z = transformations::matrix4_rotation_z_rad(PI / 5.0);
         let m = transformations::matrix4_transform_chain(&([rot_z, scaling].to_vec()));
         s.transform = m;
-        let n = normal_at(&s, &tuples::point(0.0, 2.0_f64.sqrt(), -2.0_f64.sqrt()));
+        let n = s.normal_at(&tuples::point(0.0, 2.0_f64.sqrt(), -2.0_f64.sqrt()));
         println!("v({},{},{},{})", n.x, n.y, n.z, n.w,);
         assert_eq!(n.equals(&tuples::vector(0.0, 0.97014, -0.24254)), true)
     }

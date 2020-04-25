@@ -82,7 +82,7 @@ pub fn prepare_computations(
     comps.object = i.clone().object;
     comps.point = r.position(comps.t);
     comps.eyev = r.direction.multiply(&-1.0);
-    comps.normalv = shapes::normal_at(&comps.object, &comps.point);
+    comps.normalv = comps.object.normal_at(&comps.point);
     comps.reflectv = comps.eyev.multiply(&-1.0).reflect(&comps.normalv);
     comps.over_point = comps.point.add(&comps.normalv.multiply(&tuples::EPSILON));
     comps.under_point = comps

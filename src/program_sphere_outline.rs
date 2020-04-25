@@ -6,7 +6,6 @@ use std::time::Instant;
 use crate::canvas;
 use crate::matrices;
 use crate::rays;
-use crate::shapes;
 use crate::spheres;
 use crate::transformations;
 use crate::tuples;
@@ -36,7 +35,7 @@ pub fn sphere_outline_main(w: u32, h: u32) {
             let world_x = half - pixel_size * x as f64;
             let position = tuples::point(world_x, world_y, wall_z);
             let r = rays::ray(ray_origin, position.subtract(&ray_origin).normalize());
-            let xs_result = shapes::intersect(&shape, &r);
+            let xs_result = shape.intersect(&r);
             match xs_result {
                 Err(_) => {} //println!("Error: {}", e),
                 Ok(_xs) => {
